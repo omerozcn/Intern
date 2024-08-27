@@ -1,0 +1,175 @@
+{
+  "customer_request_form": "Customer Request Form",
+  "home": "Home",
+  "create_request": "Create Request",
+  "my_requests": "My Requests",
+  "requests": "Requests",
+  "products": "Services",
+  "communication": "communication",
+  "feedback": "FeedBacks",
+  "create_account": "Create Account",
+  "profile": "Profile",
+  "sign_in": "Sign In",
+ 
+  "sign_out": "Sign Out",
+ 
+  "firmName": "Company Name",
+
+  "tickets": "Tickets",
+  "pending": "Pending",
+  "in_progress": "In Progress",
+  "completed": "Completed",
+  "ticket.new_product_requests": "New Product Requests",
+  "ticket.existing_product_requests":"New Product Requests",
+  
+  "all": "All",
+  "product": "Product",
+  "firmName": "Company",
+  "ticket": "Ticket",
+  "response": "Response",
+  "no_response": "No response yet",
+  "date": "Date",
+  "provide_response": "Provide Response to Ticket",
+  "close": "Close",
+  "complete_process": "Complete Process",
+  "ticket_completed": "Ticket completed.",
+  "ticket_updated": "Ticket updated.",
+
+  "add_firm": "Add Company",
+  "firms": "Companies",
+  "new_firmName": "New Company Name",
+  "update": "Update",
+  "cancel": "Cancel",
+  "employee_name": "Employee Name",
+  "firm_exists": "A company with this name already exists!",
+  "firm_added": "Company successfully added!",
+  "firm_deleted": "Company successfully deleted!",
+  "firm_updated": "Company successfully updated!",
+  "employee_removed": "Employee successfully removed!",
+
+  "total_requests": "Total Requests",
+  "pending_requests": "Pending Requests",
+  "in_progress_requests": "In Progress Requests",
+  "completed_requests": "Completed Requests",
+  "view_requests": "View Requests",
+  "User_dashboard_message": "As a User, you can create new requests and view your existing requests.",
+  "your_total_requests": "Your Total Requests",
+  "view_my_requests": "View My Requests",
+  "please_sign_in": "Please sign in.",
+  "request_distribution": "Request Distribution",
+  "submit_feedback": "FeedBack",
+
+  "service_name": "Service Name",
+  "add_service": "Add Service",
+
+  "add_firm": "Add Firm",
+  "employee_name": "employee Name",
+  "select_firm": "Select a firm",
+
+  "save": "Save",
+  "service_deleted": "Service deleted.",
+  "service_added": "Service added.",
+  "firm_added": "Firm added.",
+  "firm_removed": "Firm removed.",
+  "service_updated": "Service updated.",
+
+  "createAccount": "Create Account",
+  "userName": "User Name",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "email": "E-Mail",
+  "password": "Password",
+  "selectFirm": "Select Company",
+  "User": "User",
+  "AdminList": "Registered Admins",
+  "UserList": "Registered Users",
+  "delete": "Delete",
+  "edit": "Edit",
+  "filterFirms": "Companies",
+  "allUsers": "All Users",
+
+  "header": "MY REQUESTS",
+  "status": {
+    "status_!": "Pending",
+    "status_2": "In Process",
+    "status_3": "Completed"
+  },
+  "no_answer": "No answer yet",
+  "modal_title": "Request Response",
+  "toast_message": "Request successfully deleted!",
+
+  "login": {
+    "title": "Please Sign In",
+    "email": "E-Mail",
+    "password": "Password",
+    "forgot_password": "Forgot Password",
+    "sign_in": "Sign In",
+    "login.email":"Login E-mail",
+    "forgot_password_modal_title": "Forgot Password",
+    "forgot_password_modal_body": "Please enter your email address to reset your password.",
+    "cancel": "Cancel",
+    "reset_password": "Reset Password",
+    "error": {
+      "invalid_email": "Invalid email",
+      "User_not_found": "No User found with this email",
+      "wrong_password": "Incorrect password",
+      "generic": "Invalid email or password"
+    },
+    "password_reset_email_sent": "Password reset email sent!"
+  },
+
+  "ticket": {
+    "select_product": "Select a product",
+    "enter_request": "Enter your request",
+    "your_request": "Your Request",
+"New Product Request":"New Product Request",
+    "add_ticket": "Add Ticket",
+    "current_tickets": "Current Tickets",
+    "product": "Product: ",
+    "ticket": "Ticket: ",
+    "response": "Response:",
+    "date": "Date:",
+    "no_response_yet": "No response yet",
+    "edit_ticket": "Edit Ticket",
+    "update": "Update",
+    "edit_request": "Enter your request",
+    "error": {
+      "min_length": "Request must be at least 30 characters long"
+    }
+  },
+  "modal": {
+    "close": "Close"
+  },
+  "status": {
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed"
+  },
+
+  "profile": {
+    "name": "Name",
+    "lastName": "Lastname",
+    "email": "E-Mail",
+    "firmName": "Company Name",
+    "loading": "Loading...",
+    "changePassword": "Change Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordUpdated": "Password updated successfully.",
+    "errorUpdatingPassword": "An error occurred while updating the password: {{error}}",
+    "sessionError": "User session is not open."
+  },
+
+  "forgotPassword": {
+    "title": "Forgot My Password",
+    "email": "E-Mail",
+    "newPassword": "New Password",
+    "updatePassword": "Update Password",
+    "passwordUpdated": "Password updated successfully.",
+    "passwordMismatch": "Passwords do not match."
+  },
+
+  "feedbacks": "Feed Back"
+}

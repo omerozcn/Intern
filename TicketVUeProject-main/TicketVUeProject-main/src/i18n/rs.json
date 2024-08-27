@@ -1,0 +1,13 @@
+{
+  "customer_request_form": "Форма заявки клиента",
+  "home": "Главная",
+  "create_request": "Создать заявку",
+  "my_requests": "Мои заявки",
+  "requests": "Заявки",
+  "products": "Услуги",
+  "create_account": "Создать аккаунт",
+  "sign_in": "Войти",
+  "sign_out": "Выйти",
+  "profile": "Профил",
+  "firmName": "Имя компании"
+}

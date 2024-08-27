@@ -1,0 +1,165 @@
+{
+  "customer_request_form": "Müşteri Talep Formu",
+  "home": "Ana Sayfa",
+  "create_request": "Talep Oluştur",
+  "my_requests": "Taleplerim",
+  "requests": "Talepler",
+  "products": "Hizmetler",
+  "feedback": "Geri Bildirimler",
+  "communication": "İletişim",
+  "create_account": "Kayıt Oluştur",
+  "profile": "Profil",
+  "sign_in": "Giriş",
+  "sign_out": "Çıkış",
+
+
+  "firmName": "Firmalar",
+
+  "tickets": "Talepler",
+  "status_1": "Beklemede",
+  "status_2": "İşlemde",
+  "status_3": "Tamamlandı",
+  "ticket.new_product_requests": "Yeni ürün Talebi",
+  "ticket.existing_product_requests": "Yeni Ürün Talepleri",
+
+  "all": "Hepsi",
+  "product": "Ürün",
+  "firmName": "Şirket",
+  "ticket": "Talep",
+  "response": "Cevap",
+  "no_response": "Henüz cevap yok",
+  "date": "Tarih",
+  "provide_response": "Talebe Cevap Verin",
+  "close": "Kapat",
+  "complete_process": "İşlemi Tamamla",
+  "ticket_completed": "Talep tamamlandı.",
+  "ticket_updated": "Talep güncellendi.",
+
+  "total_requests": "Toplam Talepler",
+  "pending_requests": "Beklemede Talepler",
+  "in_progress_requests": "İşlemde Talepler",
+  "completed_requests": "Tamamlandı Talepler",
+  "view_requests": "Talepleri Görüntüle",
+  "User_dashboard_message": "Kullanıcı olarak yeni talepler oluşturabilir ve mevcut taleplerinizi görüntüleyebilirsiniz.",
+  "your_total_requests": "Toplam Talepleriniz",
+  "view_my_requests": "Taleplerimi Görüntüle",
+  "please_sign_in": "Lütfen giriş yapınız.",
+  "request_distribution": "Taleplerin Dağılımı",
+  "submit_feedback": "Geri Bildirimler",
+
+  "service_name": "Hizmet Adı",
+  "add_service": "Hizmet Ekle",
+  "add_firm": "Firma Ekle",
+  "employee_name": "Personel Adı",
+  "add_firm": "Firma Ekle",
+  "select_firm": "Bir firma seçin",
+
+  "save": "Kaydet",
+  "service_deleted": "Hizmet silindi.",
+  "service_added": "Hizmet eklendi.",
+  "firm_added": "Firma eklendi.",
+  "firm_removed": "Firma kaldırıldı.",
+  "service_updated": "Hizmet güncellendi.",
+
+  "createAccount": "Hesap Oluştur",
+  "userName": "Kullanıcı Adı",
+  "firstName": "İsim",
+  "lastName": "Soyisim",
+  "email": "E-Posta",
+  "password": "Şifre",
+  "User": "Kullanıcı",
+  "selectFirm": "Şirket Seç",
+  "AdminList": "Kayıtlı Yöneticiler",
+  "UserList": "Kayıtlı Kullanıcılar",
+  "update": "Güncelle",
+  "delete": "Sil",
+  "edit": "Düzenle",
+  "filterFirms": "Şirketler",
+  "allUsers": "Tüm Kullanıcılar",
+
+  "header": "TALEPLERİM",
+  "status": {
+    "status_!": "Beklemede",
+    "status_'": "İşlemde",
+    "status_3": "Tamamlandı"
+  },
+  "no_answer": "Henüz cevap yok",
+  "modal_title": "Talep Cevabı",
+  "toast_message": "Talep başarıyla silindi!",
+
+  "login": {
+    "title": "Lütfen Giriş Yapınız",
+    "email": "E-Mail",
+    "password": "Şifre",
+    "forgot_password": "Şifremi Unuttum",
+    "login.email":"E-mail Girin",
+    "sign_in": "Giriş Yap",
+    "forgot_password_modal_title": "Şifremi Unuttum",
+    "forgot_password_modal_body": "Lütfen şifrenizi sıfırlamak için e-posta adresinizi giriniz.",
+    "cancel": "İptal",
+    "reset_password": "Şifreyi Sıfırla",
+    "error": {
+      "invalid_email": "Geçersiz email",
+      "User_not_found": "Bu email ile kayıtlı kullanıcı bulunamadı",
+      "wrong_password": "Yanlış şifre",
+      "generic": "Email veya şifre hatalı"
+    },
+    "password_reset_email_sent": "Şifre sıfırlama e-postası gönderildi!"
+  },
+
+  "ticket": {
+    "select_product": "Bir ürün seçin",
+    "enter_request": "Talebinizi girin",
+    "your_request": "Talebiniz",
+    "New Product Request":"Yeni ÜRün Talebi",
+    "add_ticket": "Talep Ekle",
+    "current_tickets": "Mevcut Talepler",
+    "product": "Ürün: ",
+    "ticket": "Talep: ",
+    "response": "Yanıt:",
+    "date": "Tarih:",
+    "no_response_yet": "Henüz yanıt yok",
+    "edit_ticket": "Talebi Düzenle",
+    "update": "Güncelle",
+    "edit_request": "Talebinizi girin",
+    "error": {
+      "min_length": "Talep en az 30 karakter uzunluğunda olmalıdır"
+    }
+  },
+  "modal": {
+    "close": "Kapat"
+  },
+  "status": {
+    "pending": "Beklemede",
+    "inProgress": "işlemde",
+    "completed": "Tamamlandı"
+  },
+
+  "profile": {
+    "firstName": "Ad",
+    "userName": "Kullanıcı Adı",
+    "lastName": "Soyad",
+    "email": "E-Mail",
+    "firmName": "Firmalar",
+    "loading": "Yükleniyor...",
+    "changePassword": "Şifre Değiştir",
+    "newPassword": "Yeni Şifre",
+    "confirmPassword": "Yeni Şifre Tekrar",
+    "updatePassword": "Şifreyi Güncelle",
+    "passwordMismatch": "Şifreler uyuşmuyor.",
+    "passwordUpdated": "Şifre başarıyla güncellendi.",
+    "errorUpdatingPassword": "Şifre güncellenirken bir hata oluştu: {{error}}",
+    "sessionError": "Kullanıcı oturumu açık değil."
+  },
+
+  "forgotPassword": {
+    "title": "Şifremi Unuttum",
+    "email": "E-Mail",
+    "newPassword": "Yeni Şifre",
+    "updatePassword": "Şifreyi Güncelle",
+    "passwordUpdated": "Şifre başarıyla güncellendi.",
+    "passwordMismatch": "Şifreler uyuşmuyor."
+  },
+
+  "feedbacks": "Geri Bildirimler"
+}
