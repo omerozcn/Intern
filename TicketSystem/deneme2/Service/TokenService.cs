@@ -26,7 +26,8 @@ namespace TicketSystem.Service
                var claims = new List<Claim>
                {
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
+                    new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
+                    new Claim(JwtRegisteredClaimNames.Name, user.FirstName)
                };
 
                foreach (var role in roles)

@@ -5,6 +5,7 @@ namespace TicketSystem.Models
 {
      public class AppUser : IdentityUser
      {
+          public string? FirstName {get; set; }
           [Required]
           public string? LastName { get; set; }
           [Required]

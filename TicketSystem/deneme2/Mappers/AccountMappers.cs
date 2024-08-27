@@ -10,6 +10,7 @@ namespace TicketSystem.Mappers
                return new NewUserDto
                {
                     UserName = userModel.UserName,
+                    FirstName = userModel.FirstName,
                     LastName = userModel.LastName,
                     Email = userModel.Email,
                };

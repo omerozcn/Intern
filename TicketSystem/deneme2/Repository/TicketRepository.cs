@@ -62,27 +62,54 @@ namespace TicketSystem.Repository
 
           public async Task<List<TicketDto>> GetAllAsync()
           {
+
+
                var tickets = await _context.Tickets
-                   .Select(ticket => new TicketDto
-                   {
-                        Id = ticket.Id,
-                        NewPorduct = ticket.NewProduct,
-                        Description = ticket.Description,
-                        Created = ticket.Created,
-                        CreatedBy = ticket.CreatedBy,
-                        Updated = new UpdateTicketRequestDto().Update,
-                        Status = ticket.Status,
-                        Answer = ticket.Answer,
-                        FirmName = (from pt in _context.ProductTickets
-                                    join fp in _context.FirmProducts on pt.ProductId equals fp.ProductId
-                                    join f in _context.Firms on fp.FirmId equals f.Id
-                                    where pt.TicketId == ticket.Id
-                                    select f.Name).FirstOrDefault(),
-                        ProductName = (from pt in _context.ProductTickets
-                                       join p in _context.Products on pt.ProductId equals p.Id
-                                       where pt.TicketId == ticket.Id
-                                       select p.Name).FirstOrDefault()
-                   }).ToListAsync();
+                    .GroupJoin(
+                         _context.ProductTickets,
+                         ticket => ticket.Id,
+                         pt => pt.TicketId,
+                         (ticket, pts) => new { ticket, pts })
+                    .SelectMany(
+                         t => t.pts.DefaultIfEmpty(),
+                         (t, pt) => new { t.ticket, pt })
+                    .GroupJoin(
+                         _context.FirmProducts,
+                         t => t.pt.ProductId,
+                         fp => fp.ProductId,
+                         (t, fps) => new { t.ticket, t.pt, fps })
+                    .SelectMany(
+                         t => t.fps.DefaultIfEmpty(),
+                         (t, fp) => new { t.ticket, t.pt, fp })
+                    .GroupJoin(
+                         _context.Firms,
+                         t => t.fp.FirmId,
+                         f => f.Id,
+                         (t, firms) => new { t.ticket, t.pt, t.fp, firms })
+                    .SelectMany(
+                         t => t.firms.DefaultIfEmpty(),
+                         (t, firm) => new { t.ticket, t.pt, t.fp, firm })
+                    .GroupJoin(
+                         _context.Products,
+                         t => t.pt.ProductId,
+                         p => p.Id,
+                         (t, products) => new { t.ticket, t.pt, t.fp, t.firm, products })
+                    .SelectMany(
+                         t => t.products.DefaultIfEmpty(),
+                         (t, product) => new TicketDto
+                         {
+                              Id = t.ticket.Id,
+                              NewProduct = t.ticket.NewProduct,
+                              Description = t.ticket.Description,
+                              Created = t.ticket.Created,
+                              CreatedBy = t.ticket.CreatedBy,
+                              Updated = new UpdateTicketRequestDto().Update,
+                              Status = t.ticket.Status,
+                              Answer = t.ticket.Answer,
+                              FirmName = t.firm.Name,
+                              ProductName = product.Name
+                         })
+                    .ToListAsync(); ;
 
                return tickets;
           }
@@ -104,7 +131,7 @@ namespace TicketSystem.Repository
                     .Select(ticket => new TicketDto
                     {
                          Id = ticket.Id,
-                         NewPorduct = ticket.NewProduct,
+                         NewProduct = ticket.NewProduct,
                          Description = ticket.Description,
                          Created = ticket.Created,
                          CreatedBy = ticket.CreatedBy,
@@ -112,14 +139,14 @@ namespace TicketSystem.Repository
                          Status = ticket.Status,
                          Answer = ticket.Answer,
                          FirmName = (from pt in _context.ProductTickets
-                              join fp in _context.FirmProducts on pt.ProductId equals fp.ProductId
-                              join f in _context.Firms on fp.FirmId equals f.Id
-                              where pt.TicketId == ticket.Id
-                              select f.Name).FirstOrDefault(),
+                                     join fp in _context.FirmProducts on pt.ProductId equals fp.ProductId
+                                     join f in _context.Firms on fp.FirmId equals f.Id
+                                     where pt.TicketId == ticket.Id
+                                     select f.Name).FirstOrDefault(),
                          ProductName = (from pt in _context.ProductTickets
-                              join p in _context.Products on pt.ProductId equals p.Id
-                              where pt.TicketId == ticket.Id
-                              select p.Name).FirstOrDefault()
+                                        join p in _context.Products on pt.ProductId equals p.Id
+                                        where pt.TicketId == ticket.Id
+                                        select p.Name).FirstOrDefault()
                     })
                     .ToListAsync();
 

@@ -12,7 +12,7 @@ namespace TicketSystem.Mappers
                return new TicketDto
                {
                     Id = ticketModel.Id,
-                    NewPorduct = ticketModel.NewProduct,
+                    NewProduct = ticketModel.NewProduct,
                     Description = ticketModel.Description,
                     CreatedBy = ticketModel.CreatedBy,
                     Status = ticketModel.Status,

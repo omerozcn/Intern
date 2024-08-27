@@ -83,9 +83,6 @@ namespace TicketSystem.Data
                {
                     entity.HasKey(a => a.Id);
 
-                    entity.HasIndex(u => u.UserName)
-                         .IsUnique(false);
-
                     entity.HasMany(u => u.FirmUsers)
                           .WithOne(aut => aut.AppUser)
                           .HasForeignKey(u => u.AppUserId)

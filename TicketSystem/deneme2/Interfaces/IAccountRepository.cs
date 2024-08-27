@@ -13,5 +13,7 @@ namespace TicketSystem.Interfaces
           Task<AppUser?> GetByIdAsync(Guid id);
           Task<AppUser?> UpdateAsync(string id, UpdateDto appuserDto);
           Task<AppUser?> GetByNameAsync(string name);
+          Task<string> GenerateUniqueUserNameAsync(int length);
+          Task<string?> GetUserRoleAsync(string role);
      }
 }
