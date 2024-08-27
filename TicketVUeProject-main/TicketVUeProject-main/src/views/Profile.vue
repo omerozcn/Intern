@@ -2,9 +2,6 @@
   <div class="profile-container">
     <div class="user-info">
       <p>
-        <strong>{{ $t("profile.userName") }}:</strong> {{ User.userName }}
-      </p>
-      <p>
         <strong>{{$t("profile.firstName")}}:</strong> {{ User.firstName }}
       </p>
       <p>
@@ -81,6 +78,8 @@
 </template>
 <script setup>
 import {ref, onMounted} from "vue";
+import axios from "axios";
+import {loadRouteLocation} from "vue-router";
 
 const User = ref({
   userName: "",
@@ -93,18 +92,22 @@ const newPassword = ref("");
 const confirmPassword = ref("");
 const passwordMessage = ref("");
 
-const fetchUserData = () => {
-  const userName = sessionStorage.getItem("userName");
-  const firstName = sessionStorage.getItem("firstName");
-  const lastName = sessionStorage.getItem("lastName");
-  const email = sessionStorage.getItem("email");
-  const firmName = sessionStorage.getItem("firmName");
-
-  User.value.userName = userName || "";
-  User.value.firstName = firstName || "";
-  User.value.lastName = lastName || "";
-  User.value.email = email || "";
-  User.value.firmName = firmName || "";
+const fetchUserData = async () => {
+  try{
+    const userName = sessionStorage.getItem("userName");
+    const response = await axios.get(`http://localhost:5005/api/Account/getbyusername/${userName}`)
+    const firstName = response.data.firstName;
+    const lastName = response.data.lastName
+    const email = response.data.email;
+    const firmName = sessionStorage.getItem("firmName");
+    User.value.userName = userName || "";
+    User.value.firstName = firstName || "";
+    User.value.lastName = lastName || "";
+    User.value.email = email || "";
+    User.value.firmName = firmName || "";
+  }catch (error){
+    console.error(error);
+  }
 };
 
 const changePassword = async () => {

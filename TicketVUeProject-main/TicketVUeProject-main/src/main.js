@@ -38,22 +38,22 @@ axios.interceptors.request.use(
     (error) => {
         if (error.response.status === 401) {
             sessionStorage.removeItem('token');
-            window.location.href = '/sign-in';
+            router.push('/sign-in');
         }
         return Promise.reject(error);
     }
 );
 
-axios.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            sessionStorage.removeItem('token');
-            router.push('/sign-in'); // Yönlendirme işlemi
-        }
-        return Promise.reject(error);
-    }
-);
+// axios.interceptors.response.use(
+//     (response) => response,
+//     (error) => {
+//         if (error.response && error.response.status === 401) {
+//             sessionStorage.removeItem('token');
+//             router.push('/sign-in'); // Yönlendirme işlemi
+//         }
+//         return Promise.reject(error);
+//     }
+// );
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);

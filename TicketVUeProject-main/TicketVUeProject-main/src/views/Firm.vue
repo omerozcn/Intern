@@ -191,7 +191,7 @@ export default {
         }
         return response;
       } catch (error) {
-        console.log(error);
+        console.error(error);
         showToast(
             "Firma oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.",
             "error"
@@ -246,7 +246,7 @@ export default {
             "Firma güncellenirken bir hata oluştu. Lütfen tekrar deneyin.",
             "error"
         );
-        console.log(error);
+        console.error(error);
       }
     };
     const cancelEdit = () => {

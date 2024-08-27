@@ -192,7 +192,6 @@ export default {
         const response = await axios.get(
             "http://localhost:5005/api/Ticket/listTicket"
         );
-        console.log("Fetched Tickets: ", response.data);
 
         tickets.value = response.data.map((ticket) => ({
           id: ticket.id,
@@ -220,7 +219,6 @@ export default {
           return 0;
         });
 
-        console.log("BİM: ", tickets.value);
 
         if (tickets.value.length === 0) {
           showToast("Hiç talep bulunamadı.", "info");
@@ -260,8 +258,6 @@ export default {
             `http://localhost:5005/api/Ticket/deleteTicket/${id}`
         );
 
-        console.log("Delete Response:", response.data);
-
         await fetchTickets();
       } catch (error) {
         console.error("Error deleting ticket:", error);
@@ -277,14 +273,12 @@ export default {
                 status: newStatus,
               }
           );
-          console.log("Son: ", response.data);
           fetchTickets();
           showToast(
               newStatus === 3 ? t("ticket_completed") : t("ticket_updated"), "success"
           );
         }
       } catch (error) {
-        console.log("Son: ", response.data);
         console.error("Error updating ticket status:", error);
         showToast(t("ticket_update_failed"));
       }
@@ -355,7 +349,6 @@ export default {
     };
 
     const submitResponse = async () => {
-      console.log("kk",ticketanswer.value)
       if (selectedTicket.value) {
         try {
           const response = await axios.put(
@@ -366,7 +359,6 @@ export default {
               }
           );
 
-          console.log("neler: ", selectedTicket.value);
           await fetchTickets();
 
           const modal = bootstrap.Modal.getInstance(

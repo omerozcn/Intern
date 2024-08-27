@@ -11,7 +11,7 @@
         <option value="" disabled>{{ $t("ticket.select_product") }}</option>
         <option value="0">Yeni Ürün Talebi</option>
         <option v-for="product in products" :key="product.id" :value="product">
-          {{ product.name }}
+          {{ product.productName }}
         </option>
       </select>
     </div>
@@ -245,21 +245,16 @@ export default {
         firmName: sessionStorage.getItem("firmName"),
         productId: selectedProduct.value.id
       }
-      console.log("aaaaaaa",query);
-      console.log("Selected : ", selectedProduct.value.id)
       try {
-        console.log(query);
         const response = await axios.post('http://localhost:5005/api/Ticket/createTicket',
             query
         );
-        console.log("Ticket Created: ", query);
 
         selectedProduct.value = "";
         fetchTickets();
         newProductRequest.value = false;
         return response;
       } catch (error) {
-        console.log("Ticket Error : ", query);
         console.error('Error creating ticket: ', error);
       }
     };
@@ -292,7 +287,6 @@ export default {
           showToast("Talepler başarıyla yüklendi!", "success");
         }
 
-        console.log("Tickets: ", response.data);
         return tickets.value;
       } catch (error) {
         console.error("Error fetching tickets:", error);
@@ -300,21 +294,17 @@ export default {
     };
 
     const fetchProducts = async () => {
+      const firmname = sessionStorage.getItem("firmName");
       try {
         const productResponse = await axios.get(
-            "http://localhost:5005/api/Product/listProduct"
+            `http://localhost:5005/api/FirmProduct/listProductsByFirm/${firmname}`
         );
         const productsData = productResponse.data;
-
         const productsMap = {};
 
         productsData.forEach((product) => {
           productsMap[product.id] = {
-            id: product.id,
-            name: product.name,
-            birthDate: product.birthDate,
-            birthDateFormatted: product.birthDateFormatted,
-            Firms: [],
+            productName: product.productName,
           };
         });
         const productsWithFirms = Object.values(productsMap);

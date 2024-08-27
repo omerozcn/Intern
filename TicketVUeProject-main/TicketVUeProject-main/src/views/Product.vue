@@ -173,7 +173,6 @@ export default {
         // const firmProductResponse = await axios.get(
         //   "http://localhost:5005/api/Firmproduct/listfirmProduct"
         // );
-        // console.log("aaaaa", firmProductResponse.data);
         // firmProductData.value = firmProductResponse.data;
 
         const productsMap = {};
@@ -307,10 +306,6 @@ export default {
             firmproductData
         );
 
-        if (response.status === 200) {
-          console.log("Created: ", response.data);
-        }
-
         showToast("Firma başarıyla ürünle ilişkilendirildi!", "success");
 
         fetchProducts();
@@ -379,7 +374,6 @@ export default {
             }
         );
         product.editing = false;
-        console.log(response);
 
         if (response.status >= 200 && response.status < 300) {
           await fetchProducts();

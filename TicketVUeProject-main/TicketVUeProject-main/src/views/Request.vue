@@ -186,7 +186,6 @@ export default {
     };
 
     const fetchTickets = async () => {
-      console.log("ftftft")
       let usertoken = sessionStorage.getItem("token")
       try {
         const response = await axios.get(`http://localhost:5005/api/Ticket/listByUserId`, {
@@ -194,7 +193,6 @@ export default {
             Authorization: `Bearer ${usertoken}`
           }
         });
-        console.log("response: ", response.data);
 
         tickets.value = response.data.map((ticket) => ({
           id: ticket.id,
@@ -224,7 +222,6 @@ export default {
         });
 
         filteredTickets.value = tickets.value;
-        console.log("BİM: ", filteredTickets);
 
         if (tickets.value.length === 0) {
           showToast("Hiç talep bulunamadı.", "info");
@@ -274,7 +271,6 @@ export default {
     };
 
     const handleDelete = async (ticket) => {
-      console.log("Ticket: ", ticket);
       try {
         const response = await axios.delete(
             `http://localhost:5005/api/Ticket/deleteTicket/${ticket}`

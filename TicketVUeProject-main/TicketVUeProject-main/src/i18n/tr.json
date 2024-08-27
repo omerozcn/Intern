@@ -66,6 +66,8 @@
   "firstName": "İsim",
   "lastName": "Soyisim",
   "email": "E-Posta",
+  "role": "Rol",
+  "action": "Eylem",
   "password": "Şifre",
   "User": "Kullanıcı",
   "selectFirm": "Şirket Seç",
@@ -136,6 +138,8 @@
   },
 
   "profile": {
+    "role": "Rol",
+    "action": "Eylem",
     "firstName": "Ad",
     "userName": "Kullanıcı Adı",
     "lastName": "Soyad",

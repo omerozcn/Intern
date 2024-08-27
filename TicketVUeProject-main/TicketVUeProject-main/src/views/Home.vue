@@ -1,6 +1,21 @@
 <template>
-  <main v-if="true" style="background-color: white">
-    <div v-if="true">
+  <div v-if="toasts.length > 0" class="toast-container">
+    <div
+        v-for="(toast, index) in toasts"
+        :key="index"
+        :class="['toast', toast.type, 'show']"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+    >
+      <div class="toast-body">
+        {{ toast.message }}
+        <button class="close-btn" @click="removeToast(index)">&times;</button>
+      </div>
+    </div>
+  </div>
+  <main style="background-color: white">
+    <div v-if="userRole == 'Admin'">
       <div
           class="admin-dashboard"
           style="background-color: white; border-color: black"
@@ -50,7 +65,7 @@
         </div>
       </div>
     </div>
-    <div v-else-if="true">
+    <div v-else-if="isAuthenticated">
       <p>{{ $t("User_dashboard_message") }}</p>
       <div class="User-dashboard">
         <h2>{{ $t("your_total_requests") }}</h2>
@@ -119,6 +134,8 @@ import {
 } from "chart.js";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
+import {useUserStore} from "@/stores/UserStore.js";
+import {storeToRefs} from "pinia";
 
 ChartJS.register(
     BarElement,
@@ -135,15 +152,21 @@ const router = useRouter();
 const totalRequests = ref(0);
 const pendingRequests = ref(0);
 const inProgressRequests = ref(0);
+const store = useUserStore();
+const { isAuthenticated, userRole } = storeToRefs(store);
 const completedRequests = ref(0);
 const feedbackText = ref("");
+const toasts = ref([]);
+const maxToasts = 3;
+let toastHistory = [];
+const toastDelay = 3000;
 
 const doughnutData = ref({
   labels: [t("status_1"), t("status_2"), t("status_3")],
   datasets: [
     {
       label: t("requests"),
-      data: [0, 0, 0],
+      data: [4, 8, 0],
       backgroundColor: ["#f39c12", "#2980b9", "#27ae60"],
     },
   ],
@@ -168,7 +191,7 @@ const chartData = ref({
   datasets: [
     {
       label: t("requests"),
-      data: [1, 50, 0],
+      data: [4, 8, 0],
       backgroundColor: ["#f39c12", "#2980b9", "#27ae60"],
     },
   ],
@@ -203,7 +226,39 @@ const submitFeedback = async () => {
   }
 };
 
+const showToast = (message, type) => {
+  const currentTime = Date.now();
+  const isMessageRecent = toastHistory.some(item =>
+      item.message === message && (currentTime - item.timestamp) < toastDelay
+  );
+
+  if (isMessageRecent) return;
+
+  if (toasts.value.length >= maxToasts) {
+    removeToast(0);
+  }
+
+  toasts.value.push({ message, type });
+
+  toastHistory.push({ message, timestamp: currentTime });
+
+  toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
+
+  setTimeout(() => removeToast(0), 1800);
+};
+
+const removeToast = (index) => {
+  const toast = document.querySelectorAll(".toast")[index];
+  if (toast) {
+    toast.classList.add("hide");
+    setTimeout(() => {
+      toasts.value.splice(index, 1);
+    }, 600);
+  }
+};
+
 onMounted(async () => {
+  await store.fetchUserRole();
 });
 </script>
 
@@ -342,5 +397,78 @@ main {
   min-width: 600px;
   max-width: 800px;
   height: 500px;
+}
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.toast {
+  margin-top: 0.5rem;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  color: #fff;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  opacity: 0;
+  transform: translateX(100%) scale(0.9);
+  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
+  transform 0.3s ease-in-out,
+    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  pointer-events: all;
+}
+
+.toast.success {
+  background: linear-gradient(135deg, #4caf50, #81c784);
+}
+
+.toast.error {
+  background: linear-gradient(135deg, #f44336, #e57373);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.toast.hide {
+  opacity: 0;
+  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
+}
+
+.toast::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 100%;
+  border-radius: 0.5rem 0 0 0.5rem;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.toast .close-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.toast .close-btn:hover {
+  color: #fff;
 }
 </style>

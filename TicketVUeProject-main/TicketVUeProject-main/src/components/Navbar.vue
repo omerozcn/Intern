@@ -37,12 +37,12 @@
               <span class="bi bi-house-door"></span> {{ t("home") }}
             </a>
           </li>
-          <li class="nav-item" v-if="isAuthenticated">
+          <li class="nav-item" v-if="isAuthenticated && userRole === 'User'">
             <a class="nav-link" aria-current="page" href="/ticket">
               <span class="bi bi-file-earmark-plus"></span> {{ t("create_request") }}
             </a>
           </li>
-          <li class="nav-item" v-if="isAuthenticated">
+          <li class="nav-item" v-if="isAuthenticated && userRole === 'User'">
             <a class="nav-link" aria-current="page" href="/request">
               <span class="bi bi-card-list"></span> {{ t("my_requests") }}
             </a>
@@ -57,7 +57,7 @@
               <span class="bi bi-file-earmark-code"></span> {{ t("products") }}
             </a>
           </li>
-          <li class="nav-item" v-if="isAuthenticated">
+          <li class="nav-item" v-if="isAuthenticated && userRole === 'User'">
             <a class="nav-link" aria-current="page" href="/communication">
               <span  class="bi bi-chat-right-dots"></span> {{ t("communication") }}
             </a>
@@ -99,12 +99,13 @@
           </li>
           <li class="nav-item" v-if="isAuthenticated">
             <a class="nav-link" aria-current="page" href="/profile">
-              <span class="bi bi-person"></span> {{ t("")  }}
+              <span class="bi bi-person"></span>
             </a>
           </li>
           <li class="nav-item">
             <router-link
               to="/sign-in"
+              v-show="!isAuthenticated && userRole == null"
               class="nav-link btn btn-outline-success"
               type="submit"
             >
@@ -130,10 +131,11 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch} from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useUserStore } from '../stores/UserStore.js';
+import {storeToRefs} from "pinia";
 
 export default {
   setup() {
@@ -143,18 +145,17 @@ export default {
     let toastHistory = [];
     const toastDelay = 3000;
     const store = useUserStore();
+    const { isAuthenticated, userRole } = storeToRefs(store);
     const router = useRouter();
-    const isAuthenticated = ref();
-    const userRole = ref();
     const currentLanguage = computed(() => locale.value.toUpperCase());
 
     const handleLogout = async () => {
       sessionStorage.clear();
-      isAuthenticated.value = false;
+      store.$reset();
       showToast("Çıkış yapılıyor.", "warning")
       setTimeout(() => {
         router.push("/sign-in");
-      }, 2000);
+      }, 1800);
     };
 
     const showToast = (message, type) => {
@@ -192,10 +193,8 @@ export default {
       locale.value = lang;
     };
 
-    onMounted(async () => {
+    onMounted( async () => {
       await store.fetchUserRole();
-      isAuthenticated.value = store.isAuthenticated;
-      userRole.value = store.userRole;
     });
 
     return {
