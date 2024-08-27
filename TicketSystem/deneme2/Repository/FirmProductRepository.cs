@@ -3,7 +3,6 @@ using TicketSystem.Dtos.FirmProduct;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Models.FirmProductModels;
-using TicketSystem.Models.TicketModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace TicketSystem.Repository
@@ -93,6 +92,22 @@ namespace TicketSystem.Repository
                }
 
                return firmproductModel;
+          }
+
+          public async Task<List<FirmProductSummary>> GetFirmProductAsync(string firmname)
+          {
+               var firmproduct = await _context.FirmProducts.Where(firmid => firmid.Firm.Name == firmname)
+                   .Select(product => new FirmProductSummary
+                   {
+                        Id = product.Id,
+                        FirmId = product.FirmId,
+                        FirmName = product.Firm.Name,
+                        ProductId = product.ProductId,
+                        ProductName = product.Products.Name
+
+                   }).ToListAsync();
+
+               return firmproduct;
           }
      }
 }

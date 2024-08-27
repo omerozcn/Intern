@@ -1,16 +1,15 @@
 ﻿using TicketSystem.Data;
 using TicketSystem.Dtos.FirmProduct;
 using TicketSystem.Interfaces;
-using TicketSystem.Mappers;
 using TicketSystem.Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TicketSystem.Controllers
 {
-     [Microsoft.AspNetCore.Mvc.Route("api/Firmproduct")]
+     [Route("api/Firmproduct")]
+     [Authorize]
      [ApiController]
      public class FirmProductController : ControllerBase
      {
@@ -81,6 +80,18 @@ namespace TicketSystem.Controllers
                return Ok(result);
           }
 
+          [HttpGet("listProductsByFirm/{firmname}")]
+          public async Task<IActionResult> GetProductsByFirm([FromRoute] string firmname)
+          {
+               var firmproduct = await _firmproductRepo.GetFirmProductAsync(firmname);
+               
+               if(firmproduct == null)
+               {
+                    return NotFound();
+               }
+
+               return Ok(firmproduct);
+          }
      }
 
 }

@@ -17,6 +17,22 @@
   },
   {
     "ContainingType": "TicketSystem.Controllers.AccountController",
+    "Method": "GetUserByUserNameAsync",
+    "RelativePath": "api/account/getbyusername/{username}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "username",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TicketSystem.Controllers.AccountController",
     "Method": "GetUserRoleByToken",
     "RelativePath": "api/account/getuserRole",
     "HttpMethod": "POST",
@@ -258,6 +274,32 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "TicketSystem.Controllers.FirmProductController",
+    "Method": "GetProductsByFirm",
+    "RelativePath": "api/Firmproduct/listProductsByFirm/{firmname}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "firmname",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TicketSystem.Controllers.FirmUserController",
+    "Method": "GetUserFirmUser",
+    "RelativePath": "api/FirmUser/getuserFirm",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "TicketSystem.Controllers.ProductController",
     "Method": "Create",
     "RelativePath": "api/Product/createProduct",
@@ -450,16 +492,6 @@
     "ContainingType": "TicketSystem.Controllers.AppUserTicketController",
     "Method": "GetUserAppUserTicket",
     "RelativePath": "api/userTicket/getuserTicket",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "TicketSystem.Controllers.FirmUserController",
-    "Method": "GetUserFirmUser",
-    "RelativePath": "getuserFirm",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

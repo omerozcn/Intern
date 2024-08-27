@@ -48,7 +48,6 @@ namespace TicketSystem.Repository
                }
                catch (Exception ex)
                {
-                    // Log the exception
                     _logger.LogError(ex, "Error deleting user with ID {UserId}", id);
                     throw;
                }
@@ -82,6 +81,11 @@ namespace TicketSystem.Repository
           }
 
           public async Task<AppUser?> GetByNameAsync(string name)
+          {
+               return await _context.Users.FirstOrDefaultAsync(t => t.FirstName == name);
+          }
+
+          public async Task<AppUser?> GetByUserNameAsync(string name)
           {
                return await _context.Users.FirstOrDefaultAsync(t => t.UserName == name);
           }

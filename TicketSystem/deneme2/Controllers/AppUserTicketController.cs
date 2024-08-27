@@ -8,7 +8,7 @@ using TicketSystem.Extensions;
 namespace TicketSystem.Controllers
 {
      [Route("api/userTicket")]
-
+     [Authorize]
      public class AppUserTicketController : ControllerBase
      {
           private readonly UserManager<AppUser> _userManager;

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace TicketSystem.Dtos.Product
 {
      public class UpdateProductRequestDto

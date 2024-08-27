@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TicketSystem.Helpers;
 using TicketSystem.Mappers;
-using TicketSystem.Repository;
 using TicketSystem.Data;
 using TicketSystem.Dtos.Token;
 
@@ -209,6 +207,32 @@ namespace TicketSystem.Controllers
                     }
 
                     return Ok(userRole);
+               }
+               catch (Exception ex)
+               {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+               }
+          }
+
+          [Authorize]
+          [HttpGet("getbyusername/{username}")]
+          public async Task<IActionResult> GetUserByUserNameAsync([FromRoute] string username)
+          {
+               if (!ModelState.IsValid)
+               {
+                    return BadRequest(ModelState);
+               }
+
+               try
+               {
+                    var user = await _accountRepo.GetByUserNameAsync(username);
+
+                    if(user == null)
+                    {
+                         return NotFound("User not found");
+                    }
+
+                    return Ok(user);
                }
                catch (Exception ex)
                {

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TicketSystem.Controllers
 {
      [Route("api/Firm")]
+     [Authorize]
      [ApiController]
      public class FirmController : ControllerBase
      {
