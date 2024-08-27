@@ -1,11 +1,8 @@
 ﻿using TicketSystem.Data;
 using TicketSystem.Dtos.Product;
-using TicketSystem.Extensions;
-using TicketSystem.Helpers;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
 using TicketSystem.Models;
-using TicketSystem.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TicketSystem.Controllers
 {
      [Route("api/Product")]
+     [Authorize]
      [ApiController]
      public class ProductController : ControllerBase
      {

@@ -1,8 +1,6 @@
 ﻿using TicketSystem.Data;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace TicketSystem.Repository

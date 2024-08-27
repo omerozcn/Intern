@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace TicketSystem.Data
 {
@@ -33,8 +32,6 @@ namespace TicketSystem.Data
                     entity.ToTable("Firms");
 
                     entity.HasKey(c => c.Id);
-
-               //     entity.HasQueryFilter(f => f.Id != 99);
 
                     entity.HasMany(u => u.FirmUsers)
                          .WithOne(aut => aut.Firm)

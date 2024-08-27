@@ -1,13 +1,14 @@
 ﻿using TicketSystem.Data;
-using TicketSystem.Models;
 using TicketSystem.Dtos.Feedback;
 using TicketSystem.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using TicketSystem.Mappers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TicketSystem.Controllers
 {
      [Route("api/Feedback")]
+     [Authorize]
      [ApiController]
      public class FeedbackController: ControllerBase
      {

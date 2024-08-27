@@ -3,10 +3,13 @@ using TicketSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TicketSystem.Extensions;
-using TicketSystem.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TicketSystem.Controllers
 {
+     [Route("api/FirmUser")]
+     [Authorize]
+     [ApiController]
      public class FirmUserController : ControllerBase
      {
           private readonly UserManager<AppUser> _userManager;
@@ -18,6 +21,7 @@ namespace TicketSystem.Controllers
           }
 
           [Route("getuserFirm")]
+          [Authorize]
           [HttpGet]
           public async Task<IActionResult> GetUserFirmUser()
           {

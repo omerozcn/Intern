@@ -1,15 +1,12 @@
 ﻿using TicketSystem.Data;
 using TicketSystem.Dtos.Ticket;
 using TicketSystem.Extensions;
-using TicketSystem.Helpers;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
 using TicketSystem.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Sockets;
-using TicketSystem.Repository;
 using Microsoft.EntityFrameworkCore;
 
 namespace TicketSystem.Controllers

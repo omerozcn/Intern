@@ -1,6 +1,5 @@
 ﻿using TicketSystem.Data;
 using TicketSystem.Dtos.Product;
-using TicketSystem.Helpers;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Models.ProductModels;

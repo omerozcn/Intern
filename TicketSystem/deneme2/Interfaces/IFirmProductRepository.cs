@@ -9,5 +9,6 @@ namespace TicketSystem.Interfaces
           Task<FirmProduct> CreateAsync(CreateFirmProductRequestDto firmproductDto);
           Task<List<FirmProductSummary>> GetAllAsyncs();
           Task<FirmProduct> DeleteAsyncs(int id);
+          Task<List<FirmProductSummary>> GetFirmProductAsync(string firmname);
      }
 }
