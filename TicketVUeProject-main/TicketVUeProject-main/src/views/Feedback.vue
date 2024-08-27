@@ -49,14 +49,15 @@ const fetchFeedbacks = async () => {
       feedbackContent: feedback.feedbackContent,
     }));
 
-    if (response.status >= 200 && response.status <= 300) {
+    if (response.status >= 200 && response.status <= 300 && response.data.length > 0) {
       showToast("Geri bildirimler başarıyla yüklendi!", "success");
       feedbacks.value = feedbackDataList;
+    } else if(response.data.length <= 0) {
+      showToast("Geri bildirim bulunamadı", "danger");
     } else {
       throw new Error(error);
     }
   } catch (error) {
-    console.error("Error fetching feedback:", error);
     showToast(
         "Geri bildirimler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.",
         "error"

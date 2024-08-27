@@ -127,12 +127,16 @@
 import {ref} from "vue";
 import {useRouter} from "vue-router";
 import axios from "axios";
+import { useUserStore } from '../stores/UserStore.js';
 
 const email = ref("");
 const password = ref("");
 const errMsg = ref("");
 const token = sessionStorage.getItem("token");
 const toasts = ref([]);
+const store = useUserStore();
+const isAuthenticated = ref();
+const userRole = ref();
 const isForgotPasswordModalVisible = ref(false);
 const forgotPasswordEmail = ref("");
 const maxToasts = 3;
@@ -159,8 +163,11 @@ const signIn = async () => {
       sessionStorage.setItem("firmName", response.data.firmName);
       showToast("Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz...", "info");
 
-      setTimeout(() => {
-        router.push("/");
+      setTimeout(async () => {
+        await store.fetchUserRole();
+        isAuthenticated.value = store.isAuthenticated;
+        userRole.value = store.userRole;
+        await router.push("/");
       }, 2000);
     }
   } catch (e) {
@@ -235,6 +242,7 @@ const removeToast = (index) => {
     }, 600);
   }
 };
+
 
 </script>
 

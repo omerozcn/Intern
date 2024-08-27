@@ -76,7 +76,6 @@
             <table class="table">
               <thead>
               <tr>
-                <th scope="col">{{ $t("userName") }}</th>
                 <th scope="col">{{ $t("firstName") }}</th>
                 <th scope="col">{{ $t("lastName") }}</th>
                 <th scope="col">{{ $t("email") }}</th>
@@ -86,7 +85,6 @@
               </thead>
               <tbody>
               <tr v-for="Admin in Admins" :key="Admin.id">
-                <td>{{ Admin.userName }}</td>
                 <td>{{ Admin.firstName }}</td>
                 <td>{{ Admin.lastName }}</td>
                 <td>{{ Admin.email }}</td>
@@ -146,7 +144,6 @@
         <table class="table table-bordered">
           <thead>
           <tr>
-            <th scope="col">{{ $t("userName") }}</th>
             <th scope="col">{{ $t("firstName") }}</th>
             <th scope="col">{{ $t("lastName") }}</th>
             <th scope="col">{{ $t("email") }}</th>
@@ -157,7 +154,6 @@
           </thead>
           <tbody>
           <tr v-for="User in filteredUsers" :key="User.id">
-            <td>{{ User.userName }}</td>
             <td>{{ User.firstName }}</td>
             <td>{{ User.lastName }}</td>
             <td>{{ User.email }}</td>
@@ -327,7 +323,6 @@ const fetchUsers = async () => {
       role: User.role,
       firmName: User.firmName,
     }));
-    console.log("Users",UserDataList);
     Admins.value = [];
     Users.value = [];
 
@@ -383,7 +378,6 @@ const register = async () => {
     firmId: selectedFirm.value,
   };
 
-  console.log("vvvvvvvvvvvvvvvv: ",registerModel)
   try {
     const response = await axios.post(
         "http://localhost:5005/api/account/register",
