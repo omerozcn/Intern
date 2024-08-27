@@ -17,6 +17,22 @@
   },
   {
     "ContainingType": "TicketSystem.Controllers.AccountController",
+    "Method": "GetUserRoleByToken",
+    "RelativePath": "api/account/getuserRole",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "TicketSystem.Dtos.Token.TokenRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TicketSystem.Controllers.AccountController",
     "Method": "GetById",
     "RelativePath": "api/account/listById/{id}",
     "HttpMethod": "GET",

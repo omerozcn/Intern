@@ -9,10 +9,12 @@ using TicketSystem.Helpers;
 using TicketSystem.Mappers;
 using TicketSystem.Repository;
 using TicketSystem.Data;
+using TicketSystem.Dtos.Token;
 
 namespace TicketSystem.Controllers
 {
      [Route("api/account")]
+
      [ApiController]
      public class AccountController : ControllerBase
      {
@@ -20,7 +22,6 @@ namespace TicketSystem.Controllers
           private readonly ITokenService _tokenService;
           private readonly SignInManager<AppUser> _signinManager;
           private readonly IAccountRepository _accountRepo;
-          private readonly IFirmRepository _firmRepository;
           private readonly IFirmUserRepository _firmUserRepository;
           private readonly ApplicationDbContext _context;
           public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IAccountRepository accountRepo, IFirmRepository firmRepository, IFirmUserRepository firmUserRepository, ApplicationDbContext context)
@@ -29,7 +30,6 @@ namespace TicketSystem.Controllers
                _tokenService = tokenService;
                _signinManager = signInManager;
                _accountRepo = accountRepo;
-               _firmRepository = firmRepository;
                _firmUserRepository = firmUserRepository;
                _context = context;
           }
@@ -64,10 +64,13 @@ namespace TicketSystem.Controllers
 
                await _tokenService.StoreTokenAsync(user, token);
 
+
+
                return Ok(
                    new NewUserDto
                    {
                         UserName = user.UserName,
+                        FirstName = user.FirstName,
                         LastName = user.LastName,
                         Email = user.Email,
                         Role = user.Role,
@@ -76,7 +79,7 @@ namespace TicketSystem.Controllers
                         Token = token
                    });
           }
-
+          [Authorize]
           [HttpGet("listUsers")]
           public async Task<IActionResult> GetAll()
           {
@@ -89,6 +92,7 @@ namespace TicketSystem.Controllers
                return Ok(users);
           }
 
+          [Authorize]
           [HttpGet("listById/{id:Guid}")]
           public async Task<IActionResult> GetById([FromRoute] Guid id)
           {
@@ -106,15 +110,19 @@ namespace TicketSystem.Controllers
                return Ok(users.ToAccountDto());
           }
 
+          [Authorize]
           [HttpPost("register")]
           public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
           {
                if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+               var userName = await _accountRepo.GenerateUniqueUserNameAsync(10);
+
                var appUser = new AppUser
                {
-                    UserName = registerDto.UserName,
+                    UserName = userName,
+                    FirstName = registerDto.FirstName,
                     LastName = registerDto.LastName,
                     Email = registerDto.Email,
                     Role = registerDto.Role,
@@ -140,7 +148,8 @@ namespace TicketSystem.Controllers
                return Ok();
           }
 
-          [HttpDelete("deleteUser/{id:Guid}")]
+          [Authorize]
+          [HttpDelete("deleteUser/{id}")]
           public async Task<IActionResult> Delete([FromRoute] string id)
           {
                if (!ModelState.IsValid)
@@ -164,7 +173,8 @@ namespace TicketSystem.Controllers
                }
           }
 
-          [HttpPut("updateAccount/{id:Guid}")]
+          [Authorize]
+          [HttpPut("updateAccount/{id}")]
           public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateDto updateDto)
           {
                if (!ModelState.IsValid)
@@ -181,5 +191,30 @@ namespace TicketSystem.Controllers
                return Ok(accountModel.ToAccountDto());
           }
 
+          [HttpPost("getuserRole")]
+          public async Task<IActionResult> GetUserRoleByToken([FromBody] TokenRequestDto request)
+          {
+               if (!ModelState.IsValid)
+               {
+                    return BadRequest(ModelState);
+               }
+
+               try
+               {
+                    var userRole = await _accountRepo.GetUserRoleAsync(request.Token);
+
+                    if (userRole == null)
+                    {
+                         return NotFound("User role not found.");
+                    }
+
+                    return Ok(userRole);
+               }
+               catch (Exception ex)
+               {
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
+               }
+          }
      }
 }
+

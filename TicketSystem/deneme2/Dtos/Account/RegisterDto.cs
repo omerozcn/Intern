@@ -1,12 +1,13 @@
 ﻿using TicketSystem.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace TicketSystem.Dtos.Account
 {
      public class RegisterDto
      {
           [Required]
-          public string? UserName { get; set; }
+          public string? FirstName { get; set; }
 
           [Required]
           public string? LastName { get; set; }

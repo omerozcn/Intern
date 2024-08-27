@@ -21,7 +21,7 @@ builder.Services.AddCors(options =>
      options.AddPolicy("AllowSpecificOrigin",
          policy =>
          {
-              policy.AllowAnyOrigin()
+              policy.WithOrigins("http://localhost:5173")
                    .AllowAnyHeader()
                    .AllowAnyMethod();
          });
@@ -63,6 +63,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
+     options.User.RequireUniqueEmail = true;
      options.Password.RequireDigit = true;
      options.Password.RequireLowercase = true;
      options.Password.RequireUppercase = true;

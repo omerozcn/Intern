@@ -14,7 +14,6 @@ namespace TicketSystem.Repository
           private readonly ApplicationDbContext _context;
           private readonly UserManager<AppUser> _userManager;
           private readonly ILogger<AccountController> _logger;
-
           public AccountRepository(ApplicationDbContext context, UserManager<AppUser> userManager, ILogger<AccountController> logger)
           {
                _context = context;
@@ -60,14 +59,15 @@ namespace TicketSystem.Repository
                var users = await _context.Users
                     .Include(u => u.FirmUsers)
                     .ThenInclude(fu => fu.Firm)
-                   .Select(t => new AppUserSummary
+                   .Select(user => new AppUserSummary
                    {
-                        Id = t.Id,
-                        UserName = t.UserName,
-                        LastName = t.LastName,
-                        Email = t.Email,
-                        Role = t.Role,
-                        FirmName = t.FirmUsers
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        Role = user.Role,
+                        FirmName = user.FirmUsers
                           .Select(cu => cu.Firm.Name)
                           .FirstOrDefault()
                    }).ToListAsync();
@@ -95,12 +95,40 @@ namespace TicketSystem.Repository
                }
                existingUser.Id = appuserDto.Id;
                existingUser.UserName = appuserDto.Name;
+               existingUser.FirstName = appuserDto.FirstName;
                existingUser.LastName = appuserDto.LastName;
                existingUser.Email = appuserDto.Email;
                existingUser.Role = appuserDto.Role;
 
                await _context.SaveChangesAsync();
                return existingUser;
+          }
+          public async Task<string> GenerateUniqueUserNameAsync(int length)
+          {
+               string userName;
+               do
+               {
+                    userName = RandomStringGenerator.Generate(length);
+               } while (await _userManager.FindByNameAsync(userName) != null);
+
+               return userName;
+          }
+
+          public async Task<string?> GetUserRoleAsync(string token)
+          {
+               var userToken = await _context.UserTokens
+                    .FirstOrDefaultAsync(ut => ut.LoginProvider == "MyAppJwt" && ut.Name == "JWT" && ut.Value == token);
+
+               var userId = userToken?.UserId;
+
+               var user = await _context.Users
+                    .Where(u => u.Id == userId)
+                    .Select(u => new { u.Role })
+                    .FirstOrDefaultAsync();
+
+               var userRole = user?.Role;
+
+               return userRole;
           }
      }
 }
