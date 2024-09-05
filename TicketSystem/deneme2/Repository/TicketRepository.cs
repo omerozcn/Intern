@@ -133,10 +133,9 @@ namespace TicketSystem.Repository
                          Updated = new UpdateTicketRequestDto().Update,
                          Status = ticket.Status,
                          Answer = ticket.Answer,
-                         FirmName = (from pt in _context.ProductTickets
-                                     join fp in _context.FirmProducts on pt.ProductId equals fp.ProductId
-                                     join f in _context.Firms on fp.FirmId equals f.Id
-                                     where pt.TicketId == ticket.Id
+                         FirmName = (from fu in _context.FirmUsers
+                                     join f in _context.Firms on fu.FirmId equals f.Id
+                                     where fu.AppUserId == id
                                      select f.Name).FirstOrDefault(),
                          ProductName = (from pt in _context.ProductTickets
                                         join p in _context.Products on pt.ProductId equals p.Id

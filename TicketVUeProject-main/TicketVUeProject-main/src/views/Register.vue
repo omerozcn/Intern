@@ -50,7 +50,7 @@
                   :disabled="role === 'Admin'"
               >
                 <option value="0" disabled>{{ $t("selectFirm") }}</option>
-                <option v-for="firm in firms" :key="firm.id" :value="firm.id">
+                <option v-for="firm in firms" :key="firm.id" :value="firm.id" :disabled="firm.firmName === 'TURKUVAZ'">
                   {{ firm.firmName }}
                 </option>
               </select>
@@ -181,7 +181,6 @@
       </div>
     </div>
 
-    <!-- Toast Notifications -->
     <div v-if="toasts.length > 0" class="toast-container">
       <div
           v-for="(toast, index) in toasts"
@@ -291,11 +290,14 @@ const toastDelay = 3000;
 const fetchFirms = async () => {
   try {
     const response = await axios.get("http://localhost:5005/api/Firm/listFirm");
-    firms.value = response.data.map((firm) => ({
+    const allFirms = response.data.map((firm) => ({
       id: firm.id,
       firmName: firm.name,
     }));
-    firmNameMap.value = firms.value.reduce((map, firm) => {
+
+    firms.value = allFirms.filter(firm => firm.firmName !== 'TURKUVAZ');
+
+    firmNameMap.value = allFirms.reduce((map, firm) => {
       map[firm.id] = firm.firmName;
       return map;
     }, {});
@@ -361,8 +363,8 @@ const register = async () => {
     return;
   }
 
-  if (role.value === "User" && selectedFirm.value === 99) { // Turkuvaz firmasının ID'sini kontrol et
-    showToast("User rolüyle Turkuvaz firmasını seçemezsiniz.", "warning");
+  if (role.value === "User" && selectedFirm.value === 99) {
+    showToast("Kullanıcı rolüyle Turkuvaz firmasını seçemezsiniz.", "warning");
     return;
   }
 
@@ -383,16 +385,16 @@ const register = async () => {
         "http://localhost:5005/api/account/register",
         registerModel
     );
-    if (response.status === 200) {
+    if (response.status == 200 && response.status <= 300) {
       showToast("Kayıt başarılı!", "success");
       firstName.value = "";
       lastName.value = "";
       email.value = "";
       password.value = "";
-      await fetchUsers();
-    } else {
-      throw new Error("Kayıt işlemi başarısız oldu");
     }
+    setTimeout(async () => {
+      await fetchFirms();
+    }, 3000);
   } catch (error) {
     console.error("Error during registration:", error);
     showToast(
@@ -400,6 +402,7 @@ const register = async () => {
         "error"
     );
   }
+  await fetchUsers();
 };
 
 const editUser = (user) => {
@@ -408,7 +411,7 @@ const editUser = (user) => {
   editlastName.value = user.lastName;
   editEmail.value = user.email;
   editRole.value = user.role;
-
+  console.log(editName.value);
   isEditModalVisible.value = true;
 };
 
@@ -418,7 +421,7 @@ const submitEdit = async () => {
         `http://localhost:5005/api/account/updateAccount/${editUserId.value}`,
         {
           id: editUserId.value,
-          name: editName.value,
+          firstName: editName.value,
           lastName: editlastName.value,
           email: editEmail.value,
           role: editRole.value,
@@ -429,6 +432,7 @@ const submitEdit = async () => {
           },
         }
     );
+    console.log(response.data);
     if (response.status >= 200 && response.status < 300) {
       showToast("Kullanıcı başarıyla güncellendi!", "success");
       isEditModalVisible.value = false;
@@ -450,8 +454,8 @@ const deleteUser = async (user) => {
     const response = await axios.delete(
         `http://localhost:5005/api/account/deleteUser/${user.Id}`
     );
+    setTimeout( async () => await fetchFirms(), 2000);
     showToast("Kullanıcı başarıyla silindi!", "success");
-    await fetchUsers();
   } catch (error) {
     console.error("Error deleting User:", error);
     showToast(

@@ -191,7 +191,7 @@ export default {
         //   }
         // });
 
-        const productsWithFirms = Object.values(productsMap).sort((a, b) => a.name.localeCompare(b.name));
+        const productsWithFirms = Object.values(productsMap);
         products.value = productsWithFirms;
         showToast("Ürünler başarıyla yüklendi.", "success");
       } catch (error) {

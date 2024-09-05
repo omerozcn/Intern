@@ -3,20 +3,76 @@
   "WorkspaceRootPath": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\ticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\ticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\ticket\\ticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\ticket\\ticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\ticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\ticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\userticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\userticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\appusermodels\\appusersummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\appusermodels\\appusersummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\20240904101817_newdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:deneme2\\Migrations\\20240904101817_newdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\productticket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\productticket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\ticket\\createticketrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\ticket\\createticketrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\iticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\accountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\accountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\account\\updatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\account\\updatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\feedbackrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\feedbackrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\userticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\userticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\firmproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -29,10 +85,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\firmproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\firmproductmodels\\firmproductsummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\firmproductmodels\\firmproductsummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\ifirmuserrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -55,16 +107,8 @@
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\service\\tokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\service\\tokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\ticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\ticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\firmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -75,16 +119,8 @@
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\feedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\ticket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\ticket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\productticket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\productticket.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -131,18 +167,6 @@
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\feedbackmodels\\feedbacksummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\models\\appusermodels\\appusersummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\models\\appusermodels\\appusersummary.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\migrations\\20240826105849_newdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\migrations\\20240826105849_newdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\migrations\\applicationdbcontextmodelsnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\mappers\\productmappers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\mappers\\productmappers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -175,20 +199,12 @@
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\itokenservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iproductrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\ifirmrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\ifirmrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\ifeedbackrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\ifeedbackrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iaccountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\helpers\\randomstringgenerator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -209,14 +225,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\ticket\\updatestatusticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\ticket\\updatestatusticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\ticket\\ticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\ticket\\ticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\ticket\\createticketrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\ticket\\createticketrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\product\\updateproductrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -267,10 +275,6 @@
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\feedback\\createfeedbackrequestdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\account\\updatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\account\\updatedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\dtos\\account\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\account\\registerdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -291,20 +295,8 @@
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\account\\getuserroledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\appuserticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\appuserticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\interfaces\\iticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|c:\\users\\ozcan\\source\\repos\\ticketsystem\\deneme2\\repository\\firmrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -322,7 +314,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 187,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Bookmark",
@@ -334,46 +326,160 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 14,
+              "Title": "UpdateDto.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\UpdateDto.cs",
+              "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\UpdateDto.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\UpdateDto.cs",
+              "RelativeToolTip": "deneme2\\Dtos\\Account\\UpdateDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAkAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T10:35:17.708Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "AppUserSummary.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
+              "RelativeDocumentMoniker": "deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
+              "RelativeToolTip": "deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T10:35:47.019Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "TicketController.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\TicketController.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\TicketController.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAIAwwFUAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T12:03:02.795Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "TicketRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\TicketRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\TicketRepository.cs",
               "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\TicketRepository.cs",
               "RelativeToolTip": "deneme2\\Repository\\TicketRepository.cs",
-              "ViewState": "AgIAAEoAAAAAAAAAAAAiwIsAAABFAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAAA8AAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T12:15:58.501Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "FirmProductSummary.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\FirmProductModels\\FirmProductSummary.cs",
-              "RelativeDocumentMoniker": "deneme2\\Models\\FirmProductModels\\FirmProductSummary.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\FirmProductModels\\FirmProductSummary.cs",
-              "RelativeToolTip": "deneme2\\Models\\FirmProductModels\\FirmProductSummary.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAASAAAAAAAAAA==",
+              "DocumentIndex": 12,
+              "Title": "ITicketRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\ITicketRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Interfaces\\ITicketRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\ITicketRepository.cs",
+              "RelativeToolTip": "deneme2\\Interfaces\\ITicketRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:31.934Z",
+              "WhenOpened": "2024-08-23T12:15:28.362Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IProductRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IProductRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IProductRepository.cs",
+              "RelativeToolTip": "deneme2\\Interfaces\\IProductRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA0AAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-27T11:16:05.124Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\ProductRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Repository\\ProductRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\ProductRepository.cs",
+              "RelativeToolTip": "deneme2\\Repository\\ProductRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADgAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-27T11:17:10.94Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "CreateTicketRequestDto.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
+              "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
+              "RelativeToolTip": "deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T12:27:31.559Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\AccountController.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\AccountController.cs",
+              "ViewState": "AgIAAGgAAAAAAAAAAAAIwG4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T11:29:06.748Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Program.cs",
+              "RelativeDocumentMoniker": "deneme2\\Program.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Program.cs",
+              "RelativeToolTip": "deneme2\\Program.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAewDwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T06:24:12.672Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "deneme2\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "deneme2\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T13:50:29.804Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "IFirmProductRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmProductRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IFirmProductRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmProductRepository.cs",
-              "RelativeToolTip": "deneme2\\Interfaces\\IFirmProductRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAAsAAAAAAAAAA==",
+              "Title": "TicketDto.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\TicketDto.cs",
+              "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\TicketDto.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\TicketDto.cs",
+              "RelativeToolTip": "deneme2\\Dtos\\Ticket\\TicketDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:01.675Z",
+              "WhenOpened": "2024-08-26T07:45:12.946Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 18,
               "Title": "FirmProductRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FirmProductRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\FirmProductRepository.cs",
@@ -381,64 +487,24 @@
               "RelativeToolTip": "deneme2\\Repository\\FirmProductRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAGQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:57.27Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "UserTicketRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\UserTicketRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Repository\\UserTicketRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\UserTicketRepository.cs",
-              "RelativeToolTip": "deneme2\\Repository\\UserTicketRepository.cs",
-              "ViewState": "AgIAAAUAAAAAAAAAAAAAAAMAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T12:15:50.277Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "FeedbackRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FeedbackRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Repository\\FeedbackRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FeedbackRepository.cs",
-              "RelativeToolTip": "deneme2\\Repository\\FeedbackRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:54.275Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "AccountRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\AccountRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Repository\\AccountRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\AccountRepository.cs",
-              "RelativeToolTip": "deneme2\\Repository\\AccountRepository.cs",
-              "ViewState": "AgIAADEAAAAAAAAAAAAAAAsAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T12:15:42.823Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "IFirmUserRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmUserRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IFirmUserRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmUserRepository.cs",
-              "RelativeToolTip": "deneme2\\Interfaces\\IFirmUserRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:44:05.523Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:57.27Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
+              "Title": "20240904101817_newdatabase.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\20240904101817_newdatabase.cs",
+              "RelativeDocumentMoniker": "deneme2\\Migrations\\20240904101817_newdatabase.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\20240904101817_newdatabase.cs",
+              "RelativeToolTip": "deneme2\\Migrations\\20240904101817_newdatabase.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-04T10:18:17.953Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
               "Title": "ProductController.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\ProductController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\ProductController.cs",
@@ -446,12 +512,95 @@
               "RelativeToolTip": "deneme2\\Controllers\\ProductController.cs",
               "ViewState": "AgIAABsAAAAAAAAAAAAowAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:26.768Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T11:46:26.768Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 10,
+              "Title": "ProductTicket.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\ProductTicket.cs",
+              "RelativeDocumentMoniker": "deneme2\\Models\\ProductTicket.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\ProductTicket.cs",
+              "RelativeToolTip": "deneme2\\Models\\ProductTicket.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-27T11:16:46.765Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "IFirmUserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmUserRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IFirmUserRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmUserRepository.cs",
+              "RelativeToolTip": "deneme2\\Interfaces\\IFirmUserRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T13:44:05.523Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "UserTicketRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\UserTicketRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Repository\\UserTicketRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\UserTicketRepository.cs",
+              "RelativeToolTip": "deneme2\\Repository\\UserTicketRepository.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAAAMAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T12:15:50.277Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AccountRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\AccountRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Repository\\AccountRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\AccountRepository.cs",
+              "RelativeToolTip": "deneme2\\Repository\\AccountRepository.cs",
+              "ViewState": "AgIAAE0AAAAAAAAAAAAgwGMAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T12:15:42.823Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "FeedbackRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FeedbackRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Repository\\FeedbackRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FeedbackRepository.cs",
+              "RelativeToolTip": "deneme2\\Repository\\FeedbackRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-27T11:16:54.275Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "IAccountRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IAccountRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IAccountRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IAccountRepository.cs",
+              "RelativeToolTip": "deneme2\\Interfaces\\IAccountRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAwAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T10:31:47.743Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "IFirmProductRepository.cs",
+              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmProductRepository.cs",
+              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IFirmProductRepository.cs",
+              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmProductRepository.cs",
+              "RelativeToolTip": "deneme2\\Interfaces\\IFirmProductRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAIAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-27T11:16:01.675Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
               "Title": "FirmProductController.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\FirmProductController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmProductController.cs",
@@ -459,12 +608,11 @@
               "RelativeToolTip": "deneme2\\Controllers\\FirmProductController.cs",
               "ViewState": "AgIAADsAAAAAAAAAAAAmwFUAAABLAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:17.797Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T11:46:17.797Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 23,
               "Title": "FirmUserController.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\FirmUserController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmUserController.cs",
@@ -477,7 +625,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 24,
               "Title": "FirmUserRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FirmUserRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\FirmUserRepository.cs",
@@ -485,12 +633,11 @@
               "RelativeToolTip": "deneme2\\Repository\\FirmUserRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:44:18.741Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T13:44:18.741Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 25,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\appsettings.json",
               "RelativeDocumentMoniker": "deneme2\\appsettings.json",
@@ -498,12 +645,11 @@
               "RelativeToolTip": "deneme2\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2024-08-26T09:07:25.719Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T09:07:25.719Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 26,
               "Title": "TokenService.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Service\\TokenService.cs",
               "RelativeDocumentMoniker": "deneme2\\Service\\TokenService.cs",
@@ -511,25 +657,11 @@
               "RelativeToolTip": "deneme2\\Service\\TokenService.cs",
               "ViewState": "AgIAAC8AAAAAAAAAAAAAAAQAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T14:28:23.761Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T14:28:23.761Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "TicketController.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\TicketController.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\TicketController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T12:03:02.795Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 27,
               "Title": "FirmController.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\FirmController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmController.cs",
@@ -537,25 +669,11 @@
               "RelativeToolTip": "deneme2\\Controllers\\FirmController.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAAAAAwAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:12.958Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T11:46:12.958Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Program.cs",
-              "RelativeDocumentMoniker": "deneme2\\Program.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Program.cs",
-              "RelativeToolTip": "deneme2\\Program.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAAABEAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T06:24:12.672Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 28,
               "Title": "FeedbackController.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\FeedbackController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\FeedbackController.cs",
@@ -563,25 +681,11 @@
               "RelativeToolTip": "deneme2\\Controllers\\FeedbackController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:09.014Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T11:46:09.014Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "ProductRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\ProductRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Repository\\ProductRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\ProductRepository.cs",
-              "RelativeToolTip": "deneme2\\Repository\\ProductRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:17:10.94Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 29,
               "Title": "Ticket.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\Ticket.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\Ticket.cs",
@@ -589,25 +693,11 @@
               "RelativeToolTip": "deneme2\\Models\\Ticket.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:48.483Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:48.483Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
-              "Title": "ProductTicket.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\ProductTicket.cs",
-              "RelativeDocumentMoniker": "deneme2\\Models\\ProductTicket.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\ProductTicket.cs",
-              "RelativeToolTip": "deneme2\\Models\\ProductTicket.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:46.765Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 30,
               "Title": "Product.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\Product.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\Product.cs",
@@ -615,12 +705,11 @@
               "RelativeToolTip": "deneme2\\Models\\Product.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:46.124Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:46.124Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 31,
               "Title": "FirmProduct.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\FirmProduct.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\FirmProduct.cs",
@@ -628,12 +717,11 @@
               "RelativeToolTip": "deneme2\\Models\\FirmProduct.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:42.721Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:42.721Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 35,
               "Title": "Feedback.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\Feedback.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\Feedback.cs",
@@ -641,12 +729,11 @@
               "RelativeToolTip": "deneme2\\Models\\Feedback.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:41.552Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:41.552Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 36,
               "Title": "AppUserTicket.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\AppUserTicket.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\AppUserTicket.cs",
@@ -654,12 +741,11 @@
               "RelativeToolTip": "deneme2\\Models\\AppUserTicket.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:39.604Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:39.604Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 37,
               "Title": "TicketSummary.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\TicketModels\\TicketSummary.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\TicketModels\\TicketSummary.cs",
@@ -667,12 +753,11 @@
               "RelativeToolTip": "deneme2\\Models\\TicketModels\\TicketSummary.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:37.501Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:37.501Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 38,
               "Title": "ProductSummary.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\ProductModels\\ProductSummary.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\ProductModels\\ProductSummary.cs",
@@ -680,12 +765,11 @@
               "RelativeToolTip": "deneme2\\Models\\ProductModels\\ProductSummary.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:33.025Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:33.025Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 34,
               "Title": "Firm.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\Firm.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\Firm.cs",
@@ -693,12 +777,11 @@
               "RelativeToolTip": "deneme2\\Models\\Firm.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T14:47:04.718Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T14:47:04.718Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 33,
               "Title": "FirmUser.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\FirmUser.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\FirmUser.cs",
@@ -706,12 +789,11 @@
               "RelativeToolTip": "deneme2\\Models\\FirmUser.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:09:21.352Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T13:09:21.352Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 32,
               "Title": "AppUser.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\AppUser.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\AppUser.cs",
@@ -719,12 +801,11 @@
               "RelativeToolTip": "deneme2\\Models\\AppUser.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T14:33:25.418Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T14:33:25.418Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 39,
               "Title": "FirmSummary.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\FirmModels\\FirmSummary.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\FirmModels\\FirmSummary.cs",
@@ -732,12 +813,11 @@
               "RelativeToolTip": "deneme2\\Models\\FirmModels\\FirmSummary.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:30.915Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:30.915Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 40,
               "Title": "FeedbackSummary.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\FeedbackModels\\FeedbackSummary.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\FeedbackModels\\FeedbackSummary.cs",
@@ -745,38 +825,11 @@
               "RelativeToolTip": "deneme2\\Models\\FeedbackModels\\FeedbackSummary.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:29.336Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:29.336Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
-              "Title": "20240826105849_newdatabase.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\20240826105849_newdatabase.cs",
-              "RelativeDocumentMoniker": "deneme2\\Migrations\\20240826105849_newdatabase.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\20240826105849_newdatabase.cs",
-              "RelativeToolTip": "deneme2\\Migrations\\20240826105849_newdatabase.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:18.575Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 34,
-              "Title": "ApplicationDbContextModelSnapshot.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "RelativeDocumentMoniker": "deneme2\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "RelativeToolTip": "deneme2\\Migrations\\ApplicationDbContextModelSnapshot.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:17.958Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 41,
               "Title": "ProductMappers.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\ProductMappers.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\ProductMappers.cs",
@@ -784,12 +837,11 @@
               "RelativeToolTip": "deneme2\\Mappers\\ProductMappers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:13.092Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:13.092Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 42,
               "Title": "JwtHelper.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\JwtHelper.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\JwtHelper.cs",
@@ -797,12 +849,11 @@
               "RelativeToolTip": "deneme2\\Mappers\\JwtHelper.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:12.455Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:12.455Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 43,
               "Title": "FirmProductMappers.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\FirmProductMappers.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\FirmProductMappers.cs",
@@ -810,12 +861,11 @@
               "RelativeToolTip": "deneme2\\Mappers\\FirmProductMappers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:11.798Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:11.798Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 44,
               "Title": "FirmMappers.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\FirmMappers.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\FirmMappers.cs",
@@ -823,25 +873,11 @@
               "RelativeToolTip": "deneme2\\Mappers\\FirmMappers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:10.91Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:10.91Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
-              "Title": "AppUserSummary.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
-              "RelativeDocumentMoniker": "deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
-              "RelativeToolTip": "deneme2\\Models\\AppUserModels\\AppUserSummary.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:35:47.019Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 45,
               "Title": "FeedbackMappers.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\FeedbackMappers.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\FeedbackMappers.cs",
@@ -849,12 +885,11 @@
               "RelativeToolTip": "deneme2\\Mappers\\FeedbackMappers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:10.216Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:10.216Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 47,
               "Title": "IUserTicketRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IUserTicketRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Interfaces\\IUserTicketRepository.cs",
@@ -862,12 +897,11 @@
               "RelativeToolTip": "deneme2\\Interfaces\\IUserTicketRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:07.895Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:07.895Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 48,
               "Title": "ITokenService.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\ITokenService.cs",
               "RelativeDocumentMoniker": "deneme2\\Interfaces\\ITokenService.cs",
@@ -875,25 +909,11 @@
               "RelativeToolTip": "deneme2\\Interfaces\\ITokenService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:05.993Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:05.993Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
-              "Title": "IProductRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IProductRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IProductRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IProductRepository.cs",
-              "RelativeToolTip": "deneme2\\Interfaces\\IProductRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:05.124Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 49,
               "Title": "IFirmRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFirmRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Interfaces\\IFirmRepository.cs",
@@ -901,12 +921,11 @@
               "RelativeToolTip": "deneme2\\Interfaces\\IFirmRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:16:02.501Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:16:02.501Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 52,
               "Title": "ClaimsExtensions.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Extensions\\ClaimsExtensions.cs",
               "RelativeDocumentMoniker": "deneme2\\Extensions\\ClaimsExtensions.cs",
@@ -914,12 +933,11 @@
               "RelativeToolTip": "deneme2\\Extensions\\ClaimsExtensions.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:53.133Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:53.133Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 46,
               "Title": "AccountMappers.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\AccountMappers.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\AccountMappers.cs",
@@ -927,12 +945,11 @@
               "RelativeToolTip": "deneme2\\Mappers\\AccountMappers.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:36:10.306Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T10:36:10.306Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 54,
               "Title": "UpdateTicketRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\UpdateTicketRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\UpdateTicketRequestDto.cs",
@@ -940,12 +957,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Ticket\\UpdateTicketRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:50.801Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:50.801Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
+              "DocumentIndex": 53,
               "Title": "TokenRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Token\\TokenRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Token\\TokenRequestDto.cs",
@@ -953,12 +969,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Token\\TokenRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T14:19:25.109Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T14:19:25.109Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 51,
               "Title": "RandomStringGenerator.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Helpers\\RandomStringGenerator.cs",
               "RelativeDocumentMoniker": "deneme2\\Helpers\\RandomStringGenerator.cs",
@@ -966,12 +981,11 @@
               "RelativeToolTip": "deneme2\\Helpers\\RandomStringGenerator.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:28:39.058Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T10:28:39.058Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 55,
               "Title": "UpdateStatusTicketDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\UpdateStatusTicketDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\UpdateStatusTicketDto.cs",
@@ -979,25 +993,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Ticket\\UpdateStatusTicketDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:50.124Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:50.124Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
-              "Title": "IAccountRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IAccountRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Interfaces\\IAccountRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IAccountRepository.cs",
-              "RelativeToolTip": "deneme2\\Interfaces\\IAccountRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:31:47.743Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 50,
               "Title": "IFeedbackRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\IFeedbackRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Interfaces\\IFeedbackRepository.cs",
@@ -1005,12 +1005,11 @@
               "RelativeToolTip": "deneme2\\Interfaces\\IFeedbackRepository.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:45:49.483Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T11:45:49.483Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 56,
               "Title": "UpdateProductRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Product\\UpdateProductRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Product\\UpdateProductRequestDto.cs",
@@ -1018,12 +1017,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Product\\UpdateProductRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:41.422Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:41.422Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 55,
+              "DocumentIndex": 57,
               "Title": "ProductDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Product\\ProductDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Product\\ProductDto.cs",
@@ -1031,12 +1029,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Product\\ProductDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:40.722Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:40.722Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 56,
+              "DocumentIndex": 58,
               "Title": "CreateProductRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Product\\CreateProductRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Product\\CreateProductRequestDto.cs",
@@ -1044,12 +1041,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Product\\CreateProductRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:40.116Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:40.116Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 57,
+              "DocumentIndex": 59,
               "Title": "UpdateFirmProductRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\FirmProduct\\UpdateFirmProductRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\FirmProduct\\UpdateFirmProductRequestDto.cs",
@@ -1057,12 +1053,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\FirmProduct\\UpdateFirmProductRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:38.843Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:38.843Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 58,
+              "DocumentIndex": 60,
               "Title": "FirmProductDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\FirmProduct\\FirmProductDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\FirmProduct\\FirmProductDto.cs",
@@ -1070,38 +1065,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\FirmProduct\\FirmProductDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:38.163Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:38.163Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
-              "Title": "CreateTicketRequestDto.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
-              "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
-              "RelativeToolTip": "deneme2\\Dtos\\Ticket\\CreateTicketRequestDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T12:27:31.559Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 52,
-              "Title": "TicketDto.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\TicketDto.cs",
-              "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\TicketDto.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Ticket\\TicketDto.cs",
-              "RelativeToolTip": "deneme2\\Dtos\\Ticket\\TicketDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T07:45:12.946Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 59,
+              "DocumentIndex": 61,
               "Title": "CreateFirmProductRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\FirmProduct\\CreateFirmProductRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\FirmProduct\\CreateFirmProductRequestDto.cs",
@@ -1109,12 +1077,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\FirmProduct\\CreateFirmProductRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:36.538Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:36.538Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 60,
+              "DocumentIndex": 62,
               "Title": "UpdateFirmRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Firm\\UpdateFirmRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Firm\\UpdateFirmRequestDto.cs",
@@ -1122,12 +1089,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Firm\\UpdateFirmRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:34.336Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:34.336Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 61,
+              "DocumentIndex": 63,
               "Title": "FirmDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Firm\\FirmDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Firm\\FirmDto.cs",
@@ -1135,12 +1101,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Firm\\FirmDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:33.761Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:33.761Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 62,
+              "DocumentIndex": 64,
               "Title": "CreateFirmRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Firm\\CreateFirmRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Firm\\CreateFirmRequestDto.cs",
@@ -1148,12 +1113,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Firm\\CreateFirmRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:32.932Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:32.932Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 63,
+              "DocumentIndex": 65,
               "Title": "NewFeedbackDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Feedback\\NewFeedbackDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Feedback\\NewFeedbackDto.cs",
@@ -1161,12 +1125,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Feedback\\NewFeedbackDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:30.883Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:30.883Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 64,
+              "DocumentIndex": 66,
               "Title": "FeedbackDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Feedback\\FeedbackDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Feedback\\FeedbackDto.cs",
@@ -1174,12 +1137,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Feedback\\FeedbackDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:28.588Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:28.588Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 65,
+              "DocumentIndex": 67,
               "Title": "CreateFeedbackRequestDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Feedback\\CreateFeedbackRequestDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Feedback\\CreateFeedbackRequestDto.cs",
@@ -1187,25 +1149,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Feedback\\CreateFeedbackRequestDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T11:15:27.718Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T11:15:27.718Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 72,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "deneme2\\Data\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
-              "RelativeToolTip": "deneme2\\Data\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAABDAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:50:29.804Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 71,
               "Title": "GetUserRoleDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\GetUserRoleDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\GetUserRoleDto.cs",
@@ -1213,12 +1161,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Account\\GetUserRoleDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T14:24:32.925Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T14:24:32.925Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 70,
+              "DocumentIndex": 71,
               "Title": "NewNewUserDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\NewNewUserDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\NewNewUserDto.cs",
@@ -1226,12 +1173,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Account\\NewNewUserDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:34:55.796Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T10:34:55.796Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 69,
+              "DocumentIndex": 70,
               "Title": "LoginDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\LoginDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\LoginDto.cs",
@@ -1239,12 +1185,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Account\\LoginDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:34:54.538Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-26T10:34:54.538Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 68,
+              "DocumentIndex": 69,
               "Title": "NewUserDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\NewUserDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\NewUserDto.cs",
@@ -1252,12 +1197,11 @@
               "RelativeToolTip": "deneme2\\Dtos\\Account\\NewUserDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAqwAcAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:22:38.295Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T13:22:38.295Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 67,
+              "DocumentIndex": 68,
               "Title": "RegisterDto.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\RegisterDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\RegisterDto.cs",
@@ -1265,21 +1209,7 @@
               "RelativeToolTip": "deneme2\\Dtos\\Account\\RegisterDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:04:02.947Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 66,
-              "Title": "UpdateDto.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\UpdateDto.cs",
-              "RelativeDocumentMoniker": "deneme2\\Dtos\\Account\\UpdateDto.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Dtos\\Account\\UpdateDto.cs",
-              "RelativeToolTip": "deneme2\\Dtos\\Account\\UpdateDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:35:17.708Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T13:04:02.947Z"
             },
             {
               "$type": "Document",
@@ -1291,25 +1221,11 @@
               "RelativeToolTip": "deneme2\\Controllers\\AppUserTicketController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T14:28:39.884Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T14:28:39.884Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 74,
-              "Title": "AccountController.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\AccountController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\AccountController.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Controllers\\AccountController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\AccountController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T11:29:06.748Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 77,
+              "DocumentIndex": 75,
               "Title": "TicketMappers.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Mappers\\TicketMappers.cs",
               "RelativeDocumentMoniker": "deneme2\\Mappers\\TicketMappers.cs",
@@ -1321,7 +1237,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 76,
+              "DocumentIndex": 74,
               "Title": "FirmRepository.cs",
               "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Repository\\FirmRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\FirmRepository.cs",
@@ -1330,19 +1246,6 @@
               "ViewState": "AgIAADIAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T15:17:32.968Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 75,
-              "Title": "ITicketRepository.cs",
-              "DocumentMoniker": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\ITicketRepository.cs",
-              "RelativeDocumentMoniker": "deneme2\\Interfaces\\ITicketRepository.cs",
-              "ToolTip": "C:\\Users\\ozcan\\source\\repos\\TicketSystem\\deneme2\\Interfaces\\ITicketRepository.cs",
-              "RelativeToolTip": "deneme2\\Interfaces\\ITicketRepository.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAgAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T12:15:28.362Z",
-              "EditorCaption": ""
             }
           ]
         }

@@ -85,9 +85,9 @@ namespace TicketSystem.Repository
                return await _context.Users.FirstOrDefaultAsync(t => t.FirstName == name);
           }
 
-          public async Task<AppUser?> GetByUserNameAsync(string name)
+          public async Task<AppUser?> GetByUserNameAsync(string username)
           {
-               return await _context.Users.FirstOrDefaultAsync(t => t.UserName == name);
+               return await _context.Users.FirstOrDefaultAsync(t => t.UserName == username);
           }
 
           public async Task<AppUser?> UpdateAsync(string id, UpdateDto appuserDto)
@@ -98,7 +98,6 @@ namespace TicketSystem.Repository
                     return null;
                }
                existingUser.Id = appuserDto.Id;
-               existingUser.UserName = appuserDto.Name;
                existingUser.FirstName = appuserDto.FirstName;
                existingUser.LastName = appuserDto.LastName;
                existingUser.Email = appuserDto.Email;

@@ -113,6 +113,11 @@ namespace TicketSystem.Controllers
 
                var product = await _productRepo.GetByIdAsync(ticketDto.ProductId);
 
+               if(product == null)
+               {
+                    return NotFound();
+               }
+
                if (ticketDto.NewProduct == false)
                {
                     var ticketModel3 = new ProductTicket
