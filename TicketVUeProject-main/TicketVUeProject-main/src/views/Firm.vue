@@ -142,6 +142,8 @@ export default {
           firmName: firm.name,
         }));
 
+        firms.value = firms.value.filter(firm => firm.firmName !== 'TURKUVAZ');
+
         firms.value.sort((a, b) => {
           if (a.firmName < b.firmName) return -1;
           if (a.firmName > b.firmName) return 1;
@@ -165,20 +167,20 @@ export default {
         return;
       }
 
+      const newFirmData = {name: newfirmName.value.trim()};
+
+      const existingFirm = firms.value.find(
+          (firm) =>
+              firm.firmName.toLowerCase() === newFirmData.name.toLowerCase()
+      );
+
+      if (existingFirm) {
+        showToast("Bu isimde bir firma zaten mevcut!", "error");
+        newfirmName.value = "";
+        return;
+      }
+
       try {
-        const newFirmData = {name: newfirmName.value.trim()};
-
-        const existingFirm = firms.value.find(
-            (firm) =>
-                firm.firmName.toLowerCase() === newFirmData.name.toLowerCase()
-        );
-
-        if (existingFirm) {
-          showToast("Bu isimde bir firma zaten mevcut!", "error");
-          newfirmName.value = "";
-          return;
-        }
-
         const response = await axios.post(
             "http://localhost:5005/api/Firm/createFirm",
             newFirmData
@@ -312,23 +314,22 @@ export default {
     });
 
     return {
-      newfirmName,
-      firms,
       Users,
+      cancelEdit,
       currentusers,
-      handleFirmaClick,
-      handleDelete,
-      getusers,
       editFirmaId,
       editfirmName,
-      startEdit,
-      handleUpdateFirma,
-      cancelEdit,
       filteredfirms,
-      toasts,
-      showToast,
+      firms,
+      getusers,
+      handleDelete,
+      handleFirmaClick,
+      handleUpdateFirma,
+      newfirmName,
       removeToast,
-      removeToast: (index) => toasts.value.splice(index, 1),
+      showToast,
+      startEdit,
+      toasts
     };
   },
 };

@@ -18,17 +18,11 @@
   {
     "ContainingType": "TicketSystem.Controllers.AccountController",
     "Method": "GetUserByUserNameAsync",
-    "RelativePath": "api/account/getbyusername/{username}",
+    "RelativePath": "api/account/getbyusername",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [
-      {
-        "Name": "username",
-        "Type": "System.String",
-        "IsRequired": true
-      }
-    ],
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

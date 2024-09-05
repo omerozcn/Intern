@@ -236,15 +236,16 @@ export default {
       let newProducts = false;
       if(selectedProduct.value === "0")
         newProducts = true;
-
+      console.log(selectedProduct)
       const query = {
         description: description.value,
         newProduct: newProducts,
         createdBy: sessionStorage.getItem("firstName"),
         status: 1,
         firmName: sessionStorage.getItem("firmName"),
-        productId: selectedProduct.value.id
+        productId: (selectedProduct.value.id - 1)
       }
+      console.log(query.productId);
       try {
         const response = await axios.post('http://localhost:5005/api/Ticket/createTicket',
             query
@@ -279,8 +280,6 @@ export default {
             productName: ticket.productName,
           }));
 
-
-
         if (tickets.value.length === 0 || "") {
           showToast("Hiç talep bulunamadı.", "info");
         } else {
@@ -300,16 +299,12 @@ export default {
             `http://localhost:5005/api/FirmProduct/listProductsByFirm/${firmname}`
         );
         const productsData = productResponse.data;
-        const productsMap = {};
 
-        productsData.forEach((product) => {
-          productsMap[product.id] = {
-            productName: product.productName,
-          };
-        });
-        const productsWithFirms = Object.values(productsMap);
-
-        products.value = productsWithFirms;
+        products.value = productsData.map((product) => ({
+          id: product.id,
+          productName: product.productName,
+        }));
+        console.log(products.value);
 
         showToast("Ürünler başarıyla yüklendi.", "success");
       } catch (error) {

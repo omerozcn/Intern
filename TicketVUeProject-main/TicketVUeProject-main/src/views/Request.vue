@@ -194,6 +194,8 @@ export default {
           }
         });
 
+        console.log(response.data);
+
         tickets.value = response.data.map((ticket) => ({
           id: ticket.id,
           newProduct: ticket.newProduct,
@@ -245,6 +247,7 @@ export default {
         );
         const productsData = productResponse.data;
         const productsMap = {};
+        console.log(productResponse.data);
 
         productsData.forEach((product) => {
           productsMap[product.id] = {

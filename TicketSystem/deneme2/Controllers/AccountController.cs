@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TicketSystem.Mappers;
 using TicketSystem.Data;
 using TicketSystem.Dtos.Token;
+using TicketSystem.Extensions;
 
 namespace TicketSystem.Controllers
 {
@@ -108,7 +109,6 @@ namespace TicketSystem.Controllers
                return Ok(users.ToAccountDto());
           }
 
-          [Authorize]
           [HttpPost("register")]
           public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
           {
@@ -165,7 +165,7 @@ namespace TicketSystem.Controllers
 
                     return NoContent();
                }
-               catch (Exception ex)
+               catch (Exception)
                {
                     return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
                }
@@ -208,16 +208,17 @@ namespace TicketSystem.Controllers
 
                     return Ok(userRole);
                }
-               catch (Exception ex)
+               catch (Exception)
                {
                     return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
                }
           }
 
           [Authorize]
-          [HttpGet("getbyusername/{username}")]
-          public async Task<IActionResult> GetUserByUserNameAsync([FromRoute] string username)
+          [HttpGet("getbyusername")]
+          public async Task<IActionResult> GetUserByUserNameAsync()
           {
+               var username = User.GetUserName();
                if (!ModelState.IsValid)
                {
                     return BadRequest(ModelState);

@@ -94,8 +94,8 @@ const passwordMessage = ref("");
 
 const fetchUserData = async () => {
   try{
-    const userName = sessionStorage.getItem("userName");
-    const response = await axios.get(`http://localhost:5005/api/Account/getbyusername/${userName}`)
+    const response = await axios.get(`http://localhost:5005/api/Account/getbyusername`)
+    const userName = response.data.userName;
     const firstName = response.data.firstName;
     const lastName = response.data.lastName
     const email = response.data.email;
