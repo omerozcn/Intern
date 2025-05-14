@@ -11,14 +11,15 @@ let userRole = null;
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: "/", name: "Home", component: () => import("../views/Home.vue"), meta: { requiresAuth: true } },
+    { path: "/", name: "Home", component: () => import("../views/Home.vue")},
     {
       path: "/register",
       component: () => import("../views/Register.vue" ), meta: { requiresAuth: true , requiredRole: 'Admin' }
     },
     {
       path: "/sign-in",
-      component: () => import("../views/SignIn.vue") },
+      component: () => import("../views/SignIn.vue")
+    },
     {
       path: "/firm",
       component: () => import("../views/Firm.vue"), meta: { requiresAuth: true , requiredRole: 'Admin' }

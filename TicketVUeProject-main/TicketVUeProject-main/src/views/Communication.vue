@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import axios from "axios";
 
 export default {
@@ -181,7 +181,7 @@ export default {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;

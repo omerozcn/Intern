@@ -185,6 +185,40 @@ export default {
       }
     };
 
+
+    const fetchProducts = async () => {
+      try {
+        const productResponse = await axios.get(
+            "http://localhost:5005/api/Product/listProduct"
+        );
+        const productsData = productResponse.data;
+        const productsMap = {};
+        console.log(productResponse.data);
+
+        productsData.forEach((product) => {
+          productsMap[product.id] = {
+            id: product.id,
+            name: product.name,
+            birthDate: product.birthDate,
+            birthDateFormatted: product.birthDateFormatted,
+            Firms: [],
+          };
+        });
+
+        const productsWithFirms = Object.values(productsMap);
+        products.value = productsWithFirms;
+      } catch (error) {
+        console.error(
+            "Veri çekme sırasında bir hata oluştu:",
+            error.response?.data || error.message
+        );
+        showToast(
+            "Veri çekme sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+            "error"
+        );
+      }
+    };
+
     const fetchTickets = async () => {
       let usertoken = sessionStorage.getItem("token")
       try {
@@ -240,38 +274,7 @@ export default {
       }
     };
 
-    const fetchProducts = async () => {
-      try {
-        const productResponse = await axios.get(
-            "http://localhost:5005/api/Product/listProduct"
-        );
-        const productsData = productResponse.data;
-        const productsMap = {};
-        console.log(productResponse.data);
-
-        productsData.forEach((product) => {
-          productsMap[product.id] = {
-            id: product.id,
-            name: product.name,
-            birthDate: product.birthDate,
-            birthDateFormatted: product.birthDateFormatted,
-            Firms: [],
-          };
-        });
-
-        const productsWithFirms = Object.values(productsMap);
-        products.value = productsWithFirms;
-      } catch (error) {
-        console.error(
-            "Veri çekme sırasında bir hata oluştu:",
-            error.response?.data || error.message
-        );
-        showToast(
-            "Veri çekme sırasında bir hata oluştu. Lütfen tekrar deneyin.",
-            "error"
-        );
-      }
-    };
+    
 
     const handleDelete = async (ticket) => {
       try {
@@ -530,7 +533,7 @@ export default {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;

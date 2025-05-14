@@ -243,7 +243,7 @@ export default {
         createdBy: sessionStorage.getItem("firstName"),
         status: 1,
         firmName: sessionStorage.getItem("firmName"),
-        productId: (selectedProduct.value.id - 1)
+        productId: (selectedProduct.value.id)
       }
       console.log(query.productId);
       try {
@@ -533,7 +533,7 @@ textarea {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;

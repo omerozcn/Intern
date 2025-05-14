@@ -432,7 +432,7 @@ h1 {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;
