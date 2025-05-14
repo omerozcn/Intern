@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TicketSystem.Controllers
 {
      [Route("api/Product")]
-     //[Authorize]
+     [Authorize]
      [ApiController]
      public class ProductController : ControllerBase
      {
