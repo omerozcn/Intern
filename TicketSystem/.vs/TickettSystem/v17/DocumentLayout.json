@@ -3,40 +3,52 @@
   "WorkspaceRootPath": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\repository\\ticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\ticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\ticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\ticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\firmproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\migrations\\20250511121219_deneme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\migrations\\20250511121219_deneme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\firmusercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmusercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\firmproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmproductcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\firmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\feedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\feedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\appuserticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\appuserticketcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\repository\\ticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\ticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\repository\\productrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\migrations\\20250511121219_deneme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\migrations\\20250511121219_deneme.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\repository\\accountrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -45,10 +57,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\dtos\\ticket\\ticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\dtos\\ticket\\ticketdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\firmusercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmusercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -73,14 +81,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\interfaces\\iticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\interfaces\\iticketrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\feedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\feedbackcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\controllers\\firmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|solutionrelative:deneme2\\controllers\\firmcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{635A2B8D-3E76-4034-9847-BD975CF5FACA}|deneme2\\TicketSystem.csproj|d:\\bankai\\tate\\repos\\intern\\ticketsystem\\deneme2\\models\\firm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -314,7 +314,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 187,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 10,
           "Children": [
             {
               "$type": "Bookmark",
@@ -326,95 +326,124 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "TicketController.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\TicketController.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\TicketController.cs",
-              "ViewState": "AgIAAG0AAAAAAAAAAAAcwA4AAAAEAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T12:03:02.795Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "ProductController.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\ProductController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\ProductController.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\ProductController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\ProductController.cs",
-              "ViewState": "AgIAABsAAAAAAAAAAAAowCYAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:26.768Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "20250511121219_deneme.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Migrations\\20250511121219_deneme.cs",
-              "RelativeDocumentMoniker": "deneme2\\Migrations\\20250511121219_deneme.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Migrations\\20250511121219_deneme.cs",
-              "RelativeToolTip": "deneme2\\Migrations\\20250511121219_deneme.cs",
-              "ViewState": "AgIAADcBAAAAAAAAAAAUwMEBAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-11T12:12:20.48Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "AccountController.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\AccountController.cs",
               "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\AccountController.cs",
               "RelativeToolTip": "deneme2\\Controllers\\AccountController.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAlwPUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAALwAAAAAAAAAAAAuwPUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T11:29:06.748Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "deneme2\\Data\\ApplicationDbContext.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
-              "RelativeToolTip": "deneme2\\Data\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAKIAAAAAAAAAAAAAALcAAAArAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T13:50:29.804Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 8,
               "Title": "TicketRepository.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Repository\\TicketRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\TicketRepository.cs",
               "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Repository\\TicketRepository.cs",
               "RelativeToolTip": "deneme2\\Repository\\TicketRepository.cs",
-              "ViewState": "AgIAAG8AAAAAAAAAAAA7wI4AAABGAAAAAAAAAA==",
+              "ViewState": "AgIAAHAAAAAAAAAAAAAkwI4AAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T12:15:58.501Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "FirmProductController.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmProductController.cs",
               "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmProductController.cs",
               "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmProductController.cs",
               "RelativeToolTip": "deneme2\\Controllers\\FirmProductController.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAQwCwAAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAwwAsAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:17.797Z"
+              "WhenOpened": "2024-08-26T11:46:17.797Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "AppUserTicketController.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\AppUserTicketController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\AppUserTicketController.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\AppUserTicketController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\AppUserTicketController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T14:28:39.884Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FeedbackController.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FeedbackController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\FeedbackController.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FeedbackController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\FeedbackController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T11:46:09.014Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
+              "Title": "FirmController.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmController.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\FirmController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T11:46:12.958Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FirmUserController.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmUserController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmUserController.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmUserController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\FirmUserController.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAvwBcAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T10:16:21.714Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ProductController.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\ProductController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\ProductController.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\ProductController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\ProductController.cs",
+              "ViewState": "AgIAADgAAAAAAAAAAAAIwAwAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-26T11:46:26.768Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TicketController.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
+              "RelativeDocumentMoniker": "deneme2\\Controllers\\TicketController.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\TicketController.cs",
+              "RelativeToolTip": "deneme2\\Controllers\\TicketController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFMAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-08-23T12:03:02.795Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
               "Title": "ProductRepository.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Repository\\ProductRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\ProductRepository.cs",
@@ -426,20 +455,31 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "AppUserTicketController.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\AppUserTicketController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\AppUserTicketController.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\AppUserTicketController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\AppUserTicketController.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAxwBsAAAAKAAAAAAAAAA==",
+              "DocumentIndex": 9,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "deneme2\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "deneme2\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAKIAAAAAAAAAAAAAALcAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T14:28:39.884Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-23T13:50:29.804Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 11,
+              "Title": "20250511121219_deneme.cs",
+              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Migrations\\20250511121219_deneme.cs",
+              "RelativeDocumentMoniker": "deneme2\\Migrations\\20250511121219_deneme.cs",
+              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Migrations\\20250511121219_deneme.cs",
+              "RelativeToolTip": "deneme2\\Migrations\\20250511121219_deneme.cs",
+              "ViewState": "AgIAADcBAAAAAAAAAAAUwMEBAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-11T12:12:20.48Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "AccountRepository.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Repository\\AccountRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\AccountRepository.cs",
@@ -451,7 +491,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "TicketDto.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Dtos\\Ticket\\TicketDto.cs",
               "RelativeDocumentMoniker": "deneme2\\Dtos\\Ticket\\TicketDto.cs",
@@ -463,20 +503,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "FirmUserController.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmUserController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmUserController.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmUserController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\FirmUserController.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAvwBcAAAAXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T10:16:21.714Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Program.cs",
               "RelativeDocumentMoniker": "deneme2\\Program.cs",
@@ -488,7 +515,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 15,
               "Title": "FirmProduct.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Models\\FirmProduct.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\FirmProduct.cs",
@@ -500,7 +527,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 16,
               "Title": "FirmProductRepository.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Repository\\FirmProductRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Repository\\FirmProductRepository.cs",
@@ -512,7 +539,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 17,
               "Title": "ProductTicket.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Models\\ProductTicket.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\ProductTicket.cs",
@@ -524,7 +551,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 18,
               "Title": "Ticket.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Models\\Ticket.cs",
               "RelativeDocumentMoniker": "deneme2\\Models\\Ticket.cs",
@@ -536,19 +563,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
-              "Title": "FeedbackController.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FeedbackController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\FeedbackController.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FeedbackController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\FeedbackController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:09.014Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 19,
               "Title": "ITicketRepository.cs",
               "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Interfaces\\ITicketRepository.cs",
               "RelativeDocumentMoniker": "deneme2\\Interfaces\\ITicketRepository.cs",
@@ -557,18 +572,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAABUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-08-23T12:15:28.362Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 19,
-              "Title": "FirmController.cs",
-              "DocumentMoniker": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmController.cs",
-              "RelativeDocumentMoniker": "deneme2\\Controllers\\FirmController.cs",
-              "ToolTip": "D:\\Bankai\\tate\\repos\\Intern\\TicketSystem\\deneme2\\Controllers\\FirmController.cs",
-              "RelativeToolTip": "deneme2\\Controllers\\FirmController.cs",
-              "ViewState": "AgIAAE0AAAAAAAAAAAAcwA0AAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-26T11:46:12.958Z"
             },
             {
               "$type": "Document",

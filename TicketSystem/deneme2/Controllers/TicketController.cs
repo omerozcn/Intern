@@ -81,7 +81,7 @@ namespace TicketSystem.Controllers
         }
 
         [HttpPost("createTicket")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> Create([FromBody] CreateTicketRequestDto ticketDto)
         {
             var username = User.GetUserName();
