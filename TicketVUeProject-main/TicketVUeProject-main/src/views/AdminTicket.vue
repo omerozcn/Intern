@@ -108,7 +108,7 @@
                   <a
                       class="dropdown-item"
                       href="#"
-                      @click="showResponseModal(ticket)"
+                      @click.prevent="showResponseModal(ticket)"
                   >
                     {{ $t("status_3") }}
                   </a>
@@ -204,6 +204,7 @@ export default {
           productName: ticket.productName,
           createdBy: ticket.createdBy
         }));
+        console.log("Fetched tickets: ", tickets.value);
 
         tickets.value.sort((a, b) => {
           if (a.status !== b.status) {
@@ -339,9 +340,12 @@ export default {
       filterBy.value = status;
     };
 
-    const showResponseModal = (ticket) => {
+    const showResponseModal = async (ticket) => {
       selectedTicket.value = ticket;
       response.value = ticket.response || "";
+
+      await nextTick();
+
       const modal = new bootstrap.Modal(
           document.getElementById("responseModal")
       );
@@ -469,7 +473,7 @@ export default {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;

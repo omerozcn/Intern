@@ -119,8 +119,8 @@
 </template>
 
 <script setup>
+import axios from "axios";
 import {ref, onMounted} from "vue";
-
 import {Bar, Doughnut} from "vue-chartjs";
 import {
   Chart as ChartJS,
@@ -166,7 +166,7 @@ const doughnutData = ref({
   datasets: [
     {
       label: t("requests"),
-      data: [4, 8, 0],
+      data: [0, 0, 0], // Başlangıç boş
       backgroundColor: ["#f39c12", "#2980b9", "#27ae60"],
     },
   ],
@@ -191,7 +191,7 @@ const chartData = ref({
   datasets: [
     {
       label: t("requests"),
-      data: [4, 8, 0],
+      data: [0, 0, 0],
       backgroundColor: ["#f39c12", "#2980b9", "#27ae60"],
     },
   ],
@@ -209,6 +209,50 @@ const chartOptions = {
       text: t("request_distribution"),
     },
   },
+};
+
+const fetchChartData = async () => {
+  try {
+    const response = await axios.get("http://localhost:5005/api/Ticket/ticketstatuscount");
+    console.log("Chart data response:", response.data);
+    const counts = [0, 0, 0];
+
+    let total = 0;
+    response.data.forEach(item => {
+      if (item.status >= 1 && item.status <= 3) {
+        counts[item.status - 1] = item.count;
+        total += item.count;
+      }
+    });
+
+    totalRequests.value = total;
+    pendingRequests.value = counts[0];
+    inProgressRequests.value = counts[1];
+    completedRequests.value = counts[2];
+
+    doughnutData.value = {
+      ...doughnutData.value,
+      datasets: [
+        {
+          ...doughnutData.value.datasets[0],
+          data: [...counts],
+        },
+      ],
+    };
+
+    chartData.value = {
+      ...chartData.value,
+      datasets: [
+        {
+          ...chartData.value.datasets[0],
+          data: [...counts],
+        },
+      ],
+    };
+
+  } catch (error) {
+    console.error("Veri alınırken hata oluştu:", error);
+  }
 };
 
 const submitFeedback = async () => {
@@ -259,6 +303,7 @@ const removeToast = (index) => {
 
 onMounted(async () => {
   await store.fetchUserRole();
+  await fetchChartData();
 });
 </script>
 
@@ -401,7 +446,7 @@ main {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;
@@ -411,7 +456,7 @@ main {
 }
 
 .toast {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   padding: 1rem 1.5rem;
   border-radius: 0.5rem;
   color: #fff;

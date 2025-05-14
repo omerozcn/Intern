@@ -255,7 +255,8 @@ export default {
         const newProductData = {
           name: newProduct.value.trim(),
         };
-
+        console.log("Yeni ürün verisi:", newProductData);
+        
         const existingProduct = products.value.find(
             (product) =>
                 product.name.toLowerCase() === newProductData.name.toLowerCase()
@@ -270,6 +271,7 @@ export default {
             "http://localhost:5005/api/Product/createProduct",
             newProductData
         );
+        console.log("Ürün oluşturma yanıtı:", response.data);
         showToast("Ürün başarıyla oluşturuldu!", "success");
         await fetchProducts();
       } catch (error) {
@@ -480,7 +482,7 @@ h1 {
 
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 3.2rem;
   right: 1rem;
   z-index: 1050;
   display: flex;
