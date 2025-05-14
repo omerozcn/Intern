@@ -137,10 +137,11 @@ namespace TicketSystem.Repository
                                      join f in _context.Firms on fu.FirmId equals f.Id
                                      where fu.AppUserId == id
                                      select f.Name).FirstOrDefault(),
-                         ProductName = (from pt in _context.ProductTickets
-                                        join p in _context.Products on pt.ProductId equals p.Id
-                                        where pt.TicketId == ticket.Id
-                                        select p.Name).FirstOrDefault()
+                        ProductName = (from pt in _context.ProductTickets
+                                       join p in _context.Products on pt.ProductId equals p.Id
+                                       where pt.TicketId == ticket.Id
+                                       select p.Name).FirstOrDefault()
+
                     })
                     .ToListAsync();
 

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace TicketSystem.Controllers
 {
      [Route("api/Feedback")]
-     [Authorize]
+     //[Authorize]
      [ApiController]
      public class FeedbackController: ControllerBase
      {

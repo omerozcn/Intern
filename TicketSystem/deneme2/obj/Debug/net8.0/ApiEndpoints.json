@@ -426,6 +426,16 @@
   },
   {
     "ContainingType": "TicketSystem.Controllers.TicketController",
+    "Method": "GetTicketStatusSummary",
+    "RelativePath": "api/Ticket/ticketstatuscount",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "TicketSystem.Controllers.TicketController",
     "Method": "UpdateTicketStatus",
     "RelativePath": "api/Ticket/updateStatus/{id}",
     "HttpMethod": "PUT",

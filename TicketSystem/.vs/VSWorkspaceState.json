@@ -1,8 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\deneme2"
+    "\\deneme2",
+    "\\deneme2\\Data",
+    "\\deneme2\\Models"
   ],
-  "SelectedNode": "\\deneme2\\Program.cs",
+  "SelectedNode": "\\deneme2",
   "PreviewInSolutionExplorer": false
 }
