@@ -12,8 +12,8 @@ using TicketSystem.Data;
 namespace TicketSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240826105849_newdatabase")]
-    partial class newdatabase
+    [Migration("20250511121219_deneme")]
+    partial class deneme
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,13 +54,13 @@ namespace TicketSystem.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c5fa858a-c5b2-4e6b-a690-96b2718df556",
+                            Id = "7b2cb566-795e-4d3b-9be0-7bacd6d773d7",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "4e02ea1a-4c6e-4b81-9534-e8e3c48e74f3",
+                            Id = "7d41b27d-2be6-40b5-b8cc-6eebb987c378",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -304,6 +304,13 @@ namespace TicketSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Firms", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 99,
+                            Name = "TURKUVAZ"
+                        });
                 });
 
             modelBuilder.Entity("TicketSystem.Models.FirmProduct", b =>

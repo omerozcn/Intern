@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TicketSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class newdatabase : Migration
+    public partial class deneme : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -329,9 +329,14 @@ namespace TicketSystem.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "4e02ea1a-4c6e-4b81-9534-e8e3c48e74f3", null, "User", "USER" },
-                    { "c5fa858a-c5b2-4e6b-a690-96b2718df556", null, "Admin", "ADMIN" }
+                    { "7b2cb566-795e-4d3b-9be0-7bacd6d773d7", null, "Admin", "ADMIN" },
+                    { "7d41b27d-2be6-40b5-b8cc-6eebb987c378", null, "User", "USER" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Firms",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 99, "TURKUVAZ" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppUserTickets_AppUserId",

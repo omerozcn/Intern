@@ -43,6 +43,11 @@ namespace TicketSystem.Data
                           .WithOne(aut => aut.Firm)
                           .HasForeignKey(aut => aut.FirmId)
                           .OnDelete(DeleteBehavior.Cascade);
+                   entity.HasData(new Firm
+                   {
+                       Id = 99,
+                       Name = "TURKUVAZ"
+                   });
                });
 
                builder.Entity<Product>(entity =>

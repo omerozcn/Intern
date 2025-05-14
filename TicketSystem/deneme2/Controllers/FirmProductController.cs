@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace TicketSystem.Controllers
 {
      [Route("api/Firmproduct")]
-     [Authorize]
+     //[Authorize]
      [ApiController]
      public class FirmProductController : ControllerBase
      {

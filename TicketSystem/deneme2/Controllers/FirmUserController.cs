@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace TicketSystem.Controllers
 {
      [Route("api/FirmUser")]
-     [Authorize]
+     //[Authorize]
      [ApiController]
      public class FirmUserController : ControllerBase
      {
@@ -21,7 +21,7 @@ namespace TicketSystem.Controllers
           }
 
           [Route("getuserFirm")]
-          [Authorize]
+          //[Authorize]
           [HttpGet]
           public async Task<IActionResult> GetUserFirmUser()
           {

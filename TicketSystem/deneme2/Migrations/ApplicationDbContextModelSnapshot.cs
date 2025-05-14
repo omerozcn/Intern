@@ -51,13 +51,13 @@ namespace TicketSystem.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "496dafd9-b5df-4fb3-8629-2d48c1f1d5dd",
+                            Id = "7b2cb566-795e-4d3b-9be0-7bacd6d773d7",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "348b27cd-dde5-46bf-a1c6-6a2c2082bffd",
+                            Id = "7d41b27d-2be6-40b5-b8cc-6eebb987c378",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -301,6 +301,13 @@ namespace TicketSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Firms", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 99,
+                            Name = "TURKUVAZ"
+                        });
                 });
 
             modelBuilder.Entity("TicketSystem.Models.FirmProduct", b =>
