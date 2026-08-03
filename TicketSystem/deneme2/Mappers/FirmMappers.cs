@@ -1,5 +1,6 @@
 using TicketSystem.Dtos.Firm;
 using TicketSystem.Models;
+using TicketSystem.Security;
 
 namespace TicketSystem.Mappers;
 
@@ -11,6 +12,7 @@ public static class FirmMappers
         {
             Id = firmModel.Id,
             Name = firmModel.Name,
+            IsProtected = ProtectedFirm.IsProtectedName(firmModel.Name),
         };
     }
 

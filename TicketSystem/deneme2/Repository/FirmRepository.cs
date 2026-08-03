@@ -1,9 +1,12 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Firm;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
+using TicketSystem.Security;
 
 namespace TicketSystem.Repository;
 
@@ -65,17 +68,27 @@ public sealed class FirmRepository : IFirmRepository
             .AnyAsync(firmUser => firmUser.FirmId == id, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<FirmDto>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async Task<PagedResult<FirmDto>> GetAllAsync(
+        PageRequest request,
+        CancellationToken cancellationToken = default)
     {
-        return await _context.Firms
-            .AsNoTracking()
+        var firms = _context.Firms.AsNoTracking();
+
+        if (request.Search is not null)
+        {
+            firms = firms.Where(firm => firm.Name.Contains(request.Search));
+        }
+
+        return await firms
             .OrderBy(firm => firm.Name)
             .Select(firm => new FirmDto
             {
                 Id = firm.Id,
                 Name = firm.Name,
+                ProductCount = firm.FirmProducts.Count,
+                IsProtected = firm.Name == ProtectedFirm.Name,
             })
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(request, cancellationToken);
     }
 
     public async Task<Firm?> GetByIdAsync(int id, CancellationToken cancellationToken = default)

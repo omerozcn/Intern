@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
 using TicketSystem.Dtos.Account;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Firm;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Security;
@@ -25,13 +27,41 @@ public sealed class AccountRepository : IAccountRepository
         _roleManager = roleManager;
     }
 
-    public async Task<IReadOnlyList<ProfileDto>> GetAllAsync(
+    public async Task<PagedResult<ProfileDto>> GetAllAsync(
+        UserListRequest request,
         CancellationToken cancellationToken = default)
     {
-        return await Profiles()
+        // Filters run against the entity, before the projection: EF cannot translate a
+        // predicate applied to the subqueries that build ProfileDto.
+        var users = _context.Users.AsNoTracking();
+
+        if (request.FirmId.HasValue)
+        {
+            users = users.Where(user =>
+                user.FirmUsers.Any(firmUser => firmUser.FirmId == request.FirmId.Value));
+        }
+
+        if (request.Role is not null)
+        {
+            users = users.Where(user =>
+                _context.UserRoles
+                    .Where(userRole => userRole.UserId == user.Id)
+                    .Join(_context.Roles, userRole => userRole.RoleId, role => role.Id, (_, role) => role.Name)
+                    .Any(name => name == request.Role));
+        }
+
+        if (request.Search is not null)
+        {
+            users = users.Where(user =>
+                (user.FirstName != null && user.FirstName.Contains(request.Search)) ||
+                user.LastName.Contains(request.Search) ||
+                (user.Email != null && user.Email.Contains(request.Search)));
+        }
+
+        return await Profiles(users)
             .OrderBy(user => user.FirstName)
             .ThenBy(user => user.LastName)
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(request, cancellationToken);
     }
 
     public Task<ProfileDto?> GetByIdAsync(
@@ -250,10 +280,9 @@ public sealed class AccountRepository : IAccountRepository
         return await _userManager.DeleteAsync(user);
     }
 
-    private IQueryable<ProfileDto> Profiles()
+    private IQueryable<ProfileDto> Profiles(IQueryable<AppUser>? source = null)
     {
-        return _context.Users
-            .AsNoTracking()
+        return (source ?? _context.Users.AsNoTracking())
             .Select(user => new ProfileDto
             {
                 Id = user.Id,

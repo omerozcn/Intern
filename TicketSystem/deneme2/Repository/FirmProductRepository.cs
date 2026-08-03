@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.FirmProduct;
 using TicketSystem.Dtos.Product;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 
@@ -69,13 +71,23 @@ public sealed class FirmProductRepository : IFirmProductRepository
         return firmProduct;
     }
 
-    public async Task<IReadOnlyList<FirmProductDto>> GetAllAsync(
+    public async Task<PagedResult<FirmProductDto>> GetAllAsync(
+        PageRequest request,
         CancellationToken cancellationToken = default)
     {
-        return await AssignmentRows()
+        var assignments = AssignmentRows();
+
+        if (request.Search is not null)
+        {
+            assignments = assignments.Where(link =>
+                link.FirmName!.Contains(request.Search) ||
+                link.ProductName!.Contains(request.Search));
+        }
+
+        return await assignments
             .OrderBy(link => link.FirmName)
             .ThenBy(link => link.ProductName)
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(request, cancellationToken);
     }
 
     public async Task<IReadOnlyList<FirmProductDto>> GetFirmProductAsync(

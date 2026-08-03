@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Product;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
@@ -20,11 +21,12 @@ public sealed class ProductController : ControllerBase
     }
 
     [HttpGet("listProduct")]
-    [ProducesResponseType<IReadOnlyList<ProductDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAll(
+    [ProducesResponseType<PagedResult<ProductDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ProductDto>>> GetAll(
+        [FromQuery] PageRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _productRepository.GetAllAsync(cancellationToken));
+        return Ok(await _productRepository.GetAllAsync(request, cancellationToken));
     }
 
     [HttpPost("createProduct")]

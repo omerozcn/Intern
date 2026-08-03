@@ -389,5 +389,16 @@
     "feedback": "Geri Bildirim",
     "adminFeedback": "Geri Bildirimler",
     "profile": "Profil"
+  },
+  "pagination": {
+    "label": "Sayfalama",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "status": "Sayfa {page} / {totalPages} · toplam {totalCount} kayıt"
+  },
+  "firmSelect": {
+    "placeholder": "Firma arayın",
+    "noResults": "Eşleşen firma bulunamadı.",
+    "refine": "Daha fazla sonuç var, aramayı daraltın."
   }
 }

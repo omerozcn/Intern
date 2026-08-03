@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Firm;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
@@ -21,11 +22,12 @@ public sealed class FirmController : ControllerBase
     }
 
     [HttpGet("listFirm")]
-    [ProducesResponseType<IReadOnlyList<FirmDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<FirmDto>>> GetAll(
+    [ProducesResponseType<PagedResult<FirmDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<FirmDto>>> GetAll(
+        [FromQuery] PageRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _firmRepository.GetAllAsync(cancellationToken));
+        return Ok(await _firmRepository.GetAllAsync(request, cancellationToken));
     }
 
     [HttpGet("listById/{id:int}")]

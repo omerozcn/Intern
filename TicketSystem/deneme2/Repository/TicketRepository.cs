@@ -1,7 +1,9 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Ticket;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 
@@ -79,27 +81,53 @@ public sealed class TicketRepository : ITicketRepository
         }
     }
 
-    public async Task<IReadOnlyList<TicketDto>> GetAllAsync(
+    public Task<PagedResult<TicketDto>> GetAllAsync(
+        TicketListRequest request,
         CancellationToken cancellationToken = default)
     {
-        var rows = await TicketRows()
-            .OrderBy(row => row.Status)
-            .ThenByDescending(row => row.Created)
-            .ToListAsync(cancellationToken);
-
-        return rows.Select(ToDto).ToList();
+        return PageTicketsAsync(TicketRows(), request, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<TicketDto>> GetByUserIdAsync(
+    public Task<PagedResult<TicketDto>> GetByUserIdAsync(
         string appUserId,
+        TicketListRequest request,
         CancellationToken cancellationToken = default)
     {
-        var rows = await TicketRows(appUserId)
+        return PageTicketsAsync(TicketRows(appUserId), request, cancellationToken);
+    }
+
+    private static async Task<PagedResult<TicketDto>> PageTicketsAsync(
+        IQueryable<TicketRow> rows,
+        TicketListRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (TicketStatuses.TryParseApiValue(request.Status, out var status))
+        {
+            rows = rows.Where(row => row.Status == status);
+        }
+
+        if (request.Search is not null)
+        {
+            rows = rows.Where(row =>
+                row.Description.Contains(request.Search) ||
+                (row.CreatedBy != null && row.CreatedBy.Contains(request.Search)) ||
+                (row.FirmName != null && row.FirmName.Contains(request.Search)) ||
+                (row.ProductName != null && row.ProductName.Contains(request.Search)));
+        }
+
+        // Pending tickets first, newest first inside each status.
+        var page = await rows
             .OrderBy(row => row.Status)
             .ThenByDescending(row => row.Created)
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(request, cancellationToken);
 
-        return rows.Select(ToDto).ToList();
+        return new PagedResult<TicketDto>
+        {
+            Items = page.Items.Select(ToDto).ToList(),
+            Page = page.Page,
+            PageSize = page.PageSize,
+            TotalCount = page.TotalCount
+        };
     }
 
     public async Task<TicketDto?> GetDtoByIdAsync(int id, CancellationToken cancellationToken = default)

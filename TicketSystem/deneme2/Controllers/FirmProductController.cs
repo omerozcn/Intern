@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.FirmProduct;
 using TicketSystem.Dtos.Product;
 using TicketSystem.Extensions;
@@ -22,11 +23,12 @@ public sealed class FirmProductController : ControllerBase
 
     [Authorize(Roles = AppRoles.Admin)]
     [HttpGet("listfirmProduct")]
-    [ProducesResponseType<IReadOnlyList<FirmProductDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<FirmProductDto>>> GetAll(
+    [ProducesResponseType<PagedResult<FirmProductDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<FirmProductDto>>> GetAll(
+        [FromQuery] PageRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _firmProductRepository.GetAllAsync(cancellationToken));
+        return Ok(await _firmProductRepository.GetAllAsync(request, cancellationToken));
     }
 
     [Authorize(Roles = AppRoles.Admin)]

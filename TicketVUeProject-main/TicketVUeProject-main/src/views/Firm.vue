@@ -19,17 +19,17 @@
       <div class="search-field">
         <i class="bi bi-search" aria-hidden="true"></i>
         <label class="visually-hidden" for="firm-search">{{ t('common.search') }}</label>
-        <input id="firm-search" v-model.trim="query" class="form-control" type="search" :placeholder="t('firms.searchPlaceholder')" />
+        <input id="firm-search" v-model.trim="search" class="form-control" type="search" :placeholder="t('firms.searchPlaceholder')" />
       </div>
-      <span>{{ t('firms.count', { count: filteredFirms.length }) }}</span>
+      <span>{{ t('firms.count', { count: totalCount }) }}</span>
     </div>
 
     <LoadingState v-if="loading" :message="t('common.loading')" />
-    <ErrorState v-else-if="error" :message="error" @retry="loadAll" />
-    <EmptyState v-else-if="!filteredFirms.length" icon="bi-buildings" :title="t('firms.emptyTitle')" :message="t('firms.emptyDescription')" />
+    <ErrorState v-else-if="error" :message="error" @retry="load" />
+    <EmptyState v-else-if="!firms.length" icon="bi-buildings" :title="t('firms.emptyTitle')" :message="t('firms.emptyDescription')" />
 
     <div v-else class="firm-grid">
-      <article v-for="firm in filteredFirms" :key="firm.id" class="surface-card firm-card">
+      <article v-for="firm in firms" :key="firm.id" class="surface-card firm-card">
         <div class="firm-main">
           <span class="firm-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
           <div class="firm-content">
@@ -41,40 +41,71 @@
               <button type="button" class="icon-button" :aria-label="t('common.cancel')" :disabled="saving" @click="cancelEdit"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
             </div>
             <template v-else>
-              <div class="name-row"><h2>{{ firm.name }}</h2><span v-if="firm.protected" class="protected-badge"><i class="bi bi-shield-lock" aria-hidden="true"></i> {{ t('firms.protected') }}</span></div>
-              <p>{{ t('firms.servicesAssigned', { count: firm.serviceCount }) }}</p>
+              <div class="name-row"><h2>{{ firm.name }}</h2><span v-if="firm.isProtected" class="protected-badge"><i class="bi bi-shield-lock" aria-hidden="true"></i> {{ t('firms.protected') }}</span></div>
+              <p>{{ t('firms.servicesAssigned', { count: firm.productCount }) }}</p>
             </template>
           </div>
         </div>
         <div v-if="editingId !== firm.id" class="firm-actions">
-          <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="firm.protected" @click="startEdit(firm)"><i class="bi bi-pencil" aria-hidden="true"></i> {{ t('common.edit') }}</button>
-          <button type="button" class="btn btn-sm btn-outline-danger" :disabled="firm.protected" @click="askDelete(firm)"><i class="bi bi-trash" aria-hidden="true"></i> {{ t('common.delete') }}</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary" :disabled="firm.isProtected" @click="startEdit(firm)"><i class="bi bi-pencil" aria-hidden="true"></i> {{ t('common.edit') }}</button>
+          <button type="button" class="btn btn-sm btn-outline-danger" :disabled="firm.isProtected" @click="askDelete(firm)"><i class="bi bi-trash" aria-hidden="true"></i> {{ t('common.delete') }}</button>
         </div>
       </article>
     </div>
+
+    <PaginationBar
+      :page="page"
+      :total-pages="totalPages"
+      :total-count="totalCount"
+      :has-previous="hasPrevious"
+      :has-next="hasNext"
+      :busy="loading"
+      @change="goToPage"
+    />
 
     <ConfirmDialog v-model:open="confirmOpen" :title="t('firms.deleteTitle')" :message="t('firms.deleteMessage', { name: selectedFirm?.name ?? '' })" :confirm-label="t('common.delete')" variant="danger" :busy="deleting" @confirm="deleteFirm" />
   </section>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
+import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const toast = useToastStore();
-const firms = ref([]);
-const relations = ref([]);
-const loading = ref(true);
-const error = ref("");
-const query = ref("");
+
+// The list endpoint reports the assigned-service count and the protected flag, so the
+// client no longer fetches the assignment list just to derive them.
+const {
+  items: firms,
+  page,
+  totalPages,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  search,
+  loading,
+  error,
+  load,
+  goToPage,
+} = usePagedList("/api/Firm/listFirm", {
+  map: (rows) => rows.map((item) => ({
+    id: Number(item.id),
+    name: item.name ?? "",
+    productCount: Number(item.productCount ?? 0),
+    isProtected: Boolean(item.isProtected),
+  })),
+});
+
 const newFirmName = ref("");
 const createError = ref("");
 const creating = ref(false);
@@ -85,27 +116,6 @@ const selectedFirm = ref(null);
 const confirmOpen = ref(false);
 const deleting = ref(false);
 
-const enrichedFirms = computed(() => firms.value.map((firm) => ({
-  ...firm,
-  protected: firm.name.toLocaleUpperCase("tr-TR") === "TURKUVAZ",
-  serviceCount: relations.value.filter((item) => Number(item.firmId) === firm.id).length,
-})));
-const filteredFirms = computed(() => {
-  const needle = query.value.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-  return enrichedFirms.value.filter((firm) => !needle || firm.name.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US").includes(needle));
-});
-
-async function loadAll() {
-  loading.value = true;
-  error.value = "";
-  try {
-    const [firmRows, relationRows] = await Promise.all([api.get("/api/Firm/listFirm"), api.get("/api/Firmproduct/listfirmProduct")]);
-    firms.value = (firmRows ?? []).map((item) => ({ id: Number(item.id), name: item.name ?? item.firmName })).sort((a, b) => a.name.localeCompare(b.name, locale.value));
-    relations.value = relationRows ?? [];
-  } catch (requestError) { error.value = requestError.message || t("errors.loadFirms"); }
-  finally { loading.value = false; }
-}
-
 async function createFirm() {
   createError.value = newFirmName.value.length >= 2 ? "" : t("validation.nameLength");
   if (createError.value || creating.value) return;
@@ -113,13 +123,13 @@ async function createFirm() {
   try {
     await api.post("/api/Firm/createFirm", { name: newFirmName.value });
     newFirmName.value = "";
-    await loadAll();
+    await load();
     toast.success(t("firms.created"));
   } catch (requestError) { toast.error(requestError.message || t("errors.createFirm")); }
   finally { creating.value = false; }
 }
 
-function startEdit(firm) { if (!firm.protected) { editingId.value = firm.id; editName.value = firm.name; } }
+function startEdit(firm) { if (!firm.isProtected) { editingId.value = firm.id; editName.value = firm.name; } }
 function cancelEdit() { editingId.value = null; editName.value = ""; }
 async function saveEdit(firm) {
   if (editName.value.length < 2 || saving.value) { toast.warning(t("validation.nameLength")); return; }
@@ -127,13 +137,13 @@ async function saveEdit(firm) {
   try {
     await api.put(`/api/Firm/updateFirm/${firm.id}`, { name: editName.value });
     cancelEdit();
-    await loadAll();
+    await load();
     toast.success(t("firms.updated"));
   } catch (requestError) { toast.error(requestError.message || t("errors.updateFirm")); }
   finally { saving.value = false; }
 }
 
-function askDelete(firm) { if (!firm.protected) { selectedFirm.value = firm; confirmOpen.value = true; } }
+function askDelete(firm) { if (!firm.isProtected) { selectedFirm.value = firm; confirmOpen.value = true; } }
 async function deleteFirm() {
   if (!selectedFirm.value || deleting.value) return;
   deleting.value = true;
@@ -141,13 +151,13 @@ async function deleteFirm() {
     await api.delete(`/api/Firm/deleteFirm/${selectedFirm.value.id}`);
     confirmOpen.value = false;
     selectedFirm.value = null;
-    await loadAll();
+    await load();
     toast.success(t("firms.deleted"));
   } catch (requestError) { toast.error(requestError.message || t("errors.deleteFirm")); }
   finally { deleting.value = false; }
 }
 
-onMounted(loadAll);
+onMounted(load);
 </script>
 
 <style scoped>

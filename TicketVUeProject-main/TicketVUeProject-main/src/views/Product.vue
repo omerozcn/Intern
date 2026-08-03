@@ -19,17 +19,17 @@
       <div class="search-field">
         <i class="bi bi-search" aria-hidden="true"></i>
         <label class="visually-hidden" for="service-search">{{ t('common.search') }}</label>
-        <input id="service-search" v-model.trim="query" class="form-control" type="search" :placeholder="t('services.searchPlaceholder')" />
+        <input id="service-search" v-model.trim="search" class="form-control" type="search" :placeholder="t('services.searchPlaceholder')" />
       </div>
-      <span>{{ t('services.count', { count: filteredProducts.length }) }}</span>
+      <span>{{ t('services.count', { count: totalCount }) }}</span>
     </div>
 
     <LoadingState v-if="loading" :message="t('common.loading')" />
-    <ErrorState v-else-if="error" :message="error" @retry="loadAll" />
-    <EmptyState v-else-if="!filteredProducts.length" icon="bi-box-seam" :title="t('services.emptyTitle')" :message="t('services.emptyDescription')" />
+    <ErrorState v-else-if="error" :message="error" @retry="load" />
+    <EmptyState v-else-if="!products.length" icon="bi-box-seam" :title="t('services.emptyTitle')" :message="t('services.emptyDescription')" />
 
     <div v-else class="service-grid">
-      <article v-for="product in filteredProducts" :key="product.id" class="surface-card service-card">
+      <article v-for="product in products" :key="product.id" class="surface-card service-card">
         <div class="service-head">
           <div class="service-title">
             <span class="service-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
@@ -62,10 +62,13 @@
 
           <form class="assign-form" @submit.prevent="assignFirm(product)">
             <label class="visually-hidden" :for="`firm-${product.id}`">{{ t('services.selectFirm') }}</label>
-            <select :id="`firm-${product.id}`" v-model="assignmentSelections[product.id]" class="form-select form-select-sm" :disabled="assigningId === product.id">
-              <option value="">{{ t('services.selectFirm') }}</option>
-              <option v-for="firm in availableFirms(product)" :key="firm.id" :value="firm.id">{{ firm.name }}</option>
-            </select>
+            <FirmSelect
+              v-model="assignmentSelections[product.id]"
+              :input-id="`firm-${product.id}`"
+              :exclude-ids="product.firms.map((firm) => firm.id)"
+              :placeholder="t('services.selectFirm')"
+              :disabled="assigningId === product.id"
+            />
             <button type="submit" class="btn btn-sm btn-outline-primary" :disabled="assigningId === product.id || !assignmentSelections[product.id]">
               <span v-if="assigningId === product.id" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
               {{ t('services.assign') }}
@@ -74,6 +77,16 @@
         </div>
       </article>
     </div>
+
+    <PaginationBar
+      :page="page"
+      :total-pages="totalPages"
+      :total-count="totalCount"
+      :has-previous="hasPrevious"
+      :has-next="hasNext"
+      :busy="loading"
+      @change="goToPage"
+    />
 
     <ConfirmDialog
       v-model:open="confirmOpen"
@@ -95,17 +108,40 @@ import LoadingState from "@/components/LoadingState.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
+import FirmSelect from "@/components/FirmSelect.vue";
+import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 const toast = useToastStore();
-const products = ref([]);
-const firms = ref([]);
-const relations = ref([]);
-const loading = ref(true);
-const error = ref("");
-const query = ref("");
+
+// The list endpoint embeds each product's assigned firms, so no client-side join is needed.
+const {
+  items: products,
+  page,
+  totalPages,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  search,
+  loading,
+  error,
+  load,
+  goToPage,
+} = usePagedList("/api/Product/listProduct", {
+  map: (rows) => rows.map((item) => ({
+    id: Number(item.id),
+    name: item.name,
+    firms: (item.firms ?? []).map((firm) => ({
+      relationId: Number(firm.relationId),
+      id: Number(firm.id),
+      name: firm.name ?? t("common.notAvailable"),
+    })),
+  })),
+});
+
 const newProductName = ref("");
 const createError = ref("");
 const creating = ref(false);
@@ -118,47 +154,10 @@ const confirmOpen = ref(false);
 const confirmTarget = ref(null);
 const removing = ref(false);
 
-const groupedProducts = computed(() => products.value.map((product) => ({
-  ...product,
-  firms: relations.value
-    .filter((relation) => Number(relation.productId) === product.id)
-    .map((relation) => ({
-      relationId: Number(relation.id),
-      id: Number(relation.firmId),
-      name: relation.firmName ?? firms.value.find((firm) => firm.id === Number(relation.firmId))?.name ?? t("common.notAvailable"),
-    })),
-})));
-
-const filteredProducts = computed(() => {
-  const needle = query.value.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-  return groupedProducts.value.filter((product) => !needle || `${product.name} ${product.firms.map((firm) => firm.name).join(" ")}`.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US").includes(needle));
-});
-
 const confirmTitle = computed(() => confirmTarget.value?.type === "product" ? t("services.deleteTitle") : t("services.removeFirmTitle"));
 const confirmMessage = computed(() => confirmTarget.value?.type === "product"
   ? t("services.deleteMessage", { name: confirmTarget.value?.product.name ?? "" })
   : t("services.removeFirmMessage", { firm: confirmTarget.value?.firm.name ?? "", product: confirmTarget.value?.product.name ?? "" }));
-
-async function loadAll() {
-  loading.value = true;
-  error.value = "";
-  try {
-    const [productRows, firmRows, relationRows] = await Promise.all([
-      api.get("/api/Product/listProduct"),
-      api.get("/api/Firm/listFirm"),
-      api.get("/api/Firmproduct/listfirmProduct"),
-    ]);
-    products.value = (productRows ?? []).map((item) => ({ id: Number(item.id), name: item.name }));
-    firms.value = (firmRows ?? []).map((item) => ({ id: Number(item.id), name: item.name ?? item.firmName }));
-    relations.value = relationRows ?? [];
-  } catch (requestError) {
-    error.value = requestError.message || t("errors.loadServices");
-  } finally {
-    loading.value = false;
-  }
-}
-
-function availableFirms(product) { return firms.value.filter((firm) => !product.firms.some((assigned) => assigned.id === firm.id)); }
 
 async function createProduct() {
   createError.value = newProductName.value.length >= 2 ? "" : t("validation.nameLength");
@@ -167,7 +166,7 @@ async function createProduct() {
   try {
     await api.post("/api/Product/createProduct", { name: newProductName.value });
     newProductName.value = "";
-    await loadAll();
+    await load();
     toast.success(t("services.created"));
   } catch (requestError) {
     toast.error(requestError.message || t("errors.createService"));
@@ -182,7 +181,7 @@ async function saveEdit(product) {
   try {
     await api.put(`/api/Product/updateProduct/${product.id}`, { id: product.id, name: editName.value });
     cancelEdit();
-    await loadAll();
+    await load();
     toast.success(t("services.updated"));
   } catch (requestError) { toast.error(requestError.message || t("errors.updateService")); }
   finally { savingId.value = null; }
@@ -195,7 +194,7 @@ async function assignFirm(product) {
   try {
     await api.post("/api/Firmproduct/createfirmProduct", { firmId, productId: product.id });
     assignmentSelections[product.id] = "";
-    await loadAll();
+    await load();
     toast.success(t("services.assignmentUpdated"));
   } catch (requestError) { toast.error(requestError.message || t("errors.assignService")); }
   finally { assigningId.value = null; }
@@ -211,13 +210,13 @@ async function confirmRemoval() {
     else await api.delete(`/api/Firmproduct/deletefirmProduct/${confirmTarget.value.firm.relationId}`);
     confirmOpen.value = false;
     confirmTarget.value = null;
-    await loadAll();
+    await load();
     toast.success(t("services.removeSuccess"));
   } catch (requestError) { toast.error(requestError.message || t("errors.removeService")); }
   finally { removing.value = false; }
 }
 
-onMounted(loadAll);
+onMounted(load);
 </script>
 
 <style scoped>
@@ -245,8 +244,8 @@ onMounted(loadAll);
 .firm-tag { display: inline-flex; align-items: center; gap: .25rem; padding: .35rem .35rem .35rem .65rem; border-radius: 999px; color: #03696b; background: var(--color-primary-soft); font-size: .8rem; font-weight: 700; }
 .firm-tag button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; color: inherit; background: transparent; }
 .empty-inline { margin: .75rem 0; color: var(--color-text-muted); font-size: .85rem; }
-.assign-form { display: flex; gap: .5rem; margin-top: .9rem; }
-.assign-form select { min-width: 0; }
+.assign-form { display: flex; align-items: flex-start; gap: .5rem; margin-top: .9rem; }
+.assign-form > :first-child { flex: 1; }
 @media (max-width: 899px) { .service-grid { grid-template-columns: 1fr; } }
 @media (max-width: 575px) { .create-bar, .list-toolbar { align-items: stretch; flex-direction: column; } .create-bar .btn, .search-field { width: 100%; } .service-head { align-items: stretch; flex-direction: column; } .icon-actions { justify-content: flex-start; } .assign-form { flex-direction: column; } }
 </style>
