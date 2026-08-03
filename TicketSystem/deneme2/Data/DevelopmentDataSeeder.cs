@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Models;
+using TicketSystem.Security;
 
 namespace TicketSystem.Data;
 
@@ -22,7 +23,7 @@ public static class DevelopmentDataSeeder
 
             await context.Database.MigrateAsync();
 
-            foreach (var role in new[] { "Admin", "User" })
+            foreach (var role in new[] { AppRoles.Admin, AppRoles.User })
             {
                 if (!await roleManager.RoleExistsAsync(role))
                 {
@@ -30,15 +31,15 @@ public static class DevelopmentDataSeeder
                 }
             }
 
-            var adminFirm = await GetOrCreateFirmAsync(context, "TURKUVAZ");
+            var adminFirm = await GetOrCreateFirmAsync(context, ProtectedFirm.Name);
             var userFirm = await GetOrCreateFirmAsync(context, "TEST FIRMASI");
 
             await EnsureUserAsync(
                 context, userManager, AdminEmail, AdminPassword,
-                "Test", "Admin", "Admin", adminFirm.Id);
+                "Test", "Admin", AppRoles.Admin, adminFirm.Id);
             await EnsureUserAsync(
                 context, userManager, UserEmail, UserPassword,
-                "Test", "Kullanıcı", "User", userFirm.Id);
+                "Test", "Kullanıcı", AppRoles.User, userFirm.Id);
 
             logger.LogInformation("Development test accounts are ready.");
         }
@@ -83,8 +84,7 @@ public static class DevelopmentDataSeeder
                 Email = email,
                 EmailConfirmed = true,
                 FirstName = firstName,
-                LastName = lastName,
-                Role = role
+                LastName = lastName
             };
             EnsureSucceeded(await userManager.CreateAsync(user, password));
         }
@@ -92,7 +92,6 @@ public static class DevelopmentDataSeeder
         {
             user.FirstName = firstName;
             user.LastName = lastName;
-            user.Role = role;
             user.EmailConfirmed = true;
             EnsureSucceeded(await userManager.UpdateAsync(user));
 

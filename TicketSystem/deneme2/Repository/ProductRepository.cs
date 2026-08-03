@@ -73,6 +73,13 @@ public sealed class ProductRepository : IProductRepository
             .FirstOrDefaultAsync(product => product.Id == id, cancellationToken);
     }
 
+    public async Task<Product?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .FirstOrDefaultAsync(product => product.Name == name, cancellationToken);
+    }
+
     public async Task<bool> HasTicketHistoryAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.ProductTickets

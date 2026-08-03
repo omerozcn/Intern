@@ -34,6 +34,11 @@ public sealed class ProductController : ControllerBase
         [FromBody] CreateProductRequestDto productDto,
         CancellationToken cancellationToken)
     {
+        if (await _productRepository.GetByNameAsync(productDto.Name!, cancellationToken) is not null)
+        {
+            return DuplicateName();
+        }
+
         var product = await _productRepository.CreateAsync(
             productDto.ToProductFromCreateDTO(),
             cancellationToken);
@@ -49,6 +54,12 @@ public sealed class ProductController : ControllerBase
         [FromBody] UpdateProductRequestDto updateDto,
         CancellationToken cancellationToken)
     {
+        var duplicate = await _productRepository.GetByNameAsync(updateDto.Name!, cancellationToken);
+        if (duplicate is not null && duplicate.Id != id)
+        {
+            return DuplicateName();
+        }
+
         var product = await _productRepository.UpdateAsync(id, updateDto, cancellationToken);
         return product is null ? ProductNotFound() : Ok(product.ToProductDto());
     }
@@ -76,6 +87,14 @@ public sealed class ProductController : ControllerBase
         // gained ticket history since the check above still fails safely.
         var deletedProduct = await _productRepository.DeleteAsync(id, cancellationToken);
         return deletedProduct is null ? ReferencedByTicketHistory() : NoContent();
+    }
+
+    private ObjectResult DuplicateName()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status409Conflict,
+            title: "Service name already exists",
+            detail: "Another service is already registered with this name.");
     }
 
     private ObjectResult ProductNotFound()

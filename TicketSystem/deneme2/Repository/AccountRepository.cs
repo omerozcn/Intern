@@ -76,10 +76,9 @@ public sealed class AccountRepository : IAccountRepository
             return Invalid("InvalidFirm", "The selected firm does not exist.");
         }
 
-        if (role == AppRoles.User
-            && string.Equals(firmName.Trim(), "TURKUVAZ", StringComparison.OrdinalIgnoreCase))
+        if (role == AppRoles.User && ProtectedFirm.IsProtectedName(firmName))
         {
-            return Invalid("InvalidFirm", "User accounts cannot be assigned to the protected TURKUVAZ firm.");
+            return ProtectedFirmRejected();
         }
 
         var user = new AppUser
@@ -87,8 +86,7 @@ public sealed class AccountRepository : IAccountRepository
             UserName = $"u{Guid.NewGuid():N}",
             FirstName = registerDto.FirstName.Trim(),
             LastName = registerDto.LastName.Trim(),
-            Email = registerDto.Email.Trim().ToLowerInvariant(),
-            Role = role
+            Email = registerDto.Email.Trim().ToLowerInvariant()
         };
 
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
@@ -153,10 +151,9 @@ public sealed class AccountRepository : IAccountRepository
             return Invalid("InvalidFirm", "The selected firm does not exist.");
         }
 
-        if (role == AppRoles.User
-            && string.Equals(firmName.Trim(), "TURKUVAZ", StringComparison.OrdinalIgnoreCase))
+        if (role == AppRoles.User && ProtectedFirm.IsProtectedName(firmName))
         {
-            return Invalid("InvalidFirm", "User accounts cannot be assigned to the protected TURKUVAZ firm.");
+            return ProtectedFirmRejected();
         }
 
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
@@ -165,7 +162,6 @@ public sealed class AccountRepository : IAccountRepository
             user.FirstName = updateDto.FirstName.Trim();
             user.LastName = updateDto.LastName.Trim();
             user.Email = updateDto.Email.Trim().ToLowerInvariant();
-            user.Role = role;
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -265,12 +261,13 @@ public sealed class AccountRepository : IAccountRepository
                 FirstName = user.FirstName ?? string.Empty,
                 LastName = user.LastName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
+                // The Identity role tables are the only source of truth for a user's role.
                 Role = (
                     from userRole in _context.UserRoles
                     join identityRole in _context.Roles on userRole.RoleId equals identityRole.Id
                     where userRole.UserId == user.Id
                     orderby identityRole.Name
-                    select identityRole.Name).FirstOrDefault() ?? user.Role ?? string.Empty,
+                    select identityRole.Name).FirstOrDefault() ?? string.Empty,
                 Firm = user.FirmUsers
                     .OrderBy(firmUser => firmUser.Id)
                     .Select(firmUser => new FirmDto
@@ -294,6 +291,13 @@ public sealed class AccountRepository : IAccountRepository
         return canonicalRole is not null && await _roleManager.RoleExistsAsync(canonicalRole)
             ? canonicalRole
             : null;
+    }
+
+    private static IdentityResult ProtectedFirmRejected()
+    {
+        return Invalid(
+            "InvalidFirm",
+            $"User accounts cannot be assigned to the protected {ProtectedFirm.Name} firm.");
     }
 
     private static IdentityResult Invalid(string code, string description)

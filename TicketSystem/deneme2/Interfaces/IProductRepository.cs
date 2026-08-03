@@ -10,5 +10,6 @@ public interface IProductRepository
     Task<IReadOnlyList<ProductDto>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<Product?> UpdateAsync(int id, UpdateProductRequestDto productDto, CancellationToken cancellationToken = default);
     Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<Product?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
     Task<bool> HasTicketHistoryAsync(int id, CancellationToken cancellationToken = default);
 }

@@ -1,193 +1,188 @@
-﻿using TicketSystem.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TicketSystem.Models;
+using TicketSystem.Security;
 
-namespace TicketSystem.Data
+namespace TicketSystem.Data;
+
+public class ApplicationDbContext : IdentityDbContext<AppUser>
 {
-     public class ApplicationDbContext : IdentityDbContext<AppUser>
-     {
-          public ApplicationDbContext(DbContextOptions options)
-              : base(options)
-          {
+    public ApplicationDbContext(DbContextOptions options)
+        : base(options)
+    {
+    }
 
-          }
-          public DbSet<Ticket> Tickets { get; set; }
-          public DbSet<AppUserTicket> AppUserTickets { get; set; }
-          public DbSet<FirmUser> FirmUsers { get; set; }
-          public DbSet<FirmProduct> FirmProducts { get; set; }
-          public DbSet<ProductTicket> ProductTickets { get; set; }
-          public DbSet<Product> Products { get; set; }
-          public DbSet<Firm> Firms { get; set; }
-          public DbSet<Feedback> Feedbacks { get; set; }
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<AppUserTicket> AppUserTickets { get; set; }
+    public DbSet<FirmUser> FirmUsers { get; set; }
+    public DbSet<FirmProduct> FirmProducts { get; set; }
+    public DbSet<ProductTicket> ProductTickets { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Firm> Firms { get; set; }
+    public DbSet<Feedback> Feedbacks { get; set; }
 
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
 
+        builder.Entity<Firm>(entity =>
+        {
+            entity.ToTable("Firms");
+            entity.HasKey(firm => firm.Id);
 
-          protected override void OnModelCreating(ModelBuilder builder)
-          {
-               base.OnModelCreating(builder);
+            entity.HasIndex(firm => firm.Name).IsUnique();
 
-               builder.Entity<Firm>(entity =>
-               {
-                    entity.ToTable("Firms");
+            entity.HasMany(firm => firm.FirmUsers)
+                .WithOne(firmUser => firmUser.Firm)
+                .HasForeignKey(firmUser => firmUser.FirmId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
 
-                    entity.HasKey(c => c.Id);
+            entity.HasMany(firm => firm.FirmProducts)
+                .WithOne(firmProduct => firmProduct.Firm)
+                .HasForeignKey(firmProduct => firmProduct.FirmId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-                    entity.HasMany(u => u.FirmUsers)
-                         .WithOne(aut => aut.Firm)
-                         .HasForeignKey(aut => aut.FirmId)
-                         .OnDelete(DeleteBehavior.Cascade)
-                         .IsRequired(false);
-
-                    entity.HasMany(u => u.FirmProducts)
-                          .WithOne(aut => aut.Firm)
-                          .HasForeignKey(aut => aut.FirmId)
-                          .OnDelete(DeleteBehavior.Cascade);
-                   entity.HasData(new Firm
-                   {
-                       Id = 99,
-                       Name = "TURKUVAZ"
-                   });
-               });
-
-               builder.Entity<Product>(entity =>
-               {
-                    entity.ToTable("Product");
-
-                    entity.HasKey(s => s.Id);
-
-                    entity.HasMany(s => s.FirmProducts)
-                          .WithOne(cs => cs.Products)
-                          .HasForeignKey(s => s.ProductId)
-                          .OnDelete(DeleteBehavior.Cascade);
-                    entity.HasMany(s => s.ProductTickets)
-                          .WithOne(st => st.Products)
-                          .HasForeignKey(s => s.ProductId)
-                          .OnDelete(DeleteBehavior.Cascade);
-               });
-
-               builder.Entity<Ticket>(entity =>
-               {
-                    entity.ToTable("Tickets");
-
-                    entity.HasKey(t => t.Id);
-
-                    entity.HasMany(t => t.AppUserTickets)
-                          .WithOne(aut => aut.Ticket)
-                          .HasForeignKey(aut => aut.TicketId);
-                    entity.HasMany(t => t.ProductTickets)
-                          .WithOne(st => st.Ticket)
-                          .HasForeignKey(st => st.TicketId)
-                          .OnDelete(DeleteBehavior.Cascade);
-               });
-
-               builder.Entity<AppUser>(entity =>
-               {
-                    entity.HasKey(a => a.Id);
-
-                    entity.HasMany(u => u.FirmUsers)
-                          .WithOne(aut => aut.AppUser)
-                          .HasForeignKey(u => u.AppUserId)
-                          .OnDelete(DeleteBehavior.Cascade);
-
-                    entity.HasMany(u => u.AppUserTickets)
-                          .WithOne(aut => aut.AppUser)
-                          .HasForeignKey(aut => aut.AppUserId)
-                          .OnDelete(DeleteBehavior.Cascade);
-               });
-
-               builder.Entity<AppUserTicket>(entity =>
-               {
-                    entity.ToTable("AppUserTickets");
-
-                    entity.HasKey(c => c.Id);
-
-                    entity.HasOne(aut => aut.AppUser)
-                          .WithMany(u => u.AppUserTickets)
-                          .HasForeignKey(aut => aut.AppUserId)
-                          .OnDelete(DeleteBehavior.Cascade);
-
-                    entity.HasOne(aut => aut.Ticket)
-                          .WithMany(t => t.AppUserTickets)
-                          .HasForeignKey(aut => aut.TicketId)
-                          .OnDelete(DeleteBehavior.Cascade);
-               });
-
-               builder.Entity<FirmUser>(entity =>
-               {
-                    entity.ToTable("FirmUsers");
-
-                    entity.HasKey(c => c.Id);
-
-                    entity.HasOne(cut => cut.Firm)
-                          .WithMany(u => u.FirmUsers)
-                          .HasForeignKey(cut => cut.FirmId)
-                          .OnDelete(DeleteBehavior.Cascade)
-                          .IsRequired(false);
-
-
-                    entity.HasOne(cut => cut.AppUser)
-                          .WithMany(u => u.FirmUsers)
-                          .HasForeignKey(cut => cut.AppUserId)
-                          .OnDelete(DeleteBehavior.Cascade);
-               });
-
-               builder.Entity<FirmProduct>(entity =>
-               {
-                    entity.ToTable("FirmProducts");
-
-                    entity.HasKey(c => c.Id);
-
-                    entity.HasOne(cst => cst.Firm)
-                          .WithMany(s => s.FirmProducts)
-                          .HasForeignKey(cst => cst.FirmId)
-                          .OnDelete(DeleteBehavior.Cascade);
-
-                    entity.HasOne(cst => cst.Products)
-                          .WithMany(s => s.FirmProducts)
-                          .HasForeignKey(cst => cst.ProductId)
-                          .OnDelete(DeleteBehavior.Cascade);
-
-                    entity.HasIndex(c => new { c.FirmId, c.ProductId })
-              .IsUnique();
-               });
-
-               builder.Entity<ProductTicket>(entity =>
-               {
-                    entity.ToTable("ProductTickets");
-
-                    entity.HasKey(c => c.Id);
-
-                    entity.HasOne(st => st.Ticket)
-                          .WithMany(s => s.ProductTickets)
-                          .HasForeignKey(st => st.TicketId)
-                          .OnDelete(DeleteBehavior.Cascade);
-
-                    entity.HasOne(st => st.Products)
-                          .WithMany(s => s.ProductTickets)
-                          .HasForeignKey(s => s.ProductId)
-                          .OnDelete(DeleteBehavior.Cascade);
-
-               });
-
-               List<IdentityRole> roles = new List<IdentityRole>
+            entity.HasData(new Firm
             {
-                new IdentityRole
-                {
-                    Name = "Admin",
-                    NormalizedName = "ADMIN"
+                Id = 99,
+                Name = ProtectedFirm.Name
+            });
+        });
 
-                },
-                new IdentityRole
-                {
-                    Name = "User",
-                    NormalizedName = "USER"
+        builder.Entity<Product>(entity =>
+        {
+            entity.ToTable("Products");
+            entity.HasKey(product => product.Id);
 
-                },
-            };
-               builder.Entity<IdentityRole>().HasData(roles);
-          }
-     }
+            entity.HasIndex(product => product.Name).IsUnique();
 
+            entity.HasMany(product => product.FirmProducts)
+                .WithOne(firmProduct => firmProduct.Products)
+                .HasForeignKey(firmProduct => firmProduct.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            entity.HasMany(product => product.ProductTickets)
+                .WithOne(productTicket => productTicket.Products)
+                .HasForeignKey(productTicket => productTicket.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Ticket>(entity =>
+        {
+            entity.ToTable("Tickets");
+            entity.HasKey(ticket => ticket.Id);
+
+            // Tickets are almost always filtered or ordered by status.
+            entity.HasIndex(ticket => ticket.Status);
+
+            entity.HasMany(ticket => ticket.AppUserTickets)
+                .WithOne(link => link.Ticket)
+                .HasForeignKey(link => link.TicketId);
+
+            entity.HasMany(ticket => ticket.ProductTickets)
+                .WithOne(link => link.Ticket)
+                .HasForeignKey(link => link.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<AppUser>(entity =>
+        {
+            entity.HasKey(user => user.Id);
+
+            entity.HasMany(user => user.FirmUsers)
+                .WithOne(firmUser => firmUser.AppUser)
+                .HasForeignKey(firmUser => firmUser.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(user => user.AppUserTickets)
+                .WithOne(link => link.AppUser)
+                .HasForeignKey(link => link.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<AppUserTicket>(entity =>
+        {
+            entity.ToTable("AppUserTickets");
+            entity.HasKey(link => link.Id);
+
+            entity.HasOne(link => link.AppUser)
+                .WithMany(user => user.AppUserTickets)
+                .HasForeignKey(link => link.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(link => link.Ticket)
+                .WithMany(ticket => ticket.AppUserTickets)
+                .HasForeignKey(link => link.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<FirmUser>(entity =>
+        {
+            entity.ToTable("FirmUsers");
+            entity.HasKey(firmUser => firmUser.Id);
+
+            entity.HasOne(firmUser => firmUser.Firm)
+                .WithMany(firm => firm.FirmUsers)
+                .HasForeignKey(firmUser => firmUser.FirmId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired(false);
+
+            entity.HasOne(firmUser => firmUser.AppUser)
+                .WithMany(user => user.FirmUsers)
+                .HasForeignKey(firmUser => firmUser.AppUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<FirmProduct>(entity =>
+        {
+            entity.ToTable("FirmProducts");
+            entity.HasKey(firmProduct => firmProduct.Id);
+
+            entity.HasOne(firmProduct => firmProduct.Firm)
+                .WithMany(firm => firm.FirmProducts)
+                .HasForeignKey(firmProduct => firmProduct.FirmId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(firmProduct => firmProduct.Products)
+                .WithMany(product => product.FirmProducts)
+                .HasForeignKey(firmProduct => firmProduct.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(firmProduct => new { firmProduct.FirmId, firmProduct.ProductId })
+                .IsUnique();
+        });
+
+        builder.Entity<ProductTicket>(entity =>
+        {
+            entity.ToTable("ProductTickets");
+            entity.HasKey(link => link.Id);
+
+            entity.HasOne(link => link.Ticket)
+                .WithMany(ticket => ticket.ProductTickets)
+                .HasForeignKey(link => link.TicketId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(link => link.Products)
+                .WithMany(product => product.ProductTickets)
+                .HasForeignKey(link => link.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Identifiers are pinned; see SeededRoleIds for why they must not be generated.
+        builder.Entity<IdentityRole>().HasData(
+            new IdentityRole
+            {
+                Id = SeededRoleIds.Admin,
+                Name = AppRoles.Admin,
+                NormalizedName = AppRoles.Admin.ToUpperInvariant()
+            },
+            new IdentityRole
+            {
+                Id = SeededRoleIds.User,
+                Name = AppRoles.User,
+                NormalizedName = AppRoles.User.ToUpperInvariant()
+            });
+    }
 }
