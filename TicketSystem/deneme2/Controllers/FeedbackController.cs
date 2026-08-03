@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Feedback;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
@@ -21,11 +22,12 @@ public sealed class FeedbackController : ControllerBase
 
     [Authorize(Roles = AppRoles.Admin)]
     [HttpGet("listFeedbacks")]
-    [ProducesResponseType<IReadOnlyList<FeedbackDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<FeedbackDto>>> GetAll(
+    [ProducesResponseType<PagedResult<FeedbackDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<FeedbackDto>>> GetAll(
+        [FromQuery] PageRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _feedbackRepository.GetAllFeedbackAsync(cancellationToken));
+        return Ok(await _feedbackRepository.GetAllFeedbackAsync(request, cancellationToken));
     }
 
     [Authorize(Roles = AppRoles.User)]

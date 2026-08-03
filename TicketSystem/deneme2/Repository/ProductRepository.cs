@@ -1,7 +1,9 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Product;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 
@@ -52,25 +54,49 @@ public sealed class ProductRepository : IProductRepository
         return productModel;
     }
 
-    public async Task<IReadOnlyList<ProductDto>> GetAllAsync(
+    public async Task<PagedResult<ProductDto>> GetAllAsync(
+        PageRequest request,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Products
-            .AsNoTracking()
+        var products = _context.Products.AsNoTracking();
+
+        if (request.Search is not null)
+        {
+            products = products.Where(product => product.Name.Contains(request.Search));
+        }
+
+        // Assigned firms travel with the product so clients do not join the two lists themselves.
+        return await products
             .OrderBy(product => product.Name)
             .Select(product => new ProductDto
             {
                 Id = product.Id,
                 Name = product.Name,
                 BirthDate = product.BirthDate,
+                Firms = product.FirmProducts
+                    .OrderBy(link => link.Firm.Name)
+                    .Select(link => new ProductFirmDto
+                    {
+                        RelationId = link.Id,
+                        Id = link.FirmId,
+                        Name = link.Firm.Name,
+                    })
+                    .ToList(),
             })
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(request, cancellationToken);
     }
 
     public async Task<Product?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _context.Products
             .FirstOrDefaultAsync(product => product.Id == id, cancellationToken);
+    }
+
+    public async Task<Product?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+    {
+        return await _context.Products
+            .AsNoTracking()
+            .FirstOrDefaultAsync(product => product.Name == name, cancellationToken);
     }
 
     public async Task<bool> HasTicketHistoryAsync(int id, CancellationToken cancellationToken = default)

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Ticket;
 using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
@@ -27,11 +28,12 @@ public sealed class TicketController : ControllerBase
 
     [Authorize(Roles = AppRoles.Admin)]
     [HttpGet("listTicket")]
-    [ProducesResponseType<IReadOnlyList<TicketDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<TicketDto>>> GetAll(
+    [ProducesResponseType<PagedResult<TicketDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<TicketDto>>> GetAll(
+        [FromQuery] TicketListRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _ticketRepository.GetAllAsync(cancellationToken));
+        return Ok(await _ticketRepository.GetAllAsync(request, cancellationToken));
     }
 
     [Authorize(Roles = AppRoles.AdminOrUser)]
@@ -68,9 +70,10 @@ public sealed class TicketController : ControllerBase
 
     [Authorize(Roles = AppRoles.User)]
     [HttpGet("listByUserId")]
-    [ProducesResponseType<IReadOnlyList<TicketDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<TicketDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<IReadOnlyList<TicketDto>>> GetByUserId(
+    public async Task<ActionResult<PagedResult<TicketDto>>> GetByUserId(
+        [FromQuery] TicketListRequest request,
         CancellationToken cancellationToken)
     {
         var appUserId = User.GetUserId();
@@ -79,7 +82,7 @@ public sealed class TicketController : ControllerBase
             return MissingIdentityClaim();
         }
 
-        return Ok(await _ticketRepository.GetByUserIdAsync(appUserId, cancellationToken));
+        return Ok(await _ticketRepository.GetByUserIdAsync(appUserId, request, cancellationToken));
     }
 
     [Authorize(Roles = AppRoles.User)]

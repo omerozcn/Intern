@@ -41,11 +41,14 @@
         </div>
         <div class="form-field">
           <label for="account-firm" class="form-label">{{ t('fields.firm') }}</label>
-          <select id="account-firm" v-model="createForm.firmId" class="form-select" :class="{ 'is-invalid': createErrors.firmId }" :disabled="creating || createForm.role === 'Admin'">
-            <option value="">{{ createForm.role === 'Admin' ? t('accounts.adminFirmAutomatic') : t('accounts.selectFirm') }}</option>
-            <option v-for="firm in customerFirms" :key="firm.id" :value="firm.id">{{ firm.name }}</option>
-          </select>
-          <div v-if="createErrors.firmId" class="invalid-feedback">{{ createErrors.firmId }}</div>
+          <FirmSelect
+            v-model="createForm.firmId"
+            input-id="account-firm"
+            exclude-protected
+            :disabled="creating || createForm.role === 'Admin'"
+            :placeholder="createForm.role === 'Admin' ? t('accounts.adminFirmAutomatic') : t('accounts.selectFirm')"
+          />
+          <div v-if="createErrors.firmId" class="invalid-feedback d-block">{{ createErrors.firmId }}</div>
           <div v-if="createForm.role === 'Admin'" class="form-text">{{ t('accounts.adminFirmHint') }}</div>
         </div>
       </div>
@@ -62,22 +65,25 @@
       <div class="search-field">
         <i class="bi bi-search" aria-hidden="true"></i>
         <label class="visually-hidden" for="account-search">{{ t('common.search') }}</label>
-        <input id="account-search" v-model.trim="query" class="form-control" type="search" :placeholder="t('accounts.searchPlaceholder')" />
+        <input id="account-search" v-model.trim="search" class="form-control" type="search" :placeholder="t('accounts.searchPlaceholder')" />
       </div>
       <label class="filter-field"><span>{{ t('fields.role') }}</span><select v-model="roleFilter" class="form-select"><option value="all">{{ t('common.all') }}</option><option value="User">{{ t('roles.user') }}</option><option value="Admin">{{ t('roles.admin') }}</option></select></label>
-      <label class="filter-field"><span>{{ t('fields.firm') }}</span><select v-model="firmFilter" class="form-select"><option value="all">{{ t('common.all') }}</option><option v-for="firm in firms" :key="firm.id" :value="String(firm.id)">{{ firm.name }}</option></select></label>
+      <label class="filter-field"><span>{{ t('fields.firm') }}</span>
+        <FirmSelect v-model="firmFilter" input-id="firm-filter" :placeholder="t('common.all')" />
+        <button v-if="firmFilter" type="button" class="btn btn-sm btn-link px-0" @click="firmFilter = ''">{{ t('common.clear') }}</button>
+      </label>
     </div>
 
     <LoadingState v-if="loading" :message="t('common.loading')" />
-    <ErrorState v-else-if="error" :message="error" @retry="loadAll" />
-    <EmptyState v-else-if="!filteredUsers.length" icon="bi-people" :title="t('accounts.emptyTitle')" :message="t('accounts.emptyDescription')" />
+    <ErrorState v-else-if="error" :message="error" @retry="load" />
+    <EmptyState v-else-if="!users.length" icon="bi-people" :title="t('accounts.emptyTitle')" :message="t('accounts.emptyDescription')" />
 
     <template v-else>
       <div class="surface-card table-card desktop-table">
         <table class="table align-middle mb-0">
           <thead><tr><th scope="col">{{ t('accounts.person') }}</th><th scope="col">{{ t('fields.email') }}</th><th scope="col">{{ t('fields.role') }}</th><th scope="col">{{ t('fields.firm') }}</th><th scope="col" class="text-end">{{ t('common.actions') }}</th></tr></thead>
           <tbody>
-            <tr v-for="user in filteredUsers" :key="user.id">
+            <tr v-for="user in users" :key="user.id">
               <td><div class="person-cell"><span>{{ initials(user) }}</span><div><strong>{{ user.firstName }} {{ user.lastName }}</strong><small>@{{ user.userName }}</small></div></div></td>
               <td>{{ user.email }}</td>
               <td><span class="role-badge" :class="{ admin: user.role === 'Admin' }">{{ t(user.role === 'Admin' ? 'roles.admin' : 'roles.user') }}</span></td>
@@ -89,7 +95,7 @@
       </div>
 
       <div class="mobile-cards">
-        <article v-for="user in filteredUsers" :key="user.id" class="surface-card user-card">
+        <article v-for="user in users" :key="user.id" class="surface-card user-card">
           <div class="person-cell"><span>{{ initials(user) }}</span><div><strong>{{ user.firstName }} {{ user.lastName }}</strong><small>{{ user.email }}</small></div></div>
           <dl><div><dt>{{ t('fields.role') }}</dt><dd><span class="role-badge" :class="{ admin: user.role === 'Admin' }">{{ t(user.role === 'Admin' ? 'roles.admin' : 'roles.user') }}</span></dd></div><div><dt>{{ t('fields.firm') }}</dt><dd>{{ user.firmName || t('common.notAvailable') }}</dd></div></dl>
           <div class="card-actions"><button type="button" class="btn btn-outline-secondary" @click="openEdit(user)"><i class="bi bi-pencil" aria-hidden="true"></i> {{ t('common.edit') }}</button><button type="button" class="btn btn-outline-danger" @click="askDelete(user)"><i class="bi bi-trash" aria-hidden="true"></i> {{ t('common.delete') }}</button></div>
@@ -105,12 +111,22 @@
           <div class="form-field"><label for="edit-last-name" class="form-label">{{ t('fields.lastName') }}</label><input id="edit-last-name" v-model.trim="editForm.lastName" class="form-control" :disabled="saving" /></div>
           <div class="form-field dialog-span"><label for="edit-email" class="form-label">{{ t('fields.email') }}</label><input id="edit-email" v-model.trim="editForm.email" class="form-control" type="email" :disabled="saving" /></div>
           <div class="form-field"><label for="edit-role" class="form-label">{{ t('fields.role') }}</label><select id="edit-role" v-model="editForm.role" class="form-select" :disabled="saving"><option value="User">{{ t('roles.user') }}</option><option value="Admin">{{ t('roles.admin') }}</option></select></div>
-          <div class="form-field"><label for="edit-firm" class="form-label">{{ t('fields.firm') }}</label><select id="edit-firm" v-model="editForm.firmId" class="form-select" :disabled="saving || editForm.role === 'Admin'"><option value="">{{ editForm.role === 'Admin' ? t('accounts.adminFirmAutomatic') : t('accounts.selectFirm') }}</option><option v-for="firm in customerFirms" :key="firm.id" :value="firm.id">{{ firm.name }}</option></select></div>
+          <div class="form-field"><label for="edit-firm" class="form-label">{{ t('fields.firm') }}</label><FirmSelect v-model="editForm.firmId" input-id="edit-firm" exclude-protected :disabled="saving || editForm.role === 'Admin'" :placeholder="t('accounts.selectFirm')" /></div>
         </div>
         <p v-if="editError" class="form-error" role="alert">{{ editError }}</p>
         <div class="form-actions"><button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="editDialog?.close()">{{ t('common.cancel') }}</button><button type="submit" class="btn btn-primary" :disabled="saving"><span v-if="saving" class="spinner-border spinner-border-sm" aria-hidden="true"></span>{{ t('common.saveChanges') }}</button></div>
       </form>
     </dialog>
+
+    <PaginationBar
+      :page="page"
+      :total-pages="totalPages"
+      :total-count="totalCount"
+      :has-previous="hasPrevious"
+      :has-next="hasNext"
+      :busy="loading"
+      @change="goToPage"
+    />
 
     <ConfirmDialog v-model:open="confirmOpen" :title="t('accounts.deleteTitle')" :message="t('accounts.deleteMessage', { name: selectedForDelete ? `${selectedForDelete.firstName} ${selectedForDelete.lastName}` : '' })" :confirm-label="t('common.delete')" variant="danger" :busy="deleting" @confirm="deleteAccount" />
   </section>
@@ -124,19 +140,18 @@ import LoadingState from "@/components/LoadingState.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
+import FirmSelect from "@/components/FirmSelect.vue";
+import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 import { meetsPasswordPolicy } from "@/utils/password";
 
 const { t, locale } = useI18n();
 const toast = useToastStore();
-const users = ref([]);
-const firms = ref([]);
-const loading = ref(true);
-const error = ref("");
-const query = ref("");
+
 const roleFilter = ref("all");
-const firmFilter = ref("all");
+const firmFilter = ref("");
 const showCreate = ref(false);
 const creating = ref(false);
 const createForm = reactive({ firstName: "", lastName: "", email: "", password: "", role: "User", firmId: "" });
@@ -150,16 +165,6 @@ const selectedForDelete = ref(null);
 const confirmOpen = ref(false);
 const deleting = ref(false);
 
-const customerFirms = computed(() => firms.value.filter((firm) => firm.name.toLocaleUpperCase("tr-TR") !== "TURKUVAZ"));
-const filteredUsers = computed(() => {
-  const needle = query.value.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-  return users.value.filter((user) => {
-    const matchesRole = roleFilter.value === "all" || user.role === roleFilter.value;
-    const matchesFirm = firmFilter.value === "all" || String(user.firmId) === firmFilter.value;
-    const haystack = `${user.firstName} ${user.lastName} ${user.email} ${user.userName} ${user.firmName}`.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-    return matchesRole && matchesFirm && (!needle || haystack.includes(needle));
-  });
-});
 
 watch(() => createForm.role, (role) => { if (role === "Admin") createForm.firmId = ""; createErrors.firmId = ""; });
 watch(() => editForm.role, (role) => { if (role === "Admin") editForm.firmId = ""; });
@@ -167,18 +172,32 @@ watch(() => editForm.role, (role) => { if (role === "Admin") editForm.firmId = "
 function normalizeUser(item) {
   return { id: item.id ?? item.Id, userName: item.userName ?? item.name ?? "", firstName: item.firstName ?? "", lastName: item.lastName ?? "", email: item.email ?? "", role: item.role ?? "User", firmId: Number(item.firm?.id ?? item.firmId) || null, firmName: item.firm?.name ?? item.firmName ?? "" };
 }
+// Role and firm filters run server side so they cover every page, not just the visible one.
+const listParams = computed(() => ({
+  role: roleFilter.value === "all" ? "" : roleFilter.value,
+  firmId: firmFilter.value || "",
+}));
+
+const {
+  items: users,
+  page,
+  totalPages,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  search,
+  loading,
+  error,
+  load,
+  goToPage,
+} = usePagedList("/api/account/listUsers", {
+  params: listParams,
+  map: (rows) => rows.map(normalizeUser),
+});
+
 function initials(user) { return `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toLocaleUpperCase(locale.value === "tr" ? "tr-TR" : "en-US"); }
 function validEmail(value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
 
-async function loadAll() {
-  loading.value = true; error.value = "";
-  try {
-    const [userRows, firmRows] = await Promise.all([api.get("/api/account/listUsers"), api.get("/api/Firm/listFirm")]);
-    users.value = (userRows ?? []).map(normalizeUser);
-    firms.value = (firmRows ?? []).map((item) => ({ id: Number(item.id), name: item.name ?? item.firmName }));
-  } catch (requestError) { error.value = requestError.message || t("errors.loadAccounts"); }
-  finally { loading.value = false; }
-}
 
 function validateCreate() {
   createErrors.firstName = createForm.firstName.length >= 2 ? "" : t("validation.required");
@@ -194,7 +213,7 @@ async function createAccount() {
   creating.value = true;
   try {
     await api.post("/api/account/register", { firstName: createForm.firstName, lastName: createForm.lastName, email: createForm.email, password: createForm.password, role: createForm.role, firmId: createForm.role === "User" ? Number(createForm.firmId) : null });
-    resetCreate(); await loadAll(); toast.success(t("accounts.created"));
+    resetCreate(); await load(); toast.success(t("accounts.created"));
   } catch (requestError) { toast.error(requestError.message || t("errors.createAccount")); }
   finally { creating.value = false; }
 }
@@ -209,7 +228,7 @@ async function saveAccount() {
   saving.value = true;
   try {
     await api.put(`/api/account/updateAccount/${selectedUser.value.id}`, { id: selectedUser.value.id, firstName: editForm.firstName, lastName: editForm.lastName, email: editForm.email, role: editForm.role, firmId: editForm.role === "User" ? Number(editForm.firmId) : null });
-    editDialog.value?.close(); await loadAll(); toast.success(t("accounts.updated"));
+    editDialog.value?.close(); await load(); toast.success(t("accounts.updated"));
   } catch (requestError) { toast.error(requestError.message || t("errors.updateAccount")); }
   finally { saving.value = false; }
 }
@@ -218,12 +237,12 @@ function askDelete(user) { selectedForDelete.value = user; confirmOpen.value = t
 async function deleteAccount() {
   if (!selectedForDelete.value || deleting.value) return;
   deleting.value = true;
-  try { await api.delete(`/api/account/deleteUser/${selectedForDelete.value.id}`); confirmOpen.value = false; selectedForDelete.value = null; await loadAll(); toast.success(t("accounts.deleted")); }
+  try { await api.delete(`/api/account/deleteUser/${selectedForDelete.value.id}`); confirmOpen.value = false; selectedForDelete.value = null; await load(); toast.success(t("accounts.deleted")); }
   catch (requestError) { toast.error(requestError.message || t("errors.deleteAccount")); }
   finally { deleting.value = false; }
 }
 
-onMounted(loadAll);
+onMounted(load);
 </script>
 
 <style scoped>

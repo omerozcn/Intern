@@ -1,3 +1,4 @@
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Ticket;
 using TicketSystem.Models;
 
@@ -12,8 +13,8 @@ public interface ITicketRepository
         int? productId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<TicketDto>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<TicketDto>> GetByUserIdAsync(string appUserId, CancellationToken cancellationToken = default);
+    Task<PagedResult<TicketDto>> GetAllAsync(TicketListRequest request, CancellationToken cancellationToken = default);
+    Task<PagedResult<TicketDto>> GetByUserIdAsync(string appUserId, TicketListRequest request, CancellationToken cancellationToken = default);
     Task<TicketDto?> GetDtoByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<Ticket?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<bool> IsOwnedByAsync(int ticketId, string appUserId, CancellationToken cancellationToken = default);

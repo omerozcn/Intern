@@ -6,7 +6,7 @@
       <div class="search-field">
         <i class="bi bi-search" aria-hidden="true"></i>
         <label class="visually-hidden" for="ticket-search">{{ t('common.search') }}</label>
-        <input id="ticket-search" v-model.trim="query" class="form-control" type="search" :placeholder="t('adminTickets.searchPlaceholder')" />
+        <input id="ticket-search" v-model.trim="search" class="form-control" type="search" :placeholder="t('adminTickets.searchPlaceholder')" />
       </div>
       <div class="filter-bar" role="group" :aria-label="t('tickets.filterLabel')">
         <button
@@ -22,8 +22,8 @@
     </div>
 
     <LoadingState v-if="loading" :message="t('common.loading')" />
-    <ErrorState v-else-if="error" :message="error" @retry="loadTickets" />
-    <EmptyState v-else-if="!filteredTickets.length" icon="bi-inbox" :title="t('adminTickets.emptyTitle')" :message="t('adminTickets.emptyMessage')" />
+    <ErrorState v-else-if="error" :message="error" @retry="load" />
+    <EmptyState v-else-if="!tickets.length" icon="bi-inbox" :title="t('adminTickets.emptyTitle')" :message="t('adminTickets.emptyMessage')" />
 
     <template v-else>
       <div class="surface-card table-card desktop-table">
@@ -39,7 +39,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="ticket in filteredTickets" :key="ticket.id">
+            <tr v-for="ticket in tickets" :key="ticket.id">
               <td>
                 <span class="ticket-id">#{{ ticket.id }} · {{ ticket.createdBy }}</span>
                 <p class="description-cell">{{ ticket.description }}</p>
@@ -60,7 +60,7 @@
       </div>
 
       <div class="mobile-cards">
-        <article v-for="ticket in filteredTickets" :key="ticket.id" class="surface-card mobile-ticket">
+        <article v-for="ticket in tickets" :key="ticket.id" class="surface-card mobile-ticket">
           <div class="mobile-ticket__head"><span>#{{ ticket.id }}</span><StatusBadge :status="ticket.status" /></div>
           <h2>{{ ticket.productName || t('tickets.newProductRequest') }}</h2>
           <p>{{ ticket.description }}</p>
@@ -75,6 +75,17 @@
         </article>
       </div>
     </template>
+
+
+    <PaginationBar
+      :page="page"
+      :total-pages="totalPages"
+      :total-count="totalCount"
+      :has-previous="hasPrevious"
+      :has-next="hasNext"
+      :busy="loading"
+      @change="goToPage"
+    />
 
     <dialog ref="manageDialog" class="app-dialog" @close="resetDialog">
       <form v-if="selectedTicket" class="dialog-card" method="dialog" @submit.prevent="saveTicket">
@@ -136,55 +147,73 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
+import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 import { normalizeTicket, TICKET_STATUS } from "@/utils/tickets";
 
 const { t, locale } = useI18n();
 const toast = useToastStore();
-const tickets = ref([]);
-const loading = ref(true);
-const error = ref("");
-const query = ref("");
+
 const activeFilter = ref("all");
 const selectedTicket = ref(null);
 const manageDialog = ref(null);
 const manageForm = reactive({ status: TICKET_STATUS.PENDING, answer: "" });
 const answerError = ref("");
 const saving = ref(false);
+const statusCounts = reactive({ all: 0, pending: 0, inProgress: 0, completed: 0 });
 
-const filters = computed(() => [
-  { value: "all", label: t("common.all"), count: tickets.value.length },
-  { value: TICKET_STATUS.PENDING, label: t("status.pending"), count: count(TICKET_STATUS.PENDING) },
-  { value: TICKET_STATUS.IN_PROGRESS, label: t("status.inProgress"), count: count(TICKET_STATUS.IN_PROGRESS) },
-  { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), count: count(TICKET_STATUS.COMPLETED) },
-]);
+// Status filtering happens server side; filtering only the visible page would hide
+// matching tickets that live on other pages.
+const listParams = computed(() => ({
+  status: activeFilter.value === "all" ? "" : activeFilter.value,
+}));
 
-const filteredTickets = computed(() => {
-  const needle = query.value.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-  return tickets.value.filter((ticket) => {
-    const matchesStatus = activeFilter.value === "all" || ticket.status === activeFilter.value;
-    const haystack = `${ticket.id} ${ticket.description} ${ticket.firmName} ${ticket.productName} ${ticket.createdBy}`.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-    return matchesStatus && (!needle || haystack.includes(needle));
-  });
+const {
+  items: tickets,
+  page,
+  totalPages,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  search,
+  loading,
+  error,
+  load: loadPage,
+  goToPage,
+} = usePagedList("/api/Ticket/listTicket", {
+  params: listParams,
+  map: (rows) => rows.map(normalizeTicket),
 });
 
-function count(status) { return tickets.value.filter((ticket) => ticket.status === status).length; }
+const filters = computed(() => [
+  { value: "all", label: t("common.all"), count: statusCounts.all },
+  { value: TICKET_STATUS.PENDING, label: t("status.pending"), count: statusCounts.pending },
+  { value: TICKET_STATUS.IN_PROGRESS, label: t("status.inProgress"), count: statusCounts.inProgress },
+  { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), count: statusCounts.completed },
+]);
+
 function formatDate(value) {
   return value ? new Intl.DateTimeFormat(locale.value === "tr" ? "tr-TR" : "en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : t("common.notAvailable");
 }
 
-async function loadTickets() {
-  loading.value = true;
-  error.value = "";
+/** Tab counts cover every page, so they come from the dedicated summary endpoint. */
+async function loadStatusCounts() {
   try {
-    const result = await api.get("/api/Ticket/listTicket");
-    tickets.value = (result ?? []).map(normalizeTicket).sort((a, b) => new Date(b.created) - new Date(a.created));
-  } catch (requestError) {
-    error.value = requestError.message || t("errors.loadTickets");
-  } finally {
-    loading.value = false;
+    const rows = await api.get("/api/Ticket/ticketstatuscount");
+    const byStatus = Object.fromEntries((rows ?? []).map((row) => [row.status, Number(row.count) || 0]));
+    statusCounts.pending = byStatus[TICKET_STATUS.PENDING] ?? 0;
+    statusCounts.inProgress = byStatus[TICKET_STATUS.IN_PROGRESS] ?? 0;
+    statusCounts.completed = byStatus[TICKET_STATUS.COMPLETED] ?? 0;
+    statusCounts.all = statusCounts.pending + statusCounts.inProgress + statusCounts.completed;
+  } catch {
+    // The list itself still renders; leaving the counts at their last value is enough.
   }
+}
+
+async function load() {
+  await Promise.all([loadPage(), loadStatusCounts()]);
 }
 
 async function openManage(ticket) {
@@ -216,7 +245,7 @@ async function saveTicket() {
       answer: manageForm.answer.trim() || null,
     });
     closeManage();
-    await loadTickets();
+    await load();
     toast.success(t("adminTickets.updated"));
   } catch (requestError) {
     toast.error(requestError.message || t("errors.updateTicket"));
@@ -225,7 +254,7 @@ async function saveTicket() {
   }
 }
 
-onMounted(loadTickets);
+onMounted(load);
 </script>
 
 <style scoped>

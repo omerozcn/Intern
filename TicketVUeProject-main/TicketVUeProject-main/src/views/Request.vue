@@ -25,9 +25,9 @@
     </div>
 
     <LoadingState v-if="loading" :message="t('common.loading')" />
-    <ErrorState v-else-if="error" :message="error" @retry="loadTickets" />
+    <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState
-      v-else-if="!filteredTickets.length"
+      v-else-if="!tickets.length"
       icon="bi-inbox"
       :title="t('tickets.emptyTitle')"
       :message="activeFilter === 'all' ? t('tickets.emptyDescription') : t('tickets.emptyFilter')"
@@ -38,7 +38,7 @@
     </EmptyState>
 
     <div v-else class="ticket-grid">
-      <article v-for="ticket in filteredTickets" :key="ticket.id" class="surface-card ticket-card">
+      <article v-for="ticket in tickets" :key="ticket.id" class="surface-card ticket-card">
         <div class="ticket-card__top">
           <div class="ticket-product">
             <span class="product-icon"><i :class="ticket.newProduct ? 'bi bi-stars' : 'bi bi-box-seam'" aria-hidden="true"></i></span>
@@ -106,6 +106,17 @@
       </article>
     </div>
 
+
+    <PaginationBar
+      :page="page"
+      :total-pages="totalPages"
+      :total-count="totalCount"
+      :has-previous="hasPrevious"
+      :has-next="hasNext"
+      :busy="loading"
+      @change="goToPage"
+    />
+
     <ConfirmDialog
       v-model:open="deleteDialogOpen"
       :title="t('tickets.deleteTitle')"
@@ -119,7 +130,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -127,15 +138,15 @@ import LoadingState from "@/components/LoadingState.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import PaginationBar from "@/components/PaginationBar.vue";
+import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
 import { normalizeTicket, TICKET_STATUS } from "@/utils/tickets";
 
 const { t, locale } = useI18n();
 const toast = useToastStore();
-const tickets = ref([]);
-const loading = ref(true);
-const error = ref("");
+
 const activeFilter = ref("all");
 const editingId = ref(null);
 const editText = ref("");
@@ -144,20 +155,48 @@ const savingId = ref(null);
 const selectedTicket = ref(null);
 const deleteDialogOpen = ref(false);
 const deleting = ref(false);
+const statusCounts = reactive({ all: 0, pending: 0, inProgress: 0, completed: 0 });
+
+// Status filtering happens server side so it covers every page, not just the visible one.
+const listParams = computed(() => ({
+  status: activeFilter.value === "all" ? "" : activeFilter.value,
+}));
+
+const {
+  items: tickets,
+  page,
+  totalPages,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  loading,
+  error,
+  load: loadPage,
+  goToPage,
+} = usePagedList("/api/Ticket/listByUserId", {
+  params: listParams,
+  map: (rows) => rows.map(normalizeTicket),
+});
 
 const filters = computed(() => [
-  { value: "all", label: t("common.all"), count: tickets.value.length },
-  { value: TICKET_STATUS.PENDING, label: t("status.pending"), count: count(TICKET_STATUS.PENDING) },
-  { value: TICKET_STATUS.IN_PROGRESS, label: t("status.inProgress"), count: count(TICKET_STATUS.IN_PROGRESS) },
-  { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), count: count(TICKET_STATUS.COMPLETED) },
+  { value: "all", label: t("common.all"), count: statusCounts.all },
+  { value: TICKET_STATUS.PENDING, label: t("status.pending"), count: statusCounts.pending },
+  { value: TICKET_STATUS.IN_PROGRESS, label: t("status.inProgress"), count: statusCounts.inProgress },
+  { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), count: statusCounts.completed },
 ]);
 
-const filteredTickets = computed(() => activeFilter.value === "all"
-  ? tickets.value
-  : tickets.value.filter((ticket) => ticket.status === activeFilter.value));
-
-function count(status) {
-  return tickets.value.filter((ticket) => ticket.status === status).length;
+/** Tab counts cover every page, so they come from the dedicated summary endpoint. */
+async function loadStatusCounts() {
+  try {
+    const rows = await api.get("/api/Ticket/ticketstatuscount");
+    const byStatus = Object.fromEntries((rows ?? []).map((row) => [row.status, Number(row.count) || 0]));
+    statusCounts.pending = byStatus[TICKET_STATUS.PENDING] ?? 0;
+    statusCounts.inProgress = byStatus[TICKET_STATUS.IN_PROGRESS] ?? 0;
+    statusCounts.completed = byStatus[TICKET_STATUS.COMPLETED] ?? 0;
+    statusCounts.all = statusCounts.pending + statusCounts.inProgress + statusCounts.completed;
+  } catch {
+    // The list still renders; keeping the previous counts is acceptable.
+  }
 }
 
 function formatDate(value) {
@@ -168,17 +207,8 @@ function formatDate(value) {
   }).format(new Date(value));
 }
 
-async function loadTickets() {
-  loading.value = true;
-  error.value = "";
-  try {
-    const result = await api.get("/api/Ticket/listByUserId");
-    tickets.value = (result ?? []).map(normalizeTicket).sort((a, b) => new Date(b.created) - new Date(a.created));
-  } catch (requestError) {
-    error.value = requestError.message || t("errors.loadTickets");
-  } finally {
-    loading.value = false;
-  }
+async function load() {
+  await Promise.all([loadPage(), loadStatusCounts()]);
 }
 
 function startEdit(ticket) {
@@ -201,7 +231,7 @@ async function saveEdit(ticket) {
   try {
     await api.put(`/api/Ticket/updateDescription/${ticket.id}`, { description: editText.value.trim() });
     cancelEdit();
-    await loadTickets();
+    await load();
     toast.success(t("ticket.updated"));
   } catch (requestError) {
     toast.error(requestError.message || t("errors.updateTicket"));
@@ -222,7 +252,7 @@ async function deleteTicket() {
     await api.delete(`/api/Ticket/deleteTicket/${selectedTicket.value.id}`);
     deleteDialogOpen.value = false;
     selectedTicket.value = null;
-    await loadTickets();
+    await load();
     toast.success(t("ticket.deleted"));
   } catch (requestError) {
     toast.error(requestError.message || t("errors.deleteTicket"));
@@ -231,7 +261,7 @@ async function deleteTicket() {
   }
 }
 
-onMounted(loadTickets);
+onMounted(load);
 </script>
 
 <style scoped>

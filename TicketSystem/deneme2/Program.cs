@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TicketSystem.Configuration;
 using TicketSystem.Data;
+using TicketSystem.Infrastructure;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Repository;
@@ -110,6 +111,7 @@ builder.Services.Configure<SmtpOptions>(
 builder.Services.Configure<FrontendOptions>(
     builder.Configuration.GetSection(FrontendOptions.SectionName));
 
+builder.Services.AddExceptionHandler<UniqueConstraintExceptionHandler>();
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>

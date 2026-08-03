@@ -389,5 +389,16 @@
     "feedback": "Feedback",
     "adminFeedback": "Feedback",
     "profile": "Profile"
+  },
+  "pagination": {
+    "label": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "status": "Page {page} of {totalPages} · {totalCount} records"
+  },
+  "firmSelect": {
+    "placeholder": "Search firms",
+    "noResults": "No matching firm found.",
+    "refine": "More results available, refine your search."
   }
 }

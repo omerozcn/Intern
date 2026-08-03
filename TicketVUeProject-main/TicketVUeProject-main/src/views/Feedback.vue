@@ -6,54 +6,67 @@
       <div class="search-field">
         <i class="bi bi-search" aria-hidden="true"></i>
         <label class="visually-hidden" for="feedback-search">{{ t('common.search') }}</label>
-        <input id="feedback-search" v-model.trim="query" class="form-control" type="search" :placeholder="t('feedback.searchPlaceholder')" />
+        <input id="feedback-search" v-model.trim="search" class="form-control" type="search" :placeholder="t('feedback.searchPlaceholder')" />
       </div>
-      <span>{{ t('feedback.count', { count: filteredFeedback.length }) }}</span>
+      <span>{{ t('feedback.count', { count: totalCount }) }}</span>
     </div>
 
     <LoadingState v-if="loading" :message="t('common.loading')" />
-    <ErrorState v-else-if="error" :message="error" @retry="loadFeedback" />
-    <EmptyState v-else-if="!filteredFeedback.length" icon="bi-chat-square-text" :title="t('feedback.emptyTitle')" :message="t('feedback.emptyDescription')" />
+    <ErrorState v-else-if="error" :message="error" @retry="load" />
+    <EmptyState v-else-if="!feedback.length" icon="bi-chat-square-text" :title="t('feedback.emptyTitle')" :message="t('feedback.emptyDescription')" />
 
     <div v-else class="feedback-grid">
-      <article v-for="item in filteredFeedback" :key="item.id" class="surface-card feedback-item">
+      <article v-for="item in feedback" :key="item.id" class="surface-card feedback-item">
         <div class="quote-icon"><i class="bi bi-quote" aria-hidden="true"></i></div>
         <p>{{ item.feedbackContent }}</p>
         <span>#{{ item.id }}</span>
       </article>
     </div>
+
+    <PaginationBar
+      :page="page"
+      :total-pages="totalPages"
+      :total-count="totalCount"
+      :has-previous="hasPrevious"
+      :has-next="hasNext"
+      :busy="loading"
+      @change="goToPage"
+    />
   </section>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
-import { api } from "@/services/api";
+import PaginationBar from "@/components/PaginationBar.vue";
+import { usePagedList } from "@/composables/usePagedList";
 
-const { t, locale } = useI18n();
-const feedback = ref([]);
-const query = ref("");
-const loading = ref(true);
-const error = ref("");
-const filteredFeedback = computed(() => {
-  const needle = query.value.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
-  return feedback.value.filter((item) => !needle || item.feedbackContent.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US").includes(needle));
+const { t } = useI18n();
+
+const {
+  items: feedback,
+  page,
+  totalPages,
+  totalCount,
+  hasPrevious,
+  hasNext,
+  search,
+  loading,
+  error,
+  load,
+  goToPage,
+} = usePagedList("/api/Feedback/listFeedbacks", {
+  map: (rows) => rows.map((item) => ({
+    id: Number(item.id),
+    feedbackContent: item.feedbackContent ?? "",
+  })),
 });
 
-async function loadFeedback() {
-  loading.value = true; error.value = "";
-  try {
-    const rows = await api.get("/api/Feedback/listFeedbacks");
-    feedback.value = (rows ?? []).map((item) => ({ id: Number(item.id), feedbackContent: item.feedbackContent ?? item.feedbackContet ?? "" })).sort((a, b) => b.id - a.id);
-  } catch (requestError) { error.value = requestError.message || t("errors.loadFeedback"); }
-  finally { loading.value = false; }
-}
-
-onMounted(loadFeedback);
+onMounted(load);
 </script>
 
 <style scoped>

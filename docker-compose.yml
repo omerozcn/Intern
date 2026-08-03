@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: ticketsystem-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD .env dosyasinda tanimlanmali}
+      MSSQL_PID: Developer
+    ports:
+      - "${DB_PORT:-1433}:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      # The API must not start before the server can actually answer queries.
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  api:
+    build:
+      context: ./TicketSystem/deneme2
+      dockerfile: Dockerfile
+    container_name: ticketsystem-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Development applies migrations and seeds the test accounts on startup.
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=TicketSystem;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
+      Jwt__Issuer: ${JWT_ISSUER:-http://localhost:5005}
+      Jwt__Audience: ${JWT_AUDIENCE:-http://localhost:5005}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY .env dosyasinda tanimlanmali}
+      Frontend__BaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      Cors__AllowedOrigins__0: ${FRONTEND_BASE_URL:-http://localhost:5173}
+    ports:
+      - "${API_PORT:-5005}:8080"
+
+volumes:
+  mssql-data:

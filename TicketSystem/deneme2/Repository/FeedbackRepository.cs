@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TicketSystem.Data;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Feedback;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 
@@ -24,17 +26,24 @@ public sealed class FeedbackRepository : IFeedbackRepository
         return feedbackModel;
     }
 
-    public async Task<IReadOnlyList<FeedbackDto>> GetAllFeedbackAsync(
+    public async Task<PagedResult<FeedbackDto>> GetAllFeedbackAsync(
+        PageRequest request,
         CancellationToken cancellationToken = default)
     {
-        return await _context.Feedbacks
-            .AsNoTracking()
+        var feedbacks = _context.Feedbacks.AsNoTracking();
+
+        if (request.Search is not null)
+        {
+            feedbacks = feedbacks.Where(feedback => feedback.FeedbackContent.Contains(request.Search));
+        }
+
+        return await feedbacks
             .OrderByDescending(feedback => feedback.Id)
             .Select(feedback => new FeedbackDto
             {
                 Id = feedback.Id,
                 FeedbackContent = feedback.FeedbackContent,
             })
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(request, cancellationToken);
     }
 }

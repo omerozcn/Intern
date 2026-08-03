@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Firm;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
@@ -13,9 +14,6 @@ namespace TicketSystem.Controllers;
 [Route("api/Firm")]
 public sealed class FirmController : ControllerBase
 {
-    /// <summary>The system firm that owns the platform; it must never be renamed or removed.</summary>
-    private const string ProtectedFirmName = "TURKUVAZ";
-
     private readonly IFirmRepository _firmRepository;
 
     public FirmController(IFirmRepository firmRepository)
@@ -24,11 +22,12 @@ public sealed class FirmController : ControllerBase
     }
 
     [HttpGet("listFirm")]
-    [ProducesResponseType<IReadOnlyList<FirmDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<FirmDto>>> GetAll(
+    [ProducesResponseType<PagedResult<FirmDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<FirmDto>>> GetAll(
+        [FromQuery] PageRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _firmRepository.GetAllAsync(cancellationToken));
+        return Ok(await _firmRepository.GetAllAsync(request, cancellationToken));
     }
 
     [HttpGet("listById/{id:int}")]
@@ -50,9 +49,14 @@ public sealed class FirmController : ControllerBase
         [FromBody] CreateFirmRequestDto firmDto,
         CancellationToken cancellationToken)
     {
-        if (IsReservedName(firmDto.Name))
+        if (ProtectedFirm.IsProtectedName(firmDto.Name))
         {
-            return ProtectedFirm();
+            return ProtectedFirmConflict();
+        }
+
+        if (await _firmRepository.GetByNameAsync(firmDto.Name!, cancellationToken) is not null)
+        {
+            return DuplicateName();
         }
 
         var firm = await _firmRepository.CreateAsync(
@@ -77,9 +81,15 @@ public sealed class FirmController : ControllerBase
             return FirmNotFound();
         }
 
-        if (IsProtectedFirm(existingFirm) || IsReservedName(updateDto.Name))
+        if (IsProtectedFirm(existingFirm) || ProtectedFirm.IsProtectedName(updateDto.Name))
         {
-            return ProtectedFirm();
+            return ProtectedFirmConflict();
+        }
+
+        var duplicate = await _firmRepository.GetByNameAsync(updateDto.Name!, cancellationToken);
+        if (duplicate is not null && duplicate.Id != id)
+        {
+            return DuplicateName();
         }
 
         var firm = await _firmRepository.UpdateAsync(id, updateDto, cancellationToken);
@@ -102,7 +112,7 @@ public sealed class FirmController : ControllerBase
 
         if (IsProtectedFirm(existingFirm))
         {
-            return ProtectedFirm();
+            return ProtectedFirmConflict();
         }
 
         if (await _firmRepository.HasTicketHistoryAsync(id, cancellationToken))
@@ -142,21 +152,24 @@ public sealed class FirmController : ControllerBase
             title: "Firm not found");
     }
 
-    private ObjectResult ProtectedFirm()
+    private ObjectResult DuplicateName()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status409Conflict,
+            title: "Firm name already exists",
+            detail: "Another firm is already registered with this name.");
+    }
+
+    private ObjectResult ProtectedFirmConflict()
     {
         return Problem(
             statusCode: StatusCodes.Status409Conflict,
             title: "Protected firm",
-            detail: $"{ProtectedFirmName} is a protected system firm.");
+            detail: $"{ProtectedFirm.Name} is a protected system firm.");
     }
 
     private static bool IsProtectedFirm(Firm firm)
     {
-        return IsReservedName(firm.Name);
-    }
-
-    private static bool IsReservedName(string? name)
-    {
-        return string.Equals(name?.Trim(), ProtectedFirmName, StringComparison.OrdinalIgnoreCase);
+        return ProtectedFirm.IsProtectedName(firm.Name);
     }
 }

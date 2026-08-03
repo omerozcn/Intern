@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using TicketSystem.Configuration;
+using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Account;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
@@ -107,11 +108,12 @@ public sealed class AccountController : ControllerBase
 
     [Authorize(Roles = AppRoles.Admin)]
     [HttpGet("listUsers")]
-    [ProducesResponseType<IReadOnlyList<ProfileDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IReadOnlyList<ProfileDto>>> GetAll(
+    [ProducesResponseType<PagedResult<ProfileDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResult<ProfileDto>>> GetAll(
+        [FromQuery] UserListRequest request,
         CancellationToken cancellationToken)
     {
-        return Ok(await _accountRepository.GetAllAsync(cancellationToken));
+        return Ok(await _accountRepository.GetAllAsync(request, cancellationToken));
     }
 
     [Authorize(Roles = AppRoles.Admin)]
