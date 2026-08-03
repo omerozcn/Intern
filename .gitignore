@@ -1,0 +1,41 @@
+# IDE and operating-system files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.DS_Store
+Thumbs.db
+
+# .NET build output
+**/bin/
+**/obj/
+TestResults/
+*.coverage
+*.coveragexml
+
+# Frontend dependencies and build/test output
+**/node_modules/
+**/dist/
+**/.npm-cache*/
+coverage/
+playwright-report/
+test-results/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.local.json
+secrets.json
+
+# Local databases and logs
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.log
