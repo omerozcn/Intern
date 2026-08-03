@@ -1,40 +1,45 @@
-﻿using TicketSystem.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TicketSystem.Dtos.Feedback;
 using TicketSystem.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using TicketSystem.Mappers;
-using Microsoft.AspNetCore.Authorization;
+using TicketSystem.Security;
 
-namespace TicketSystem.Controllers
+namespace TicketSystem.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/Feedback")]
+public sealed class FeedbackController : ControllerBase
 {
-     [Route("api/Feedback")]
-     [Authorize]
-     [ApiController]
-     public class FeedbackController: ControllerBase
-     {
-          private readonly ApplicationDbContext _context;
-          private readonly IFeedbackRepository _feedRepo;
-          public FeedbackController(ApplicationDbContext context, IFeedbackRepository feedrRepo)
-          {
-               _context = context;
-               _feedRepo = feedrRepo;
-          }
-          [HttpGet("listFeedbacks")]
-          public async Task<IActionResult> GetAll()
-          {
-               var feecbacks = await _feedRepo.GetAllFeedbackAsync();
+    private readonly IFeedbackRepository _feedbackRepository;
 
-               var feedbackDto = feecbacks.Select(t => t.ToString()).ToList();
+    public FeedbackController(IFeedbackRepository feedbackRepository)
+    {
+        _feedbackRepository = feedbackRepository;
+    }
 
-               return Ok(feecbacks);
-          }
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpGet("listFeedbacks")]
+    [ProducesResponseType<IReadOnlyList<FeedbackDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<FeedbackDto>>> GetAll(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _feedbackRepository.GetAllFeedbackAsync(cancellationToken));
+    }
 
-          [HttpPost("createFeedback")]
-          public async Task<IActionResult> Create([FromBody] CreateFeedbackRequestDto feedbackDto)
-          {
-               var feedbackModel = feedbackDto.ToFeedbackFromCreateDTO();
-               await _feedRepo.CreateAsync(feedbackModel);
-               return Ok(feedbackModel);
-          }
-     }
+    [Authorize(Roles = AppRoles.User)]
+    [HttpPost("createFeedback")]
+    [ProducesResponseType<FeedbackDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<FeedbackDto>> Create(
+        [FromBody] CreateFeedbackRequestDto feedbackDto,
+        CancellationToken cancellationToken)
+    {
+        var feedback = await _feedbackRepository.CreateAsync(
+            feedbackDto.ToFeedbackFromCreateDTO(),
+            cancellationToken);
+
+        return StatusCode(StatusCodes.Status201Created, feedback.ToFeedbackDto());
+    }
 }

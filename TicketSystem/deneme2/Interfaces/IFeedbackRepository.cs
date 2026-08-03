@@ -1,11 +1,10 @@
-﻿using TicketSystem.Models;
-using TicketSystem.Models.FeedbackModels;
+using TicketSystem.Dtos.Feedback;
+using TicketSystem.Models;
 
-namespace TicketSystem.Interfaces
+namespace TicketSystem.Interfaces;
+
+public interface IFeedbackRepository
 {
-     public interface IFeedbackRepository
-     {
-          Task<Feedback> CreateAsync(Feedback feedbackModel);
-          Task<List<FeedbackSummary>> GetAllFeedbackAsync();
-     }
+    Task<Feedback> CreateAsync(Feedback feedbackModel, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FeedbackDto>> GetAllFeedbackAsync(CancellationToken cancellationToken = default);
 }

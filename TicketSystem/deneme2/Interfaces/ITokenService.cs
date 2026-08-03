@@ -1,12 +1,13 @@
-﻿using TicketSystem.Models;
+using TicketSystem.Dtos.Account;
+using TicketSystem.Dtos.Token;
+using TicketSystem.Models;
 
-namespace TicketSystem.Interfaces
+namespace TicketSystem.Interfaces;
+
+public interface ITokenService
 {
-     public interface ITokenService
-     {
-          Task<string> CreateTokenAsync(AppUser user);
-
-          Task StoreTokenAsync(AppUser user, string token);
-     }
+    Task<IssuedTokenDto> CreateTokenAsync(
+        AppUser user,
+        ProfileDto profile,
+        CancellationToken cancellationToken = default);
 }
-

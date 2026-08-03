@@ -1,8 +1,7 @@
-﻿namespace TicketSystem.Dtos.Feedback
+namespace TicketSystem.Dtos.Feedback;
+
+public class FeedbackDto
 {
-     public class FeedbackDto
-     {
-        public int Id { get; set; }
-        public string FeedbackContet {  get; set; }
-     }
+    public int Id { get; set; }
+    public string FeedbackContent { get; set; } = string.Empty;
 }

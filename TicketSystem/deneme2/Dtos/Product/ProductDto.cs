@@ -1,9 +1,8 @@
-﻿namespace TicketSystem.Dtos.Product
+namespace TicketSystem.Dtos.Product;
+
+public class ProductDto
 {
-     public class ProductDto
-     {
-          public int Id { get; set; }
-          public string Name { get; set; }
-          public DateTime? BirthDate { get; set; }
-     }
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public DateTime? BirthDate { get; set; }
 }
