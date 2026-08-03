@@ -1,17 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
-namespace TicketSystem.Dtos.Ticket
+namespace TicketSystem.Dtos.Ticket;
+
+public class CreateTicketRequestDto
 {
-     public class CreateTicketRequestDto
-     {
-          [Required]
-          [MinLength(5, ErrorMessage = "Decription must be 5 characters")]
-          [MaxLength(280, ErrorMessage = "Decription cannot be over 280 characters")]
-          public string? Description { get; set; }
-          public bool NewProduct { get; set; }
-          public string? CreatedBy { get; set; }
-          public int Status { get; set; }
-          public string FirmName { get; set; }
-          public int ProductId { get; set; }
-     }
+    private string _description = string.Empty;
+
+    /// <summary>
+    /// Trimmed on assignment so validation runs against the value that is actually stored.
+    /// </summary>
+    [Required]
+    [StringLength(280, MinimumLength = 30, ErrorMessage = "Description must be between 30 and 280 characters.")]
+    public string Description
+    {
+        get => _description;
+        set => _description = value?.Trim() ?? string.Empty;
+    }
+
+    [JsonRequired]
+    public bool NewProduct { get; set; }
+
+    public int? ProductId { get; set; }
 }

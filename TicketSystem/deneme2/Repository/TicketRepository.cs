@@ -1,175 +1,324 @@
-﻿using TicketSystem.Data;
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using TicketSystem.Data;
 using TicketSystem.Dtos.Ticket;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Sockets;
 
-namespace TicketSystem.Repository
+namespace TicketSystem.Repository;
+
+public sealed class TicketRepository : ITicketRepository
 {
-     public class TicketRepository : ITicketRepository
-     {
-          private readonly ApplicationDbContext _context;
-          private readonly UserManager<AppUser> _userManager;
-          private readonly ILogger<TicketRepository> _logger;
-          public TicketRepository(ApplicationDbContext context, UserManager<AppUser> userManager, ILogger<TicketRepository> logger)
-          {
-               _context = context;
-               _userManager = userManager;
-               _logger = logger;
-          }
+    private readonly ApplicationDbContext _context;
 
-          public async Task<Ticket> CreateAsync(Ticket ticketModel)
-          {
-               ticketModel.Status = 1;
-               await _context.Tickets.AddAsync(ticketModel);
-               await _context.SaveChangesAsync();
-               return ticketModel;
-          }
+    public TicketRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
-          public async Task<ProductTicket> ProductTicketCreateAsync(ProductTicket productTicket)
-          {
-               await _context.ProductTickets.AddAsync(productTicket);
-               await _context.SaveChangesAsync();
-               return productTicket;
-          }
+    public async Task<Ticket?> CreateAsync(
+        Ticket ticketModel,
+        string appUserId,
+        int firmId,
+        int? productId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken);
 
-          public async Task<AppUserTicket> AppUserTicketCreateAsync(AppUserTicket appuserticket)
-          {
-
-               await _context.AppUserTickets.AddAsync(appuserticket);
-               await _context.SaveChangesAsync();
-               return appuserticket;
-          }
-
-          public async Task<Ticket?> DeleteAsync(int id)
-          {
-               var ticketModel = await _context.Tickets.FirstOrDefaultAsync(ticket => ticket.Id == id);
-
-               if (ticketModel == null)
-               {
+        try
+        {
+            if (!ticketModel.NewProduct)
+            {
+                if (!productId.HasValue || productId.Value <= 0)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
                     return null;
-               }
-               _context.Tickets.Remove(ticketModel);
+                }
 
-               await _context.SaveChangesAsync();
-               return ticketModel;
-          }
+                var productBelongsToFirm = await _context.FirmProducts
+                    .AsNoTracking()
+                    .AnyAsync(
+                        link => link.FirmId == firmId && link.ProductId == productId.Value,
+                        cancellationToken);
 
-          public async Task<List<TicketDto>> GetAllAsync()
-          {
-               var tickets = await _context.Tickets
-                    .GroupJoin(
-                         _context.ProductTickets,
-                         ticket => ticket.Id,
-                         pt => pt.TicketId,
-                         (ticket, pts) => new { ticket, pts })
-                    .SelectMany(
-                         ticket => ticket.pts.DefaultIfEmpty(),
-                         (ticket, pt) => new { ticket.ticket, pt })
-                    .GroupJoin(
-                         _context.FirmProducts,
-                         ticket => ticket.pt.ProductId,
-                         fp => fp.ProductId,
-                         (ticket, fps) => new { ticket.ticket, ticket.pt, fps })
-                    .SelectMany(
-                         ticket => ticket.fps.DefaultIfEmpty(),
-                         (ticket, fp) => new { ticket.ticket, ticket.pt, fp })
-                    .GroupJoin(
-                         _context.Firms,
-                         ticket => ticket.fp.FirmId,
-                         f => f.Id,
-                         (ticket, firms) => new { ticket.ticket, ticket.pt, ticket.fp, firms })
-                    .SelectMany(
-                         ticket => ticket.firms.DefaultIfEmpty(),
-                         (ticket, firm) => new { ticket.ticket, ticket.pt, ticket.fp, firm })
-                    .GroupJoin(
-                         _context.Products,
-                         ticket => ticket.pt.ProductId,
-                         p => p.Id,
-                         (ticket, products) => new { ticket.ticket, ticket.pt, ticket.fp, ticket.firm, products })
-                    .SelectMany(
-                         ticket => ticket.products.DefaultIfEmpty(),
-                         (ticket, product) => new TicketDto
-                         {
-                              Id = ticket.ticket.Id,
-                              NewProduct = ticket.ticket.NewProduct,
-                              Description = ticket.ticket.Description,
-                              Created = ticket.ticket.Created,
-                              CreatedBy = ticket.ticket.CreatedBy,
-                              Updated = new UpdateTicketRequestDto().Update,
-                              Status = ticket.ticket.Status,
-                              Answer = ticket.ticket.Answer,
-                              FirmName = ticket.firm.Name,
-                              ProductName = product.Name
-                         })
-                    .ToListAsync(); ;
-
-               return tickets;
-          }
-
-          public async Task<Ticket?> GetByIdAsync(int id)
-          {
-               return await _context.Tickets.FirstOrDefaultAsync(ticket => ticket.Id == id);
-          }
-
-          public async Task<List<TicketDto>> GetByUserIdAsync(string id)
-          {
-               var ticketIds = await _context.AppUserTickets
-                    .Where(ut => ut.AppUserId == id)
-                    .Select(ut => ut.TicketId)
-                    .ToListAsync();
-
-               var tickets = await _context.Tickets
-                    .Where(ticket => ticketIds.Contains(ticket.Id))
-                    .Select(ticket => new TicketDto
-                    {
-                         Id = ticket.Id,
-                         NewProduct = ticket.NewProduct,
-                         Description = ticket.Description,
-                         Created = ticket.Created,
-                         CreatedBy = ticket.CreatedBy,
-                         Updated = new UpdateTicketRequestDto().Update,
-                         Status = ticket.Status,
-                         Answer = ticket.Answer,
-                         FirmName = (from fu in _context.FirmUsers
-                                     join f in _context.Firms on fu.FirmId equals f.Id
-                                     where fu.AppUserId == id
-                                     select f.Name).FirstOrDefault(),
-                        ProductName = (from pt in _context.ProductTickets
-                                       join p in _context.Products on pt.ProductId equals p.Id
-                                       where pt.TicketId == ticket.Id
-                                       select p.Name).FirstOrDefault()
-
-                    })
-                    .ToListAsync();
-
-               return tickets;
-          }
-
-          public async Task<Ticket?> UpdateAsync(int id, UpdateTicketRequestDto ticketDto)
-          {
-               var existingTicket = await _context.Tickets.FirstOrDefaultAsync(ticket => ticket.Id == id);
-               if (existingTicket == null)
-               {
+                if (!productBelongsToFirm)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
                     return null;
-               }
-               existingTicket.Answer = ticketDto.Answer;
-               existingTicket.Status = ticketDto.Status;
-               existingTicket.Updated = DateTime.Now;
+                }
+            }
 
-               await _context.SaveChangesAsync();
-               return existingTicket;
-          }
-          public async Task<Ticket?> UpdateTicketStatusAsync(Ticket ticket)
-          {
-               ticket.Updated = DateTime.Now;
-               _context.Tickets.Update(ticket);
-               await _context.SaveChangesAsync();
-               return ticket;
-          }
+            ticketModel.Status = TicketStatuses.Pending;
+            ticketModel.Created = DateTime.UtcNow;
+            ticketModel.Updated = null;
+            ticketModel.AppUserTickets.Add(new AppUserTicket
+            {
+                AppUserId = appUserId,
+            });
 
+            if (!ticketModel.NewProduct)
+            {
+                ticketModel.ProductTickets.Add(new ProductTicket
+                {
+                    ProductId = productId!.Value,
+                });
+            }
 
-     }
+            await _context.Tickets.AddAsync(ticketModel, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return ticketModel;
+        }
+        catch
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<IReadOnlyList<TicketDto>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await TicketRows()
+            .OrderBy(row => row.Status)
+            .ThenByDescending(row => row.Created)
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(ToDto).ToList();
+    }
+
+    public async Task<IReadOnlyList<TicketDto>> GetByUserIdAsync(
+        string appUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var rows = await TicketRows(appUserId)
+            .OrderBy(row => row.Status)
+            .ThenByDescending(row => row.Created)
+            .ToListAsync(cancellationToken);
+
+        return rows.Select(ToDto).ToList();
+    }
+
+    public async Task<TicketDto?> GetDtoByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var row = await TicketRows().FirstOrDefaultAsync(row => row.Id == id, cancellationToken);
+        return row == null ? null : ToDto(row);
+    }
+
+    public async Task<Ticket?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _context.Tickets
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ticket => ticket.Id == id, cancellationToken);
+    }
+
+    public async Task<bool> IsOwnedByAsync(
+        int ticketId,
+        string appUserId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.AppUserTickets
+            .AsNoTracking()
+            .AnyAsync(
+                link => link.TicketId == ticketId && link.AppUserId == appUserId,
+                cancellationToken);
+    }
+
+    public async Task<Ticket?> UpdateAsync(
+        int id,
+        string? answer,
+        int status,
+        CancellationToken cancellationToken = default)
+    {
+        var ticket = await _context.Tickets
+            .FirstOrDefaultAsync(ticket => ticket.Id == id, cancellationToken);
+        if (ticket == null)
+        {
+            return null;
+        }
+
+        ticket.Answer = string.IsNullOrWhiteSpace(answer) ? null : answer.Trim();
+        ticket.Status = status;
+        ticket.Updated = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return ticket;
+    }
+
+    public async Task<Ticket?> UpdateDescriptionAsync(
+        int id,
+        string appUserId,
+        string description,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken);
+
+        var ticket = await _context.Tickets
+            .Where(ticket => ticket.Id == id && ticket.Status == TicketStatuses.Pending)
+            .Where(ticket => ticket.AppUserTickets.Any(link => link.AppUserId == appUserId))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (ticket == null)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return null;
+        }
+
+        ticket.Description = description.Trim();
+        ticket.Updated = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return ticket;
+    }
+
+    public async Task<Ticket?> UpdateTicketStatusAsync(
+        int id,
+        int status,
+        CancellationToken cancellationToken = default)
+    {
+        var ticket = await _context.Tickets
+            .FirstOrDefaultAsync(ticket => ticket.Id == id, cancellationToken);
+        if (ticket == null)
+        {
+            return null;
+        }
+
+        ticket.Status = status;
+        ticket.Updated = DateTime.UtcNow;
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return ticket;
+    }
+
+    public async Task<Ticket?> DeleteAsync(
+        int id,
+        string appUserId,
+        CancellationToken cancellationToken = default)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync(
+            IsolationLevel.Serializable,
+            cancellationToken);
+
+        var ticket = await _context.Tickets
+            .Where(ticket => ticket.Id == id && ticket.Status == TicketStatuses.Pending)
+            .Where(ticket => ticket.AppUserTickets.Any(link => link.AppUserId == appUserId))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (ticket == null)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return null;
+        }
+
+        _context.Tickets.Remove(ticket);
+        await _context.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+        return ticket;
+    }
+
+    public async Task<IReadOnlyList<TicketStatusCountDto>> GetStatusCountsAsync(
+        string? appUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var tickets = _context.Tickets.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(appUserId))
+        {
+            tickets = tickets.Where(ticket =>
+                ticket.AppUserTickets.Any(link => link.AppUserId == appUserId));
+        }
+
+        var counts = await tickets
+            .Where(ticket => ticket.Status >= TicketStatuses.Pending &&
+                ticket.Status <= TicketStatuses.Completed)
+            .GroupBy(ticket => ticket.Status)
+            .Select(group => new { Status = group.Key, Count = group.Count() })
+            .ToDictionaryAsync(item => item.Status, item => item.Count, cancellationToken);
+
+        return new[]
+        {
+            TicketStatuses.Pending,
+            TicketStatuses.InProgress,
+            TicketStatuses.Completed,
+        }
+        .Select(status => new TicketStatusCountDto
+        {
+            Status = TicketStatuses.ToApiValue(status),
+            Count = counts.GetValueOrDefault(status),
+        })
+        .ToList();
+    }
+
+    private IQueryable<TicketRow> TicketRows(string? appUserId = null)
+    {
+        var tickets = _context.Tickets.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(appUserId))
+        {
+            tickets = tickets.Where(ticket =>
+                ticket.AppUserTickets.Any(link => link.AppUserId == appUserId));
+        }
+
+        return tickets
+            .Select(ticket => new TicketRow
+            {
+                Id = ticket.Id,
+                NewProduct = ticket.NewProduct,
+                Description = ticket.Description,
+                Created = ticket.Created,
+                Status = ticket.Status,
+                Answer = ticket.Answer,
+                Updated = ticket.Updated,
+                CreatedBy = ticket.CreatedBy,
+                FirmName = ticket.AppUserTickets
+                    .SelectMany(link => link.AppUser.FirmUsers)
+                    .Select(firmUser => firmUser.Firm.Name)
+                    .FirstOrDefault(),
+                ProductName = ticket.ProductTickets
+                    .Select(link => link.Products.Name)
+                    .FirstOrDefault(),
+            });
+    }
+
+    private static TicketDto ToDto(TicketRow row)
+    {
+        return new TicketDto
+        {
+            Id = row.Id,
+            NewProduct = row.NewProduct,
+            Description = row.Description,
+            Created = AsUtc(row.Created),
+            Status = TicketStatuses.ToApiValue(row.Status),
+            Answer = row.Answer,
+            Updated = AsUtc(row.Updated),
+            CreatedBy = row.CreatedBy ?? string.Empty,
+            FirmName = row.FirmName,
+            ProductName = row.ProductName,
+        };
+    }
+
+    private static DateTime? AsUtc(DateTime? value)
+    {
+        return value.HasValue
+            ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
+            : null;
+    }
+
+    private sealed class TicketRow
+    {
+        public int Id { get; set; }
+        public bool NewProduct { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public DateTime? Created { get; set; }
+        public int Status { get; set; }
+        public string? Answer { get; set; }
+        public DateTime? Updated { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? FirmName { get; set; }
+        public string? ProductName { get; set; }
+    }
 }

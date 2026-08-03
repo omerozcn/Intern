@@ -1,99 +1,162 @@
-﻿using TicketSystem.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TicketSystem.Dtos.Firm;
-using TicketSystem.Helpers;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
 using TicketSystem.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Security;
 
-namespace TicketSystem.Controllers
+namespace TicketSystem.Controllers;
+
+[ApiController]
+[Authorize(Roles = AppRoles.Admin)]
+[Route("api/Firm")]
+public sealed class FirmController : ControllerBase
 {
-     [Route("api/Firm")]
-     [Authorize]
-     [ApiController]
-     public class FirmController : ControllerBase
-     {
-          private readonly UserManager<AppUser> _userManager;
-          private readonly IFirmRepository _firmRepo;
-          public FirmController(ApplicationDbContext context, IFirmRepository firmRepo, UserManager<AppUser> userManager)
-          {
-               _userManager = userManager;
-               _firmRepo = firmRepo;
-          }
+    /// <summary>The system firm that owns the platform; it must never be renamed or removed.</summary>
+    private const string ProtectedFirmName = "TURKUVAZ";
 
-          [HttpGet("listFirm")]
-          public async Task<IActionResult> GetAll()
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
+    private readonly IFirmRepository _firmRepository;
 
-               var firms = await _firmRepo.GetAllAsync();
-               return Ok(firms);
-          }
+    public FirmController(IFirmRepository firmRepository)
+    {
+        _firmRepository = firmRepository;
+    }
 
-          [HttpGet("listById/{id:int}")]
-          public async Task<IActionResult> GetById([FromRoute] int id)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var firm = await _firmRepo.GetByIdAsync(id);
+    [HttpGet("listFirm")]
+    [ProducesResponseType<IReadOnlyList<FirmDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<FirmDto>>> GetAll(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _firmRepository.GetAllAsync(cancellationToken));
+    }
 
-               if (firm == null)
-               {
-                    return NotFound();
-               }
+    [HttpGet("listById/{id:int}")]
+    [ProducesResponseType<FirmDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<FirmDto>> GetById(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var firm = await _firmRepository.GetByIdAsync(id, cancellationToken);
+        return firm is null ? FirmNotFound() : Ok(firm.ToFirmDto());
+    }
 
-               return Ok(firm.ToFirmDto());
-          }
+    [HttpPost("createFirm")]
+    [ProducesResponseType<FirmDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<FirmDto>> Create(
+        [FromBody] CreateFirmRequestDto firmDto,
+        CancellationToken cancellationToken)
+    {
+        if (IsReservedName(firmDto.Name))
+        {
+            return ProtectedFirm();
+        }
 
-          [HttpPost("createFirm")]
-          public async Task<IActionResult> Create([FromBody] CreateFirmRequestDto firmDto)
-          {
-               var firmModel = firmDto.ToFirmFromCreateDTO();
-               await _firmRepo.CreateAsync(firmModel);
+        var firm = await _firmRepository.CreateAsync(
+            firmDto.ToFirmFromCreateDTO(),
+            cancellationToken);
 
-               return CreatedAtAction(nameof(GetById), new { id = firmModel.Id }, firmModel.ToFirmDto());
-          }
+        return CreatedAtAction(nameof(GetById), new { id = firm.Id }, firm.ToFirmDto());
+    }
 
-          [HttpPut("updateFirm/{id:int}")]
-          public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateFirmRequestDto updateDto)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var firmModel = await _firmRepo.UpdateAsync(id, updateDto);
+    [HttpPut("updateFirm/{id:int}")]
+    [ProducesResponseType<FirmDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<FirmDto>> Update(
+        [FromRoute] int id,
+        [FromBody] UpdateFirmRequestDto updateDto,
+        CancellationToken cancellationToken)
+    {
+        var existingFirm = await _firmRepository.GetByIdAsync(id, cancellationToken);
+        if (existingFirm is null)
+        {
+            return FirmNotFound();
+        }
 
-               if (firmModel == null)
-               {
-                    return NotFound();
-               }
+        if (IsProtectedFirm(existingFirm) || IsReservedName(updateDto.Name))
+        {
+            return ProtectedFirm();
+        }
 
-               return Ok(firmModel.ToFirmDto());
-          }
+        var firm = await _firmRepository.UpdateAsync(id, updateDto, cancellationToken);
+        return firm is null ? FirmNotFound() : Ok(firm.ToFirmDto());
+    }
 
-          [HttpDelete("deleteFirm/{id:int}")]
-          public async Task<IActionResult> Delete([FromRoute] int id)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var firmid = id.ToString();
-               var firmModel = await _firmRepo.DeleteAsync(firmid);
+    [HttpDelete("deleteFirm/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var existingFirm = await _firmRepository.GetByIdAsync(id, cancellationToken);
+        if (existingFirm is null)
+        {
+            return FirmNotFound();
+        }
 
-               if (firmModel == null)
-               {
-                    return NotFound();
-               }
+        if (IsProtectedFirm(existingFirm))
+        {
+            return ProtectedFirm();
+        }
 
-               return NoContent();
-          }
-     }
+        if (await _firmRepository.HasTicketHistoryAsync(id, cancellationToken))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Firm is referenced by ticket history",
+                detail: "Firms referenced by ticket history cannot be deleted.");
+        }
+
+        if (await _firmRepository.HasUsersAsync(id, cancellationToken))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Firm has assigned users",
+                detail: "Firms with active users cannot be deleted.");
+        }
+
+        // DeleteAsync re-checks inside a serializable transaction, so a firm that
+        // gained a dependent record since the checks above still fails safely.
+        var deletedFirm = await _firmRepository.DeleteAsync(id, cancellationToken);
+        if (deletedFirm is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Firm is still referenced",
+                detail: "The firm gained a dependent record and cannot be deleted.");
+        }
+
+        return NoContent();
+    }
+
+    private ObjectResult FirmNotFound()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status404NotFound,
+            title: "Firm not found");
+    }
+
+    private ObjectResult ProtectedFirm()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status409Conflict,
+            title: "Protected firm",
+            detail: $"{ProtectedFirmName} is a protected system firm.");
+    }
+
+    private static bool IsProtectedFirm(Firm firm)
+    {
+        return IsReservedName(firm.Name);
+    }
+
+    private static bool IsReservedName(string? name)
+    {
+        return string.Equals(name?.Trim(), ProtectedFirmName, StringComparison.OrdinalIgnoreCase);
+    }
 }

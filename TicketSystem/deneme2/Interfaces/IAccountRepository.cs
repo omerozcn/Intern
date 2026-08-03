@@ -1,19 +1,14 @@
-﻿using TicketSystem.Dtos.Account;
-using TicketSystem.Models;
-using TicketSystem.Models.AppUserModels;
+using Microsoft.AspNetCore.Identity;
+using TicketSystem.Dtos.Account;
 
-namespace TicketSystem.Interfaces
+namespace TicketSystem.Interfaces;
+
+public interface IAccountRepository
 {
-     public interface IAccountRepository
-     {
-          Task<AppUser?> DeleteAsync(string id);
-          Task<List<AppUserSummary>> GetAllAsync();
-          Task<FirmUser> CreateAsyncs(FirmUser firmUser);
-          Task<AppUser?> GetByIdAsync(Guid id);
-          Task<AppUser?> UpdateAsync(string id, UpdateDto appuserDto);
-          Task<AppUser?> GetByNameAsync(string name);
-          Task<AppUser?> GetByUserNameAsync(string username);
-          Task<string?> GenerateUniqueUserNameAsync(int length);
-          Task<string?> GetUserRoleAsync(string role);
-     }
+    Task<IReadOnlyList<ProfileDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<ProfileDto?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
+    Task<ProfileDto?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<IdentityResult> CreateAsync(RegisterDto registerDto, CancellationToken cancellationToken = default);
+    Task<IdentityResult?> UpdateAsync(string id, UpdateDto updateDto, CancellationToken cancellationToken = default);
+    Task<IdentityResult?> DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

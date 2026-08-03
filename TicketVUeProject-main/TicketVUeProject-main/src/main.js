@@ -1,92 +1,65 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { prime } from './prime/prime';
-import { createPinia } from 'pinia';
-import axios from 'axios';
-import { createI18n } from "vue-i18n";
-import en from "./i18n/en.json";
-import tr from "./i18n/tr.json";
+import { createApp, watch } from 'vue'
 
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+import '@/styles/theme.css'
 
+import App from '@/App.vue'
+import { i18n, setLocale } from '@/i18n'
+import router from '@/router'
+import { configureApi } from '@/services/api'
+import { pinia } from '@/stores'
+import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
 
 const app = createApp(App)
-const pinia = createPinia()
 
+app.use(pinia)
+app.use(i18n)
+app.use(router)
 
-prime(app)
-const firebaseConfig = {
-    apiKey: "AIzaSyCzw_qB-FEKH_bjLlTmAIjLMYJSB2NJyfI",
-    authDomain: "vue-project-d235e.firebaseapp.com",
-    projectId: "vue-project-d235e",
-    storageBucket: "vue-project-d235e.appspot.com",
-    messagingSenderId: "79097250000",
-    appId: "1:79097250000:web:54f17e221357cf0f61ded5"
-};
+const auth = useAuthStore(pinia)
+const toast = useToastStore(pinia)
+let handlingUnauthorized = false
+let handlingForbidden = false
 
-axios.interceptors.request.use(
-    (config) => {
-        const token = sessionStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        if (error.response.status === 401) {
-            sessionStorage.removeItem('token');
-            router.push('/sign-in');
-        }
-        return Promise.reject(error);
+configureApi({
+  getAccessToken: () => auth.accessToken,
+  onUnauthorized: async () => {
+    if (handlingUnauthorized) return
+    handlingUnauthorized = true
+
+    const returnUrl = router.currentRoute.value.meta.requiresAuth
+      ? router.currentRoute.value.fullPath
+      : undefined
+
+    auth.clearSession()
+    toast.warning(i18n.global.t('errors.sessionExpired'))
+    await router.replace({ name: 'sign-in', query: returnUrl ? { returnUrl } : {} })
+    handlingUnauthorized = false
+  },
+  onForbidden: async () => {
+    toast.error(i18n.global.t('errors.forbidden'))
+    if (handlingForbidden || router.currentRoute.value.name === 'dashboard') return
+    handlingForbidden = true
+    try {
+      await router.replace({ name: 'dashboard' })
+    } finally {
+      handlingForbidden = false
     }
-);
+  },
+})
 
-// axios.interceptors.response.use(
-//     (response) => response,
-//     (error) => {
-//         if (error.response && error.response.status === 401) {
-//             sessionStorage.removeItem('token');
-//             router.push('/sign-in'); // Yönlendirme işlemi
-//         }
-//         return Promise.reject(error);
-//     }
-// );
-
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getFirestore(firebaseApp);
-
-
-onAuthStateChanged(getAuth(), (displayName) => {
-    if (!app) {
-       
-    }
-});
-
-async function fetchData() {
-    const querySnapshot = await getDocs(collection(db, 'your-collection-name'));
-    querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${doc.data()}`);
-    });
+function updateDocumentMetadata(route = router.currentRoute.value) {
+  const title = route.meta.titleKey ? i18n.global.t(route.meta.titleKey) : null
+  document.title = title
+    ? `${title} · ${i18n.global.t('app.shortName')}`
+    : i18n.global.t('app.name')
+  document.documentElement.lang = i18n.global.locale.value
 }
-//i18 MultiLanguage
-const messages = {
-    en,
-    tr,
-    
-  };
-const i18n = createI18n({
-    locale: "tr",
-    fallbackLocale: "tr",
-    legacy: false,
-    messages,
-  });
 
-app.use(pinia);
-app.use(router);
-app.use(i18n);
-fetchData();
-app.mount('#app');
-export { db };
+setLocale(i18n.global.locale.value)
+router.afterEach((to) => updateDocumentMetadata(to))
+watch(i18n.global.locale, () => updateDocumentMetadata())
+
+app.mount('#app')

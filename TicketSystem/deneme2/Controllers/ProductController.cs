@@ -1,85 +1,95 @@
-﻿using TicketSystem.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TicketSystem.Dtos.Product;
 using TicketSystem.Interfaces;
 using TicketSystem.Mappers;
-using TicketSystem.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Security;
 
-namespace TicketSystem.Controllers
+namespace TicketSystem.Controllers;
+
+[ApiController]
+[Authorize(Roles = AppRoles.Admin)]
+[Route("api/Product")]
+public sealed class ProductController : ControllerBase
 {
-     [Route("api/Product")]
-     [Authorize]
-     [ApiController]
-     public class ProductController : ControllerBase
-     {
-          private readonly UserManager<AppUser> _userManager;
-          private readonly IProductRepository _productRepo;
-          public ProductController(ApplicationDbContext context, IProductRepository productRepo, UserManager<AppUser> userManager)
-          {
-               _userManager = userManager;
-               _productRepo = productRepo;
-          }
+    private readonly IProductRepository _productRepository;
 
-          [HttpGet("listProduct")]
-          public async Task<IActionResult> GetAll()
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var product = await _productRepo.GetAllAsync();
+    public ProductController(IProductRepository productRepository)
+    {
+        _productRepository = productRepository;
+    }
 
-               return Ok(product);
-          }
+    [HttpGet("listProduct")]
+    [ProducesResponseType<IReadOnlyList<ProductDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<ProductDto>>> GetAll(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _productRepository.GetAllAsync(cancellationToken));
+    }
 
-          [HttpPost("createProduct")]
-          public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
+    [HttpPost("createProduct")]
+    [ProducesResponseType<ProductDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<ProductDto>> Create(
+        [FromBody] CreateProductRequestDto productDto,
+        CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.CreateAsync(
+            productDto.ToProductFromCreateDTO(),
+            cancellationToken);
 
-               var productModel = productDto.ToProductFromCreateDTO();
-               await _productRepo.CreateAsync(productModel);
+        return StatusCode(StatusCodes.Status201Created, product.ToProductDto());
+    }
 
-               return Ok();
-          }
+    [HttpPut("updateProduct/{id:int}")]
+    [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProductDto>> Update(
+        [FromRoute] int id,
+        [FromBody] UpdateProductRequestDto updateDto,
+        CancellationToken cancellationToken)
+    {
+        var product = await _productRepository.UpdateAsync(id, updateDto, cancellationToken);
+        return product is null ? ProductNotFound() : Ok(product.ToProductDto());
+    }
 
-          [HttpPut("updateProduct/{id:int}")]
-          public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var productModel = await _productRepo.UpdateAsync(id, updateDto);
+    [HttpDelete("deleteProduct/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var existingProduct = await _productRepository.GetByIdAsync(id, cancellationToken);
+        if (existingProduct is null)
+        {
+            return ProductNotFound();
+        }
 
-               if (productModel == null)
-               {
-                    return NotFound();
-               }
+        if (await _productRepository.HasTicketHistoryAsync(id, cancellationToken))
+        {
+            return ReferencedByTicketHistory();
+        }
 
-               return Ok(productModel.ToProductDto());
-          }
+        // DeleteAsync re-checks inside a serializable transaction, so a product that
+        // gained ticket history since the check above still fails safely.
+        var deletedProduct = await _productRepository.DeleteAsync(id, cancellationToken);
+        return deletedProduct is null ? ReferencedByTicketHistory() : NoContent();
+    }
 
-          [HttpDelete("deleteProduct/{id}")]
-          public async Task<IActionResult> Delete([FromRoute] int id)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var productModel = await _productRepo.DeleteAsync(id);
+    private ObjectResult ProductNotFound()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status404NotFound,
+            title: "Product not found");
+    }
 
-               if (productModel == null)
-               {
-                    return NotFound();
-               }
-
-               return NoContent();
-          }
-     }
+    private ObjectResult ReferencedByTicketHistory()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status409Conflict,
+            title: "Product is referenced by ticket history",
+            detail: "Products referenced by ticket history cannot be deleted.");
+    }
 }

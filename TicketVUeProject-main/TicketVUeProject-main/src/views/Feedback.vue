@@ -1,219 +1,72 @@
 <template>
-  <div class="feedback-page">
-    <h1>{{ $t("feedbacks") }}</h1>
-    <br/>
-    <ul class="feedback-list">
-      <li v-for="feedback in feedbacks" :key="feedback.id">
-        <p>{{ feedback.feedbackContent }}</p>
-      </li>
-    </ul>
+  <section>
+    <PageHeader :title="t('feedback.adminTitle')" :description="t('feedback.adminDescription')" />
 
-    <div v-if="toasts.length > 0" class="toast-container">
-      <div
-          v-for="(toast, index) in toasts"
-          :key="index"
-          :class="['toast', toast.type, 'show']"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-      >
-        <div class="toast-body">
-          {{ toast.message }}
-          <button class="close-btn" @click="removeToast(index)">&times;</button>
-        </div>
+    <div class="list-toolbar">
+      <div class="search-field">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="feedback-search">{{ t('common.search') }}</label>
+        <input id="feedback-search" v-model.trim="query" class="form-control" type="search" :placeholder="t('feedback.searchPlaceholder')" />
       </div>
+      <span>{{ t('feedback.count', { count: filteredFeedback.length }) }}</span>
     </div>
-  </div>
+
+    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <ErrorState v-else-if="error" :message="error" @retry="loadFeedback" />
+    <EmptyState v-else-if="!filteredFeedback.length" icon="bi-chat-square-text" :title="t('feedback.emptyTitle')" :message="t('feedback.emptyDescription')" />
+
+    <div v-else class="feedback-grid">
+      <article v-for="item in filteredFeedback" :key="item.id" class="surface-card feedback-item">
+        <div class="quote-icon"><i class="bi bi-quote" aria-hidden="true"></i></div>
+        <p>{{ item.feedbackContent }}</p>
+        <span>#{{ item.id }}</span>
+      </article>
+    </div>
+  </section>
 </template>
 
 <script setup>
-import {ref, onMounted} from "vue";
-import {useI18n} from "vue-i18n";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import PageHeader from "@/components/PageHeader.vue";
+import LoadingState from "@/components/LoadingState.vue";
+import EmptyState from "@/components/EmptyState.vue";
+import ErrorState from "@/components/ErrorState.vue";
+import { api } from "@/services/api";
 
-const maxToasts = 3;
-const {t} = useI18n();
-const toasts = ref([]);
-let toastHistory = [];
-const toastDelay = 3000;
-const feedbacks = ref([]);
-import axios from "axios";
+const { t, locale } = useI18n();
+const feedback = ref([]);
+const query = ref("");
+const loading = ref(true);
+const error = ref("");
+const filteredFeedback = computed(() => {
+  const needle = query.value.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US");
+  return feedback.value.filter((item) => !needle || item.feedbackContent.toLocaleLowerCase(locale.value === "tr" ? "tr-TR" : "en-US").includes(needle));
+});
 
-const fetchFeedbacks = async () => {
+async function loadFeedback() {
+  loading.value = true; error.value = "";
   try {
-    const response = await axios.get(
-        "http://localhost:5005/api/Feedback/listFeedbacks"
-    );
+    const rows = await api.get("/api/Feedback/listFeedbacks");
+    feedback.value = (rows ?? []).map((item) => ({ id: Number(item.id), feedbackContent: item.feedbackContent ?? item.feedbackContet ?? "" })).sort((a, b) => b.id - a.id);
+  } catch (requestError) { error.value = requestError.message || t("errors.loadFeedback"); }
+  finally { loading.value = false; }
+}
 
-    const feedbackDataList = response.data.map((feedback) => ({
-      id: feedback.id,
-      feedbackContent: feedback.feedbackContent,
-    }));
-
-    if (response.status >= 200 && response.status <= 300 && response.data.length > 0) {
-      showToast("Geri bildirimler başarıyla yüklendi!", "success");
-      feedbacks.value = feedbackDataList;
-    } else if(response.data.length <= 0) {
-      showToast("Geri bildirim bulunamadı", "danger");
-    } else {
-      throw new Error(error);
-    }
-  } catch (error) {
-    showToast(
-        "Geri bildirimler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.",
-        "error"
-    );
-  }
-};
-const showToast = (message, type) => {
-  const currentTime = Date.now();
-  const isMessageRecent = toastHistory.some(item =>
-      item.message === message && (currentTime - item.timestamp) < toastDelay
-  );
-
-  if (isMessageRecent) return;
-
-  if (toasts.value.length >= maxToasts) {
-    removeToast(0);
-  }
-
-  toasts.value.push({ message, type });
-
-  toastHistory.push({ message, timestamp: currentTime });
-
-  toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
-
-  setTimeout(() => removeToast(0), 1800);
-};
-
-const removeToast = (index) => {
-  const toast = document.querySelectorAll(".toast")[index];
-  if (toast) {
-    toast.classList.add("hide");
-    setTimeout(() => {
-      toasts.value.splice(index, 1);
-    }, 600);
-  }
-};
-onMounted(async () => {
-      await fetchFeedbacks();
-    });
-
+onMounted(loadFeedback);
 </script>
 
 <style scoped>
-.feedback-page {
-  max-width: 900px;
-  margin: 3rem auto;
-  padding: 2rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.loading {
-  text-align: center;
-  font-size: 1.75rem;
-  color: #333;
-}
-
-.feedback-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.feedback-list li {
-  padding: 1rem;
-  border-bottom: 1px solid #ddd;
-  background: #fff;
-  margin-bottom: 1rem;
-}
-
-.feedback-list li:last-child {
-  border-bottom: none;
-}
-
-.feedback-list p {
-  margin: 0;
-  font-size: 1.125rem;
-}
-
-.feedback-list small {
-  display: block;
-  font-size: 0.875rem;
-  color: #555;
-}
-
-.toast-container {
-  position: fixed;
-  top: 3.2rem;
-  right: 1rem;
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.toast {
-  margin-top: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
-  transform 0.3s ease-in-out,
-    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  pointer-events: all;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #f44336, #e57373);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
-
-.toast.hide {
-  opacity: 0;
-  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
-}
-
-.toast::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 100%;
-  border-radius: 0.5rem 0 0 0.5rem;
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-.toast .close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.toast .close-btn:hover {
-  color: #fff;
-}
+.list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.list-toolbar > span { color: var(--color-text-muted); white-space: nowrap; }
+.search-field { position: relative; width: min(100%, 420px); }
+.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--color-text-muted); }
+.search-field input { padding-left: 2.6rem; }
+.feedback-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.feedback-item { min-width: 0; padding: 1.25rem; }
+.quote-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: var(--color-primary); background: var(--color-primary-soft); font-size: 1.25rem; }
+.feedback-item p { min-height: 84px; margin: 1rem 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.feedback-item > span { color: var(--color-text-muted); font-size: .75rem; }
+@media (max-width: 1023px) { .feedback-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575px) { .list-toolbar { align-items: stretch; flex-direction: column; } .search-field { width: 100%; } .feedback-grid { grid-template-columns: 1fr; } }
 </style>

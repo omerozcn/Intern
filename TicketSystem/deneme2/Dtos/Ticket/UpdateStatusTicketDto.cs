@@ -1,7 +1,10 @@
-﻿namespace TicketSystem.Dtos.Ticket
+using System.ComponentModel.DataAnnotations;
+
+namespace TicketSystem.Dtos.Ticket
 {
-     public class UpdateStatusTicketDto
-     {
-          public int Status { get; set; }
-     }
+    public class UpdateStatusTicketDto
+    {
+        [Required]
+        public string Status { get; set; } = string.Empty;
+    }
 }

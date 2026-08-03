@@ -1,19 +1,25 @@
-﻿using TicketSystem.Dtos.Ticket;
+using TicketSystem.Dtos.Ticket;
 using TicketSystem.Models;
-using TicketSystem.Models.TicketModels;
 
-namespace TicketSystem.Interfaces
+namespace TicketSystem.Interfaces;
+
+public interface ITicketRepository
 {
-     public interface ITicketRepository
-     {
-          Task<Ticket> CreateAsync(Ticket ticketModel);
-          Task<AppUserTicket> AppUserTicketCreateAsync(AppUserTicket appuserticket);
-          Task<ProductTicket> ProductTicketCreateAsync(ProductTicket productTicket);
-          Task<List<TicketDto>> GetByUserIdAsync(string id);
-          Task<Ticket?> DeleteAsync(int id);
-          Task<List<TicketDto>> GetAllAsync();
-          Task<Ticket?> GetByIdAsync(int id);
-          Task<Ticket?> UpdateAsync(int id, UpdateTicketRequestDto ticketDto);
-          Task<Ticket?> UpdateTicketStatusAsync(Ticket ticket);
-     }
+    Task<Ticket?> CreateAsync(
+        Ticket ticketModel,
+        string appUserId,
+        int firmId,
+        int? productId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<TicketDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TicketDto>> GetByUserIdAsync(string appUserId, CancellationToken cancellationToken = default);
+    Task<TicketDto?> GetDtoByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<Ticket?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<bool> IsOwnedByAsync(int ticketId, string appUserId, CancellationToken cancellationToken = default);
+    Task<Ticket?> UpdateAsync(int id, string? answer, int status, CancellationToken cancellationToken = default);
+    Task<Ticket?> UpdateDescriptionAsync(int id, string appUserId, string description, CancellationToken cancellationToken = default);
+    Task<Ticket?> UpdateTicketStatusAsync(int id, int status, CancellationToken cancellationToken = default);
+    Task<Ticket?> DeleteAsync(int id, string appUserId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TicketStatusCountDto>> GetStatusCountsAsync(string? appUserId, CancellationToken cancellationToken = default);
 }

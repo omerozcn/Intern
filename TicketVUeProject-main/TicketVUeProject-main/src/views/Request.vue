@@ -1,606 +1,264 @@
 <template>
-  <div class="container">
-    <div class="header">
-      <h1 class="mb-4">{{ $t("ticket.current_tickets") }}</h1>
-      <div class="filter-buttons">
-        <button
-            @click="filterTickets(1)"
-            class="btn btn-warning"
-            style="color: white"
-        >
-          {{ $t("status_1") }}
-        </button>
-        <button
-            @click="filterTickets(2)"
-            class="btn btn-info"
-            style="color: white"
-        >
-          {{ $t("status_2") }}
-        </button>
-        <button @click="filterTickets(3)" class="btn btn-success">
-          {{ $t("status_3") }}
-        </button>
-        <button @click="filterTickets(null)" class="btn btn-secondary">
-          {{ $t("all") }}
-        </button>
-      </div>
+  <section>
+    <PageHeader :title="t('tickets.myTitle')" :description="t('tickets.myDescription')">
+      <template #actions>
+        <RouterLink class="btn btn-primary" to="/ticket">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>
+          {{ t('tickets.new') }}
+        </RouterLink>
+      </template>
+    </PageHeader>
+
+    <div class="filter-bar" role="group" :aria-label="t('tickets.filterLabel')">
+      <button
+        v-for="filter in filters"
+        :key="filter.value"
+        type="button"
+        class="filter-chip"
+        :class="{ active: activeFilter === filter.value }"
+        :aria-pressed="activeFilter === filter.value"
+        @click="activeFilter = filter.value"
+      >
+        {{ filter.label }}
+        <span>{{ filter.count }}</span>
+      </button>
     </div>
 
-    <hr/>
+    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <ErrorState v-else-if="error" :message="error" @retry="loadTickets" />
+    <EmptyState
+      v-else-if="!filteredTickets.length"
+      icon="bi-inbox"
+      :title="t('tickets.emptyTitle')"
+      :message="activeFilter === 'all' ? t('tickets.emptyDescription') : t('tickets.emptyFilter')"
+    >
+      <template #actions>
+        <RouterLink class="btn btn-primary" to="/ticket">{{ t('tickets.createFirst') }}</RouterLink>
+      </template>
+    </EmptyState>
 
-    <h2 class="mb-4" v-if="filteredTickets.length === 0">
-      {{ $t("ticket.existing_product_requests") }}
-    </h2>
-    <div class="mb-4" v-if="filteredTickets.length > 0">
-      <ol class="list-group list-group-numbered">
-        <li
-            v-for="ticket in filteredTickets"
-            :key="ticket.id"
-            class="list-group-item d-flex justify-content-between align-items-start mb-2"
-        >
-          <div class="ms-2 me-auto text-break">
-            <div class="fw-bold text-break">
-              <strong>{{ $t("product") }}: </strong> {{ ticket.productName }}
-            </div>
-            <div class="text-break">
-              <strong>{{ $t("ticket.ticket") }}: </strong>{{ ticket.description }}
-            </div>
+    <div v-else class="ticket-grid">
+      <article v-for="ticket in filteredTickets" :key="ticket.id" class="surface-card ticket-card">
+        <div class="ticket-card__top">
+          <div class="ticket-product">
+            <span class="product-icon"><i :class="ticket.newProduct ? 'bi bi-stars' : 'bi bi-box-seam'" aria-hidden="true"></i></span>
             <div>
-              <strong>{{ $t("ticket.response") }}: </strong>
-              {{ ticket.answer || $t("ticket.no_response_yet") }}
-            </div>
-            <div>
-              {{ $t("ticket.date") }}:
-              {{
-                ticket.created
-                    ? ticket.created.toLocaleString()
-                    : "N/A"
-              }}
+              <span class="ticket-id">#{{ ticket.id }}</span>
+              <h2>{{ ticket.productName || t('tickets.newProductRequest') }}</h2>
             </div>
           </div>
-          <span
-              :class="['badge rounded-pill', ticketStatusClass(ticket.status)]"
-          >
-            {{ ticketStatusText(ticket.status) }}
-          </span>
-          <span
-              @click="handleDelete(ticket.id)"
-              class="badge bg-danger mx-2"
-              :disabled="ticket.status === 3"
-          >
-            <i class="bi bi-x"></i>
-          </span>
-        </li>
-      </ol>
+          <StatusBadge :status="ticket.status" />
+        </div>
+
+        <div v-if="editingId === ticket.id" class="edit-panel">
+          <div class="label-row">
+            <label :for="`description-${ticket.id}`" class="form-label">{{ t('fields.description') }}</label>
+            <span>{{ editText.length }}/280</span>
+          </div>
+          <textarea
+            :id="`description-${ticket.id}`"
+            v-model="editText"
+            class="form-control"
+            :class="{ 'is-invalid': editError }"
+            rows="5"
+            maxlength="280"
+            :disabled="savingId === ticket.id"
+          ></textarea>
+          <div v-if="editError" class="invalid-feedback">{{ editError }}</div>
+          <div class="edit-actions">
+            <button type="button" class="btn btn-outline-secondary" :disabled="savingId === ticket.id" @click="cancelEdit">{{ t('common.cancel') }}</button>
+            <button type="button" class="btn btn-primary" :disabled="savingId === ticket.id" @click="saveEdit(ticket)">
+              <span v-if="savingId === ticket.id" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              {{ t('common.save') }}
+            </button>
+          </div>
+        </div>
+        <template v-else>
+          <p class="ticket-description">{{ ticket.description }}</p>
+          <div v-if="ticket.answer" class="answer-box">
+            <span>{{ t('tickets.answer') }}</span>
+            <p>{{ ticket.answer }}</p>
+          </div>
+        </template>
+
+        <div class="ticket-card__footer">
+          <dl>
+            <div>
+              <dt>{{ t('tickets.created') }}</dt>
+              <dd>{{ formatDate(ticket.created) }}</dd>
+            </div>
+            <div v-if="ticket.updated">
+              <dt>{{ t('tickets.updated') }}</dt>
+              <dd>{{ formatDate(ticket.updated) }}</dd>
+            </div>
+          </dl>
+          <div v-if="ticket.status === TICKET_STATUS.PENDING && editingId !== ticket.id" class="ticket-actions">
+            <button type="button" class="btn btn-sm btn-outline-secondary" :aria-label="t('tickets.editAria', { id: ticket.id })" @click="startEdit(ticket)">
+              <i class="bi bi-pencil" aria-hidden="true"></i>
+              {{ t('common.edit') }}
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger" :aria-label="t('tickets.deleteAria', { id: ticket.id })" @click="askDelete(ticket)">
+              <i class="bi bi-trash" aria-hidden="true"></i>
+              {{ t('common.delete') }}
+            </button>
+          </div>
+        </div>
+      </article>
     </div>
 
-<!--    <h2 class="mb-4" v-if="filteredTickets.length === null">-->
-<!--      {{ $t("ticket.new_product_requests") }}-->
-<!--    </h2>-->
-<!--    <div class="mb-4" v-if="filteredTickets.length > 0">-->
-<!--      <ol class="list-group list-group-numbered">-->
-<!--        <li-->
-<!--            v-for="ticket in filteredTickets"-->
-<!--            :key="ticket.id"-->
-<!--            class="list-group-item d-flex justify-content-between align-items-start mb-2"-->
-<!--        >-->
-<!--          <div class="ms-2 me-auto text-break">-->
-<!--            <div class="fw-bold text-break">-->
-<!--              <strong>{{ $t("product") }}: </strong> {{ ticket.productName }}-->
-<!--            </div>-->
-<!--            <div class="text-break">-->
-<!--              <strong>{{ $t("ticket.request") }}: </strong>{{ ticket.description }}-->
-<!--            </div>-->
-<!--            <div>-->
-<!--              <strong>{{ $t("ticket.response") }}: </strong>-->
-<!--              {{ ticket.answer || $t("ticket.no_response_yet") }}-->
-<!--            </div>-->
-<!--            <div>-->
-<!--              {{ $t("ticket.date") }}:-->
-<!--              {{ ticket.date ? ticket.date.toLocaleString() : "N/A" }}-->
-<!--            </div>-->
-<!--          </div>-->
-<!--          <span-->
-<!--              :class="['badge rounded-pill', ticketStatusClass(ticket.status)]"-->
-<!--          >-->
-<!--            {{ $t(`status.${ticket.status}`) }}-->
-<!--          </span>-->
-<!--          <span-->
-<!--              @click="handleDelete(ticket.id)"-->
-<!--              class="badge bg-danger mx-2"-->
-<!--              :disabled="ticket.status === 3"-->
-<!--          >-->
-<!--            <i class="bi bi-x"></i>-->
-<!--          </span>-->
-<!--        </li>-->
-<!--      </ol>-->
-<!--    </div>-->
-    <div v-if="toasts.length > 0" class="toast-container">
-      <div
-          v-for="(toast, index) in toasts"
-          :key="index"
-          :class="['toast', toast.type, 'show']"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-      >
-        <div class="toast-body">
-          {{ toast.message }}
-          <button class="close-btn" @click="removeToast(index)">&times;</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    <ConfirmDialog
+      v-model:open="deleteDialogOpen"
+      :title="t('tickets.deleteTitle')"
+      :message="t('tickets.deleteMessage')"
+      :confirm-label="t('common.delete')"
+      variant="danger"
+      :busy="deleting"
+      @confirm="deleteTicket"
+    />
+  </section>
 </template>
 
-<script>
-import {ref, computed, onMounted} from "vue";
-import {useI18n} from "vue-i18n";
-import axios from "axios";
+<script setup>
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import PageHeader from "@/components/PageHeader.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
+import LoadingState from "@/components/LoadingState.vue";
+import EmptyState from "@/components/EmptyState.vue";
+import ErrorState from "@/components/ErrorState.vue";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import { api } from "@/services/api";
+import { useToastStore } from "@/stores/toast";
+import { normalizeTicket, TICKET_STATUS } from "@/utils/tickets";
 
-export default {
-  setup() {
-    const {t} = useI18n();
-    const request = ref("");
-    const tickets = ref([]);
-    const products = ref([]);
-    const toasts = ref([]);
-    const filterBy = ref(null);
-    const selectedProduct = ref("");
-    const selectedTicket = ref(null);
-    const response = ref("");
-    const editRequest = ref("");
-    const maxToasts = 3;
-    const firmName = ref("");
-    const trimmedRequest = computed(() =>
-        request.value.replace(/\s+/g, "").trim()
-    );
-    const trimmedEditRequest = computed(() =>
-        editRequest.value.replace(/\s+/g, "").trim()
-    );
-    const statusFilter = ref(null);
-    let toastHistory = [];
-    const toastDelay = 3000;
+const { t, locale } = useI18n();
+const toast = useToastStore();
+const tickets = ref([]);
+const loading = ref(true);
+const error = ref("");
+const activeFilter = ref("all");
+const editingId = ref(null);
+const editText = ref("");
+const editError = ref("");
+const savingId = ref(null);
+const selectedTicket = ref(null);
+const deleteDialogOpen = ref(false);
+const deleting = ref(false);
 
-    const handleClick = async () => {
-      if (
-          User.value &&
-          selectedProduct.value &&
-          trimmedRequest.value.length >= 30
-      ) {
-        try {
-          await axios.post("https://localhost:5005/api/Ticket/createTicket", {
-            id: User.value.uid,
-            request: request.value,
-            date: new Date().toISOString(),
-            status: 1,
-            product: selectedProduct.value,
-          });
-          request.value = "";
-          selectedProduct.value = "";
-          fetchTickets();
-        } catch (error) {
-          console.error("Error adding ticket:", error);
-        }
-      }
-    };
+const filters = computed(() => [
+  { value: "all", label: t("common.all"), count: tickets.value.length },
+  { value: TICKET_STATUS.PENDING, label: t("status.pending"), count: count(TICKET_STATUS.PENDING) },
+  { value: TICKET_STATUS.IN_PROGRESS, label: t("status.inProgress"), count: count(TICKET_STATUS.IN_PROGRESS) },
+  { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), count: count(TICKET_STATUS.COMPLETED) },
+]);
 
+const filteredTickets = computed(() => activeFilter.value === "all"
+  ? tickets.value
+  : tickets.value.filter((ticket) => ticket.status === activeFilter.value));
 
-    const fetchProducts = async () => {
-      try {
-        const productResponse = await axios.get(
-            "http://localhost:5005/api/Product/listProduct"
-        );
-        const productsData = productResponse.data;
-        const productsMap = {};
-        console.log(productResponse.data);
+function count(status) {
+  return tickets.value.filter((ticket) => ticket.status === status).length;
+}
 
-        productsData.forEach((product) => {
-          productsMap[product.id] = {
-            id: product.id,
-            name: product.name,
-            birthDate: product.birthDate,
-            birthDateFormatted: product.birthDateFormatted,
-            Firms: [],
-          };
-        });
+function formatDate(value) {
+  if (!value) return t("common.notAvailable");
+  return new Intl.DateTimeFormat(locale.value === "tr" ? "tr-TR" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
 
-        const productsWithFirms = Object.values(productsMap);
-        products.value = productsWithFirms;
-      } catch (error) {
-        console.error(
-            "Veri çekme sırasında bir hata oluştu:",
-            error.response?.data || error.message
-        );
-        showToast(
-            "Veri çekme sırasında bir hata oluştu. Lütfen tekrar deneyin.",
-            "error"
-        );
-      }
-    };
+async function loadTickets() {
+  loading.value = true;
+  error.value = "";
+  try {
+    const result = await api.get("/api/Ticket/listByUserId");
+    tickets.value = (result ?? []).map(normalizeTicket).sort((a, b) => new Date(b.created) - new Date(a.created));
+  } catch (requestError) {
+    error.value = requestError.message || t("errors.loadTickets");
+  } finally {
+    loading.value = false;
+  }
+}
 
-    const fetchTickets = async () => {
-      let usertoken = sessionStorage.getItem("token")
-      try {
-        const response = await axios.get(`http://localhost:5005/api/Ticket/listByUserId`, {
-          headers: {
-            Authorization: `Bearer ${usertoken}`
-          }
-        });
+function startEdit(ticket) {
+  editingId.value = ticket.id;
+  editText.value = ticket.description;
+  editError.value = "";
+}
 
-        console.log(response.data);
+function cancelEdit() {
+  editingId.value = null;
+  editText.value = "";
+  editError.value = "";
+}
 
-        tickets.value = response.data.map((ticket) => ({
-          id: ticket.id,
-          newProduct: ticket.newProduct,
-          description: ticket.description || "No Description",
-          date: ticket.updated ? new Date(ticket.updated) : null,
-          answer: ticket.answer,
-          status: ticket.status,
-          created: ticket.created ? new Date(ticket.created) : null,
-          createdBy: ticket.createdBy,
-          firmName: ticket.firmName,
-          productName: ticket.productName,
-        }));
+async function saveEdit(ticket) {
+  const length = editText.value.trim().length;
+  editError.value = length < 30 || length > 280 ? t("validation.descriptionLength") : "";
+  if (editError.value || savingId.value) return;
+  savingId.value = ticket.id;
+  try {
+    await api.put(`/api/Ticket/updateDescription/${ticket.id}`, { description: editText.value.trim() });
+    cancelEdit();
+    await loadTickets();
+    toast.success(t("ticket.updated"));
+  } catch (requestError) {
+    toast.error(requestError.message || t("errors.updateTicket"));
+  } finally {
+    savingId.value = null;
+  }
+}
 
-        tickets.value.sort((a, b) => {
-          if (a.status !== b.status) {
-            return a.status === 2 ? -1 : (b.status === 2 ? 1 : (
-                a.status === 1 ? -1 : (b.status === 1 ? 1 : 0)));
-          }
-          if (a.date !== b.date) {
-            return a.date > b.date ? -1 : 1;
-          }
-          if (a.newProduct !== b.newProduct) {
-            return a.newProduct ? -1 : 1;
-          }
-          return 0;
-        });
+function askDelete(ticket) {
+  selectedTicket.value = ticket;
+  deleteDialogOpen.value = true;
+}
 
-        filteredTickets.value = tickets.value;
+async function deleteTicket() {
+  if (!selectedTicket.value || deleting.value) return;
+  deleting.value = true;
+  try {
+    await api.delete(`/api/Ticket/deleteTicket/${selectedTicket.value.id}`);
+    deleteDialogOpen.value = false;
+    selectedTicket.value = null;
+    await loadTickets();
+    toast.success(t("ticket.deleted"));
+  } catch (requestError) {
+    toast.error(requestError.message || t("errors.deleteTicket"));
+  } finally {
+    deleting.value = false;
+  }
+}
 
-        if (tickets.value.length === 0) {
-          showToast("Hiç talep bulunamadı.", "info");
-        } else {
-          showToast("Talepler başarıyla yüklendi!", "success");
-        }
-      } catch (error) {
-        console.error("Talepler yüklenirken bir hata oluştu: ", error);
-        showToast(
-            "Talepler yüklenirken bir hata oluştu. Lütfen tekrar deneyin.",
-            "error"
-        );
-        return [];
-      }
-    };
-
-    
-
-    const handleDelete = async (ticket) => {
-      try {
-        const response = await axios.delete(
-            `http://localhost:5005/api/Ticket/deleteTicket/${ticket}`
-        );
-        await fetchProducts();
-        showToast("Talep başarıyla silindi!", "success");
-      } catch (error) {
-        console.error(
-            "Talep silinirken bir hata oluştu:",
-            error.response?.data || error.message
-        );
-        showToast(
-            "Talep silinirken bir hata oluştu. Lütfen tekrar deneyin.",
-            "error"
-        );
-      }
-    };
-
-    const updateTicketStatus = async (ticket, newStatus) => {
-      if (ticket.status !== "completed") {
-        await updateDoc(doc(db, "tickets", ticket.id), {status: newStatus});
-        fetchTickets();
-      }
-    };
-
-    const showResponseModal = (ticket) => {
-      selectedTicket.value = ticket;
-      response.value = ticket.response || "";
-      const modal = new bootstrap.Modal(
-          document.getElementById("responseModal")
-      );
-      modal.show();
-    };
-
-    const submitResponse = async () => {
-      if (selectedTicket.value) {
-        await updateDoc(doc(db, "tickets", selectedTicket.value.id), {
-          response: response.value,
-          status: "completed",
-        });
-        fetchTickets();
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById("responseModal")
-        );
-        modal.hide();
-        selectedTicket.value = null;
-        response.value = "";
-      }
-    };
-
-    const editTicket = (ticket) => {
-      if (ticket.status !== "completed") {
-        selectedTicket.value = ticket;
-        editRequest.value = ticket.request;
-        const modal = new bootstrap.Modal(document.getElementById("editModal"));
-        modal.show();
-      }
-    };
-
-    const submitEdit = async () => {
-      if (
-          selectedTicket.value &&
-          trimmedEditRequest.value.length >= 30 &&
-          selectedTicket.value.status !== "completed"
-      ) {
-        await updateDoc(doc(db, "tickets", selectedTicket.value.id), {
-          request: editRequest.value,
-        });
-        fetchTickets();
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById("editModal")
-        );
-        modal.hide();
-        selectedTicket.value = null;
-        editRequest.value = "";
-      }
-    };
-
-    const filteredTickets = computed(() =>
-        filterBy.value
-            ? tickets.value.filter(ticket => ticket.status === filterBy.value)
-            : tickets.value
-    );
-
-    const filterTickets = (status) => {
-      filterBy.value = status;
-    };
-
-    const newProductTickets = computed(() => {
-      return tickets.value.filter((ticket) =>
-          products.value.some((product) => product.id === ticket.product.id)
-      );
-    });
-
-    // const existingProductTickets = computed(() => {
-    //   return tickets.value.filter(
-    //       (ticket) =>
-    //           !products.value.some((product) => product.id === ticket.product.id)
-    //   );
-    // });
-
-    // const filteredNewProductTickets = computed(() => {
-    //   return filteredTickets.value.filter((ticket) =>
-    //       newProductTickets.value.some((t) => t.id === ticket.id)
-    //   );
-    // });
-
-    // const filteredExistingProductTickets = computed(() => {
-    //   return filteredTickets.value.filter((ticket) =>
-    //       existingProductTickets.value.some((t) => t.id === ticket.id)
-    //   );
-    // });
-
-    const showToast = (message, type) => {
-      const currentTime = Date.now();
-      const isMessageRecent = toastHistory.some(item =>
-          item.message === message && (currentTime - item.timestamp) < toastDelay
-      );
-
-      if (isMessageRecent) return;
-
-      if (toasts.value.length >= maxToasts) {
-        removeToast(0);
-      }
-
-      toasts.value.push({ message, type });
-
-      toastHistory.push({ message, timestamp: currentTime });
-
-      toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
-
-      setTimeout(() => removeToast(0), 1800);
-    };
-
-    const removeToast = (index) => {
-      const toast = document.querySelectorAll(".toast")[index];
-      if (toast) {
-        toast.classList.add("hide");
-        setTimeout(() => {
-          toasts.value.splice(index, 1);
-        }, 600);
-      }
-    };
-
-    onMounted(() => {
-      fetchTickets();
-      fetchProducts();
-    });
-
-    const ticketStatusClass = (status) =>
-        ({
-          1: "bg-warning",
-          2: "bg-info",
-          3: "bg-success",
-        }[status]);
-
-    const ticketStatusText = (status) =>
-        ({
-          1: t("Beklemede"),
-          2: t("İşlemde"),
-          3: t("Tamamlandı"),
-        }[status]);
-
-    return {
-      request,
-      handleClick,
-      tickets,
-      toasts,
-      products,
-      selectedProduct,
-      handleDelete,
-      updateTicketStatus,
-      showResponseModal,
-      selectedTicket,
-      response,
-      submitResponse,
-      removeToast,
-      editTicket,
-      editRequest,
-      submitEdit,
-      filterTickets,
-      filteredTickets,
-      ticketStatusClass,
-      ticketStatusText,
-      trimmedRequest,
-      trimmedEditRequest,
-      newProductTickets,
-      // existingProductTickets,
-      // filteredNewProductTickets,
-      // filteredExistingProductTickets,
-    };
-  },
-};
+onMounted(loadTickets);
 </script>
 
 <style scoped>
-.container {
-  max-width: 1300px;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.filter-buttons .btn {
-  border-radius: 50px;
-  padding: 0.5rem 1rem;
-}
-
-.list-group-item {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.bg-warning {
-  background-color: #ffc107 !important;
-}
-
-.bg-info {
-  background-color: #56d9ed !important;
-}
-
-.bg-success {
-  background-color: #14da42 !important;
-}
-
-.modal-dialog-centered {
-  display: flex;
-  align-items: center;
-}
-
-.modal-content {
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.toast-container {
-  position: fixed;
-  top: 3.2rem;
-  right: 1rem;
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.toast {
-  margin-top: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
-  transform 0.3s ease-in-out,
-    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  pointer-events: all;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #f44336, #e57373);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
-
-.toast.hide {
-  opacity: 0;
-  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
-}
-
-.toast::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 100%;
-  border-radius: 0.5rem 0 0 0.5rem;
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-.toast .close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.toast .close-btn:hover {
-  color: #fff;
-}
+.filter-bar { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.25rem; }
+.filter-chip { display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: .55rem .9rem; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-text-muted); background: white; font-weight: 700; }
+.filter-chip span { display: grid; place-items: center; min-width: 24px; height: 24px; padding: 0 .35rem; border-radius: 999px; background: var(--color-page); font-size: .75rem; }
+.filter-chip.active { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-soft); }
+.ticket-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.ticket-card { display: flex; flex-direction: column; min-width: 0; padding: 1.25rem; }
+.ticket-card__top, .ticket-card__footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.ticket-product { display: flex; align-items: center; min-width: 0; gap: .75rem; }
+.product-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; color: var(--color-primary); background: var(--color-primary-soft); }
+.ticket-id { color: var(--color-text-muted); font-size: .75rem; }
+.ticket-product h2 { margin: .1rem 0 0; overflow-wrap: anywhere; font-size: 1rem; }
+.ticket-description { flex: 1; margin: 1.25rem 0; color: var(--color-text); white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer-box { margin: 0 0 1.25rem; padding: 1rem; border-left: 3px solid var(--color-primary); border-radius: 0 12px 12px 0; background: var(--color-primary-soft); }
+.answer-box span { color: var(--color-primary); font-size: .75rem; font-weight: 800; text-transform: uppercase; }
+.answer-box p { margin: .35rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ticket-card__footer { align-items: flex-end; margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--color-border); }
+.ticket-card__footer dl { display: flex; flex-wrap: wrap; gap: 1rem; margin: 0; }
+.ticket-card__footer dt { color: var(--color-text-muted); font-size: .7rem; font-weight: 600; }
+.ticket-card__footer dd { margin: .15rem 0 0; font-size: .8rem; }
+.ticket-actions { display: flex; gap: .5rem; }
+.edit-panel { margin: 1.25rem 0; }
+.label-row, .edit-actions { display: flex; justify-content: space-between; gap: .75rem; }
+.label-row span { color: var(--color-text-muted); font-size: .8rem; }
+.edit-actions { justify-content: flex-end; margin-top: .75rem; }
+@media (max-width: 899px) { .ticket-grid { grid-template-columns: 1fr; } }
+@media (max-width: 575px) { .ticket-card__top, .ticket-card__footer { flex-direction: column; align-items: stretch; } .ticket-actions .btn { flex: 1; } }
 </style>

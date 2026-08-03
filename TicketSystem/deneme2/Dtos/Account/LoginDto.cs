@@ -1,13 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
-namespace TicketSystem.Dtos.Account
+namespace TicketSystem.Dtos.Account;
+
+public sealed class LoginDto
 {
-     public class LoginDto
-     {
-          [Required]
-          [EmailAddress]
-          public string? Email { get; set; }
-          [Required]
-          public string? Password { get; set; }
-     }
+    [Required]
+    [EmailAddress]
+    [StringLength(254)]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(128)]
+    public string Password { get; set; } = string.Empty;
 }

@@ -1,27 +1,30 @@
-﻿using TicketSystem.Models;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
 
-namespace TicketSystem.Dtos.Account
+namespace TicketSystem.Dtos.Account;
+
+public sealed class RegisterDto
 {
-     public class RegisterDto
-     {
-          [Required]
-          public string? FirstName { get; set; }
+    [Required]
+    [StringLength(100, MinimumLength = 1)]
+    public string FirstName { get; set; } = string.Empty;
 
-          [Required]
-          public string? LastName { get; set; }
+    [Required]
+    [StringLength(100, MinimumLength = 1)]
+    public string LastName { get; set; } = string.Empty;
 
-          [Required]
-          [EmailAddress]
-          public string? Email { get; set; }
+    [Required]
+    [EmailAddress]
+    [StringLength(254)]
+    public string Email { get; set; } = string.Empty;
 
-          [Required]
-          public string? Password { get; set; }
+    [Required]
+    [StringLength(128, MinimumLength = 12)]
+    public string Password { get; set; } = string.Empty;
 
-          [Required]
-          public string? Role { get; set; }
+    [Required]
+    [StringLength(64)]
+    public string Role { get; set; } = string.Empty;
 
-          public int FirmId { get; set; }
-     }
+    [Range(1, int.MaxValue)]
+    public int FirmId { get; set; }
 }
