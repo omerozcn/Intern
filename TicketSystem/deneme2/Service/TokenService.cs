@@ -1,70 +1,105 @@
-﻿using TicketSystem.Models;
-using TicketSystem.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using TicketSystem.Configuration;
+using TicketSystem.Dtos.Account;
+using TicketSystem.Dtos.Token;
+using TicketSystem.Interfaces;
+using TicketSystem.Models;
+using TicketSystem.Security;
 
-namespace TicketSystem.Service
+namespace TicketSystem.Service;
+
+public sealed class TokenService : ITokenService
 {
-     public class TokenService : ITokenService
-     {
-          private readonly UserManager<AppUser> _userManager;
-          private readonly IConfiguration _config;
-          private readonly SymmetricSecurityKey _key;
-          public TokenService(UserManager<AppUser> userManager, IConfiguration config)
-          {
-               _userManager = userManager;
-               _config = config;
-               _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]));
-          }
-          public async Task<string> CreateTokenAsync(AppUser user)
-          {
-               var roles = await _userManager.GetRolesAsync(user);
+    private readonly UserManager<AppUser> _userManager;
+    private readonly JwtOptions _options;
+    private readonly TimeProvider _timeProvider;
+    private readonly SymmetricSecurityKey _signingKey;
 
-               var claims = new List<Claim>
-               {
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
-                    new Claim(JwtRegisteredClaimNames.Name, user.FirstName)
-               };
+    public TokenService(
+        UserManager<AppUser> userManager,
+        IOptions<JwtOptions> options,
+        TimeProvider timeProvider)
+    {
+        _userManager = userManager;
+        _options = options.Value;
+        _timeProvider = timeProvider;
+        _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SigningKey));
+    }
 
-               foreach (var role in roles)
-               {
-                    claims.Add(new Claim(ClaimTypes.Role, role));
-               }
+    public async Task<IssuedTokenDto> CreateTokenAsync(
+        AppUser user,
+        ProfileDto profile,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
 
-               var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+        if (profile.Firm is null)
+        {
+            throw new InvalidOperationException("The account must be associated with a firm before a token can be issued.");
+        }
 
-               var tokenDescriptor = new SecurityTokenDescriptor
-               {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.Now.AddDays(7),
-                    SigningCredentials = creds,
-                    Issuer = _config["JWT:Issuer"],
-                    Audience = _config["JWT:Audience"]
-               };
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Count == 0)
+        {
+            throw new InvalidOperationException("The account must have an Identity role before a token can be issued.");
+        }
 
-               var tokenHandler = new JwtSecurityTokenHandler();
-               var token = tokenHandler.CreateToken(tokenDescriptor);
+        var securityStamp = await _userManager.GetSecurityStampAsync(user);
+        if (string.IsNullOrWhiteSpace(securityStamp))
+        {
+            var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+            if (!stampResult.Succeeded)
+            {
+                throw new InvalidOperationException("A security stamp could not be created for the account.");
+            }
 
-               return tokenHandler.WriteToken(token);
-          }
+            securityStamp = await _userManager.GetSecurityStampAsync(user);
+        }
 
-          public async Task StoreTokenAsync(AppUser user, string token)
-          {
-               const string loginProvider = "MyAppJwt";
-               const string tokenName = "JWT";
+        var displayName = string.Join(
+            ' ',
+            new[] { profile.FirstName, profile.LastName }
+                .Where(value => !string.IsNullOrWhiteSpace(value)));
+        if (string.IsNullOrWhiteSpace(displayName))
+        {
+            displayName = profile.UserName;
+        }
 
-               var existingToken = await _userManager.GetAuthenticationTokenAsync(user, loginProvider, tokenName);
-               if (!string.IsNullOrEmpty(existingToken))
-               {
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(AuthClaimTypes.UserId, user.Id),
+            new(AuthClaimTypes.Name, displayName),
+            new(AuthClaimTypes.UserName, profile.UserName),
+            new(AuthClaimTypes.Email, profile.Email),
+            new(AuthClaimTypes.FirmId, profile.Firm.Id.ToString(CultureInfo.InvariantCulture)),
+            new(AuthClaimTypes.FirmName, profile.Firm.Name ?? string.Empty),
+            new(AuthClaimTypes.SecurityStamp, SecurityStampFingerprint.Create(securityStamp)),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N"))
+        };
 
-                    await _userManager.RemoveAuthenticationTokenAsync(user, loginProvider, tokenName);
-               }
+        claims.AddRange(
+            roles
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(role => role, StringComparer.OrdinalIgnoreCase)
+                .Select(role => new Claim(AuthClaimTypes.Role, role)));
 
-               await _userManager.SetAuthenticationTokenAsync(user, loginProvider, tokenName, token);
-          }
-     }
+        var issuedAt = _timeProvider.GetUtcNow();
+        var expiresAt = issuedAt.AddMinutes(_options.ExpirationMinutes);
+        var token = new JwtSecurityToken(
+            issuer: _options.Issuer,
+            audience: _options.Audience,
+            claims: claims,
+            notBefore: issuedAt.UtcDateTime,
+            expires: expiresAt.UtcDateTime,
+            signingCredentials: new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256));
+
+        return new IssuedTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
+    }
 }

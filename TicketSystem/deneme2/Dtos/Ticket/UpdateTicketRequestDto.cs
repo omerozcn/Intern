@@ -1,13 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices.JavaScript;
+using System.ComponentModel.DataAnnotations;
 
 namespace TicketSystem.Dtos.Ticket
 {
-     public class UpdateTicketRequestDto
-     {
-          public int Id { get; set; }
-          public string? Answer { get; set; }
-          public DateTime Update { get; set; } = DateTime.Now;
-          public int Status { get; set; }
-     }
+    public class UpdateTicketRequestDto
+    {
+        [StringLength(2000, ErrorMessage = "Answer cannot exceed 2000 characters.")]
+        public string? Answer { get; set; }
+
+        [Required]
+        public string Status { get; set; } = string.Empty;
+    }
 }

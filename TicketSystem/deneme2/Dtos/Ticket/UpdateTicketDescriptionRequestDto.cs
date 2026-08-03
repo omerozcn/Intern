@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace TicketSystem.Dtos.Ticket;
 
-public class CreateTicketRequestDto
+public class UpdateTicketDescriptionRequestDto
 {
     private string _description = string.Empty;
 
@@ -17,9 +16,4 @@ public class CreateTicketRequestDto
         get => _description;
         set => _description = value?.Trim() ?? string.Empty;
     }
-
-    [JsonRequired]
-    public bool NewProduct { get; set; }
-
-    public int? ProductId { get; set; }
 }

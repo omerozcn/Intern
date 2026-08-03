@@ -1,97 +1,117 @@
-﻿using TicketSystem.Data;
-using TicketSystem.Dtos.FirmProduct;
-using TicketSystem.Interfaces;
-using TicketSystem.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TicketSystem.Dtos.FirmProduct;
+using TicketSystem.Dtos.Product;
+using TicketSystem.Extensions;
+using TicketSystem.Interfaces;
+using TicketSystem.Security;
 
-namespace TicketSystem.Controllers
+namespace TicketSystem.Controllers;
+
+[ApiController]
+[Authorize]
+[Route("api/Firmproduct")]
+public sealed class FirmProductController : ControllerBase
 {
-     [Route("api/Firmproduct")]
-     [Authorize]
-     [ApiController]
-     public class FirmProductController : ControllerBase
-     {
-          private readonly ApplicationDbContext _context;
-          private readonly UserManager<AppUser> _userManager;
-          private readonly IFirmProductRepository _firmproductRepo;
-          private readonly IProductRepository _productRepository;
+    private readonly IFirmProductRepository _firmProductRepository;
 
-          public FirmProductController(ApplicationDbContext context, UserManager<AppUser> user, IFirmProductRepository firmproductRepo, IProductRepository productRepo)
-          {
-               _userManager = user;
-               _firmproductRepo = firmproductRepo;
-               _productRepository = productRepo;
-               _context = context;
-          }
+    public FirmProductController(IFirmProductRepository firmProductRepository)
+    {
+        _firmProductRepository = firmProductRepository;
+    }
 
-          [HttpGet("listfirmProduct")]
-          public async Task<IActionResult> GetAll()
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var firmproducts = await _firmproductRepo.GetAllAsyncs();
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpGet("listfirmProduct")]
+    [ProducesResponseType<IReadOnlyList<FirmProductDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<FirmProductDto>>> GetAll(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _firmProductRepository.GetAllAsync(cancellationToken));
+    }
 
-               var firmproductDto = firmproducts.Select(t => t.ToString()).ToList();
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpPost("createfirmProduct")]
+    [ProducesResponseType<FirmProductDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<FirmProductDto>> Create(
+        [FromBody] CreateFirmProductRequestDto firmProductDto,
+        CancellationToken cancellationToken)
+    {
+        var result = await _firmProductRepository.CreateAsync(firmProductDto, cancellationToken);
 
-               return Ok(firmproducts);
-          }
+        return result.Status switch
+        {
+            FirmProductCreateStatus.Created =>
+                StatusCode(StatusCodes.Status201Created, result.Assignment),
+            FirmProductCreateStatus.DuplicateAssignment => Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Firm-product assignment already exists",
+                detail: "The requested firm-product assignment already exists."),
+            _ => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Invalid firm-product assignment",
+                detail: "The specified firm or product does not exist."),
+        };
+    }
 
-          [HttpPost("createfirmProduct")]
-          public async Task<IActionResult> Create([FromBody] CreateFirmProductRequestDto firmproductDto)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpDelete("deletefirmProduct/{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        var deleted = await _firmProductRepository.DeleteAsync(id, cancellationToken);
+        return deleted is null
+            ? Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Firm-product assignment not found")
+            : NoContent();
+    }
 
-               try
-               {
-                    var firmproductModel = await _firmproductRepo.CreateAsync(firmproductDto);
-                    return Ok(firmproductModel);
-               }
-               catch (Exception ex)
-               {
-                    if (ex.Message.Contains("already exists"))
-                    {
-                         return Conflict(ex.Message);
-                    }
-                    return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-               }
-          }
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpGet("listProductsByFirm/{firmname}")]
+    [ProducesResponseType<IReadOnlyList<FirmProductDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<FirmProductDto>>> GetProductsByFirm(
+        [FromRoute] string firmname,
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _firmProductRepository.GetFirmProductAsync(firmname, cancellationToken));
+    }
 
-          [HttpDelete("deletefirmProduct/{id}")]
-          public async Task<IActionResult> Delete([FromRoute] int id)
-          {
-               Console.WriteLine($"Received request to delete FirmProduct with Id: {id}");
+    [Authorize(Roles = AppRoles.User)]
+    [HttpGet("listProductsForCurrentUser")]
+    [ProducesResponseType<IReadOnlyList<CurrentUserProductDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult<IReadOnlyList<CurrentUserProductDto>>> GetProductsForCurrentUser(
+        CancellationToken cancellationToken)
+    {
+        var firmId = User.GetFirmId();
 
-               var result = await _firmproductRepo.DeleteAsyncs(id);
+        if (!firmId.HasValue)
+        {
+            // Older tokens may predate the firmId claim, so fall back to the stored assignment.
+            var appUserId = User.GetUserId();
+            if (appUserId is null)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status401Unauthorized,
+                    title: "Required identity claim is missing");
+            }
 
-               if (result == null)
-               {
-                    Console.WriteLine($"FirmProduct with Id: {id} not found in Delete method.");
-                    return NotFound();
-               }
+            firmId = await _firmProductRepository.GetFirmIdForUserAsync(appUserId, cancellationToken);
+        }
 
-               Console.WriteLine($"FirmProduct with Id: {id} successfully deleted in Delete method.");
-               return Ok(result);
-          }
+        if (!firmId.HasValue)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "No firm is assigned to the current user");
+        }
 
-          [HttpGet("listProductsByFirm/{firmname}")]
-          public async Task<IActionResult> GetProductsByFirm([FromRoute] string firmname)
-          {
-               var firmproduct = await _firmproductRepo.GetFirmProductAsync(firmname);
-               
-               if(firmproduct == null)
-               {
-                    return NotFound();
-               }
-
-               return Ok(firmproduct);
-          }
-     }
-
+        return Ok(await _firmProductRepository.GetProductsByFirmIdAsync(firmId.Value, cancellationToken));
+    }
 }

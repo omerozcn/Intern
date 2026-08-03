@@ -1,245 +1,401 @@
-﻿using TicketSystem.Dtos.Account;
-using TicketSystem.Models;
-using TicketSystem.Interfaces;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TicketSystem.Mappers;
-using TicketSystem.Data;
-using TicketSystem.Dtos.Token;
-using TicketSystem.Extensions;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Options;
+using TicketSystem.Configuration;
+using TicketSystem.Dtos.Account;
+using TicketSystem.Interfaces;
+using TicketSystem.Models;
+using TicketSystem.Security;
 
-namespace TicketSystem.Controllers
+namespace TicketSystem.Controllers;
+
+[ApiController]
+[Route("api/account")]
+public sealed class AccountController : ControllerBase
 {
-     [Route("api/account")]
+    private const string GenericResetMessage =
+        "If an account exists for that email address, a password reset link has been sent.";
 
-     [ApiController]
-     public class AccountController : ControllerBase
-     {
-          private readonly UserManager<AppUser> _userManager;
-          private readonly ITokenService _tokenService;
-          private readonly SignInManager<AppUser> _signinManager;
-          private readonly IAccountRepository _accountRepo;
-          private readonly IFirmUserRepository _firmUserRepository;
-          private readonly ApplicationDbContext _context;
-          public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager, IAccountRepository accountRepo, IFirmRepository firmRepository, IFirmUserRepository firmUserRepository, ApplicationDbContext context)
-          {
-               _userManager = userManager;
-               _tokenService = tokenService;
-               _signinManager = signInManager;
-               _accountRepo = accountRepo;
-               _firmUserRepository = firmUserRepository;
-               _context = context;
-          }
+    private readonly UserManager<AppUser> _userManager;
+    private readonly SignInManager<AppUser> _signInManager;
+    private readonly ITokenService _tokenService;
+    private readonly IAccountRepository _accountRepository;
+    private readonly IEmailService _emailService;
+    private readonly FrontendOptions _frontendOptions;
+    private readonly ILogger<AccountController> _logger;
 
-          [HttpPost("login")]
-          public async Task<IActionResult> Login(LoginDto loginDto)
-          {
-               if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+    public AccountController(
+        UserManager<AppUser> userManager,
+        SignInManager<AppUser> signInManager,
+        ITokenService tokenService,
+        IAccountRepository accountRepository,
+        IEmailService emailService,
+        IOptions<FrontendOptions> frontendOptions,
+        ILogger<AccountController> logger)
+    {
+        _userManager = userManager;
+        _signInManager = signInManager;
+        _tokenService = tokenService;
+        _accountRepository = accountRepository;
+        _emailService = emailService;
+        _frontendOptions = frontendOptions.Value;
+        _logger = logger;
+    }
 
-               var user = await _userManager.Users
-                         .Include(u => u.FirmUsers)
-                         .ThenInclude(cu => cu.Firm)
-                         .FirstOrDefaultAsync(x => x.Email == loginDto.Email.ToLower());
+    [AllowAnonymous]
+    [EnableRateLimiting(AuthRateLimitPolicies.Login)]
+    [HttpPost("login")]
+    [ProducesResponseType<AuthSessionDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<AuthSessionDto>> Login(
+        [FromBody] LoginDto loginDto,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByEmailAsync(loginDto.Email.Trim());
+        if (user is null)
+        {
+            return AuthenticationFailed();
+        }
 
-               if (user == null) return Unauthorized("Invalid email adress");
+        var signInResult = await _signInManager.CheckPasswordSignInAsync(
+            user,
+            loginDto.Password,
+            lockoutOnFailure: true);
+        if (!signInResult.Succeeded)
+        {
+            return AuthenticationFailed();
+        }
 
-               var result = await _signinManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-               var userid = user.Id.ToString();
+        var profile = await _accountRepository.GetByIdAsync(user.Id, cancellationToken);
+        if (profile?.Firm is null || string.IsNullOrWhiteSpace(profile.Role))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status403Forbidden,
+                title: "Account is not configured",
+                detail: "Ask an administrator to assign this account to a role and firm.");
+        }
 
-               if (!result.Succeeded) return Unauthorized("Email adress not found and/or password is incorrect!");
-               var firmUser = _context.FirmUsers.Where(fu => fu.AppUserId == userid).Select(firmid => firmid.FirmId).FirstOrDefault();
-               if (firmUser == null)
-                    return Unauthorized("User is not associated with any firm.");
+        var issuedToken = await _tokenService.CreateTokenAsync(user, profile, cancellationToken);
+        return Ok(new AuthSessionDto
+        {
+            AccessToken = issuedToken.AccessToken,
+            ExpiresAt = issuedToken.ExpiresAt,
+            User = profile
+        });
+    }
 
-               var firm = await _context.Firms
-                    .Where(f => f.Id == firmUser)
-                    .Select(f => f.Name)
-                    .FirstOrDefaultAsync();
+    [Authorize]
+    [HttpGet("me")]
+    [HttpGet("getbyusername")]
+    [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<ProfileDto>> Me(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(AuthClaimTypes.UserId);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
 
-               var token = await _tokenService.CreateTokenAsync(user);
+        var profile = await _accountRepository.GetByIdAsync(userId, cancellationToken);
+        return profile is null ? Unauthorized() : Ok(profile);
+    }
 
-               await _tokenService.StoreTokenAsync(user, token);
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpGet("listUsers")]
+    [ProducesResponseType<IReadOnlyList<ProfileDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<ProfileDto>>> GetAll(
+        CancellationToken cancellationToken)
+    {
+        return Ok(await _accountRepository.GetAllAsync(cancellationToken));
+    }
 
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpGet("listById/{id}")]
+    [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProfileDto>> GetById(
+        [FromRoute] string id,
+        CancellationToken cancellationToken)
+    {
+        var profile = await _accountRepository.GetByIdAsync(id, cancellationToken);
+        return profile is null
+            ? Problem(statusCode: StatusCodes.Status404NotFound, title: "Account not found")
+            : Ok(profile);
+    }
 
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpPost("register")]
+    [ProducesResponseType<ProfileDto>(StatusCodes.Status201Created)]
+    public async Task<ActionResult<ProfileDto>> Register(
+        [FromBody] RegisterDto registerDto,
+        CancellationToken cancellationToken)
+    {
+        var result = await _accountRepository.CreateAsync(registerDto, cancellationToken);
+        if (!result.Succeeded)
+        {
+            return IdentityFailure(result);
+        }
 
-               return Ok(
-                   new NewUserDto
-                   {
-                        UserName = user.UserName,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Email = user.Email,
-                        Role = user.Role,
-                        FirmId = firmUser,
-                        FirmName = firm,
-                        Token = token
-                   });
-          }
-          [Authorize]
-          [HttpGet("listUsers")]
-          public async Task<IActionResult> GetAll()
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
+        var profile = await _accountRepository.GetByEmailAsync(registerDto.Email, cancellationToken);
+        if (profile is null)
+        {
+            throw new InvalidOperationException("The new account could not be reloaded.");
+        }
 
-               var users = await _accountRepo.GetAllAsync();
-               return Ok(users);
-          }
+        return CreatedAtAction(nameof(GetById), new { id = profile.Id }, profile);
+    }
 
-          [Authorize]
-          [HttpGet("listById/{id:Guid}")]
-          public async Task<IActionResult> GetById([FromRoute] Guid id)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var users = await _accountRepo.GetByIdAsync(id);
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpPut("updateAccount/{id}")]
+    [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ProfileDto>> Update(
+        [FromRoute] string id,
+        [FromBody] UpdateDto updateDto,
+        CancellationToken cancellationToken)
+    {
+        var result = await _accountRepository.UpdateAsync(id, updateDto, cancellationToken);
+        if (result is null)
+        {
+            return Problem(statusCode: StatusCodes.Status404NotFound, title: "Account not found");
+        }
 
-               if (users == null)
-               {
-                    return NotFound();
-               }
+        if (!result.Succeeded)
+        {
+            return IdentityFailure(result);
+        }
 
-               return Ok(users.ToAccountDto());
-          }
+        var profile = await _accountRepository.GetByIdAsync(id, cancellationToken);
+        if (profile is null)
+        {
+            throw new InvalidOperationException("The updated account could not be reloaded.");
+        }
 
-          [HttpPost("register")]
-          public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
-          {
-               if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
+        return Ok(profile);
+    }
 
-               var userName = await _accountRepo.GenerateUniqueUserNameAsync(10);
+    [Authorize(Roles = AppRoles.Admin)]
+    [HttpDelete("deleteUser/{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(
+        [FromRoute] string id,
+        CancellationToken cancellationToken)
+    {
+        var result = await _accountRepository.DeleteAsync(id, cancellationToken);
+        if (result is null)
+        {
+            return Problem(statusCode: StatusCodes.Status404NotFound, title: "Account not found");
+        }
 
-               var appUser = new AppUser
-               {
-                    UserName = userName,
-                    FirstName = registerDto.FirstName,
-                    LastName = registerDto.LastName,
-                    Email = registerDto.Email,
-                    Role = registerDto.Role,
-               };
+        if (result.Errors.Any(error => error.Code == "AccountHasTicketHistory"))
+        {
+            return Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Account cannot be deleted",
+                detail: "Accounts referenced by ticket history must be retained.");
+        }
 
-               var createdUser = await _userManager.CreateAsync(appUser, registerDto.Password);
-               await _context.SaveChangesAsync();
-               if (!createdUser.Succeeded) return BadRequest(createdUser.Errors);
-               var roleResult = await _userManager.AddToRoleAsync(appUser, registerDto.Role);
-               var role = await _userManager.GetRolesAsync(appUser);
-               if (!roleResult.Succeeded) return BadRequest(roleResult.Errors);
+        return result.Succeeded ? NoContent() : IdentityFailure(result);
+    }
 
+    [AllowAnonymous]
+    [EnableRateLimiting(AuthRateLimitPolicies.Password)]
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordDto forgotPasswordDto,
+        CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email.Trim());
+        if (user is not null && !string.IsNullOrWhiteSpace(user.Email))
+        {
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetToken));
+            var resetUrl = BuildResetUrl(user.Email, encodedToken);
+            var recipientName = string.Join(
+                ' ',
+                new[] { user.FirstName, user.LastName }
+                    .Where(value => !string.IsNullOrWhiteSpace(value)));
 
-               var firmUser = new FirmUser
-               {
-                    FirmId = registerDto.FirmId,
-                    AppUserId = appUser.Id
-               };
+            try
+            {
+                await _emailService.SendPasswordResetAsync(
+                    user.Email,
+                    string.IsNullOrWhiteSpace(recipientName) ? user.Email : recipientName,
+                    resetUrl,
+                    cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                _logger.LogError(
+                    exception,
+                    "Password reset email delivery failed for account {AccountId}",
+                    user.Id);
+            }
+        }
 
-               await _firmUserRepository.AddAsync(firmUser);
-               await _context.SaveChangesAsync();
+        return Accepted(new { message = GenericResetMessage });
+    }
 
-               return Ok();
-          }
+    [AllowAnonymous]
+    [EnableRateLimiting(AuthRateLimitPolicies.Password)]
+    [HttpPost("reset-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordDto resetPasswordDto,
+        CancellationToken cancellationToken)
+    {
+        string resetToken;
+        try
+        {
+            resetToken = Encoding.UTF8.GetString(
+                WebEncoders.Base64UrlDecode(resetPasswordDto.Token.Trim()));
+        }
+        catch (FormatException)
+        {
+            return InvalidResetRequest();
+        }
 
-          [Authorize]
-          [HttpDelete("deleteUser/{id}")]
-          public async Task<IActionResult> Delete([FromRoute] string id)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               try
-               {
-                    var accountModel = await _accountRepo.DeleteAsync(id);
+        var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email.Trim());
+        if (user is null)
+        {
+            return InvalidResetRequest();
+        }
 
-                    if (accountModel == null)
-                    {
-                         return NotFound();
-                    }
+        var resetResult = await _userManager.ResetPasswordAsync(
+            user,
+            resetToken,
+            resetPasswordDto.NewPassword);
+        if (!resetResult.Succeeded)
+        {
+            return resetResult.Errors.Any(error => error.Code == "InvalidToken")
+                ? InvalidResetRequest()
+                : IdentityFailure(resetResult);
+        }
 
-                    return NoContent();
-               }
-               catch (Exception)
-               {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-               }
-          }
+        var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+        if (!stampResult.Succeeded)
+        {
+            throw new InvalidOperationException("The account security stamp could not be refreshed.");
+        }
 
-          [Authorize]
-          [HttpPut("updateAccount/{id}")]
-          public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdateDto updateDto)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
-               var accountModel = await _accountRepo.UpdateAsync(id, updateDto);
+        cancellationToken.ThrowIfCancellationRequested();
+        return NoContent();
+    }
 
-               if (accountModel == null)
-               {
-                    return NotFound();
-               }
+    [Authorize]
+    [EnableRateLimiting(AuthRateLimitPolicies.Password)]
+    [HttpPost("change-password")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordDto changePasswordDto,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(AuthClaimTypes.UserId);
+        var user = string.IsNullOrWhiteSpace(userId)
+            ? null
+            : await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-               return Ok(accountModel.ToAccountDto());
-          }
+        var changeResult = await _userManager.ChangePasswordAsync(
+            user,
+            changePasswordDto.CurrentPassword,
+            changePasswordDto.NewPassword);
+        if (!changeResult.Succeeded)
+        {
+            return IdentityFailure(changeResult);
+        }
 
-          [HttpPost("getuserRole")]
-          public async Task<IActionResult> GetUserRoleByToken([FromBody] TokenRequestDto request)
-          {
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
+        var stampResult = await _userManager.UpdateSecurityStampAsync(user);
+        if (!stampResult.Succeeded)
+        {
+            throw new InvalidOperationException("The account security stamp could not be refreshed.");
+        }
 
-               try
-               {
-                    var userRole = await _accountRepo.GetUserRoleAsync(request.Token);
+        cancellationToken.ThrowIfCancellationRequested();
+        return NoContent();
+    }
 
-                    if (userRole == null)
-                    {
-                         return NotFound("User role not found.");
-                    }
+    [Authorize]
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        var userId = User.FindFirstValue(AuthClaimTypes.UserId);
+        var user = string.IsNullOrWhiteSpace(userId)
+            ? null
+            : await _userManager.FindByIdAsync(userId);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
 
-                    return Ok(userRole);
-               }
-               catch (Exception)
-               {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-               }
-          }
+        var result = await _userManager.UpdateSecurityStampAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException("The account security stamp could not be refreshed.");
+        }
 
-          [Authorize]
-          [HttpGet("getbyusername")]
-          public async Task<IActionResult> GetUserByUserNameAsync()
-          {
-               var username = User.GetUserName();
-               if (!ModelState.IsValid)
-               {
-                    return BadRequest(ModelState);
-               }
+        cancellationToken.ThrowIfCancellationRequested();
+        return NoContent();
+    }
 
-               try
-               {
-                    var user = await _accountRepo.GetByUserNameAsync(username);
+    private ObjectResult AuthenticationFailed()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status401Unauthorized,
+            title: "Authentication failed",
+            detail: "Invalid email or password.");
+    }
 
-                    if(user == null)
-                    {
-                         return NotFound("User not found");
-                    }
+    private ObjectResult InvalidResetRequest()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status400BadRequest,
+            title: "Invalid password reset request",
+            detail: "The password reset link is invalid or has expired.");
+    }
 
-                    return Ok(user);
-               }
-               catch (Exception ex)
-               {
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing your request.");
-               }
-          }
-     }
+    private ObjectResult IdentityFailure(IdentityResult result)
+    {
+        var errors = result.Errors
+            .GroupBy(error => string.IsNullOrWhiteSpace(error.Code) ? "account" : error.Code)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(error => error.Description).Distinct().ToArray());
+
+        var problem = new ValidationProblemDetails(errors)
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Account validation failed",
+            Instance = HttpContext.Request.Path
+        };
+        problem.Extensions["traceId"] = HttpContext.TraceIdentifier;
+
+        var response = BadRequest(problem);
+        response.ContentTypes.Add("application/problem+json");
+        return response;
+    }
+
+    private string BuildResetUrl(string email, string encodedToken)
+    {
+        var baseUri = new Uri(_frontendOptions.BaseUrl.TrimEnd('/') + '/', UriKind.Absolute);
+        var resetUri = new Uri(baseUri, "reset-password").ToString();
+        return QueryHelpers.AddQueryString(
+            resetUri,
+            new Dictionary<string, string?>
+            {
+                ["email"] = email,
+                ["token"] = encodedToken
+            });
+    }
 }
-

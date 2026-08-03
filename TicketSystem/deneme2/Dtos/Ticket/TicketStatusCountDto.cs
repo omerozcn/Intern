@@ -1,10 +1,8 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace TicketSystem.Dtos.Ticket
 {
-    public class UpdateStatusTicketDto
+    public class TicketStatusCountDto
     {
-        [Required]
         public string Status { get; set; } = string.Empty;
+        public int Count { get; set; }
     }
 }

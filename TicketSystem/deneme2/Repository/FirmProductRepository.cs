@@ -1,113 +1,131 @@
-﻿using TicketSystem.Data;
+using Microsoft.EntityFrameworkCore;
+using TicketSystem.Data;
 using TicketSystem.Dtos.FirmProduct;
+using TicketSystem.Dtos.Product;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
-using TicketSystem.Models.FirmProductModels;
-using Microsoft.EntityFrameworkCore;
 
-namespace TicketSystem.Repository
+namespace TicketSystem.Repository;
+
+public sealed class FirmProductRepository : IFirmProductRepository
 {
-     public class FirmProductRepository : IFirmProductRepository
-     {
-          private ApplicationDbContext _context;
-          public FirmProductRepository(ApplicationDbContext context)
-          {
-               _context = context;
-          }
+    private readonly ApplicationDbContext _context;
 
-          public async Task<FirmProduct> CreateAsync(CreateFirmProductRequestDto firmproductDto)
-          {
-               try
-               {
-                    var firmExists = await _context.Firms.AnyAsync(f => f.Id == firmproductDto.FirmId);
-                    if (!firmExists)
-                    {
-                         throw new Exception("FirmId does not exist.");
-                    }
+    public FirmProductRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
-                    var existingFirmProduct = await _context.FirmProducts
-            .AnyAsync(fp => fp.FirmId == firmproductDto.FirmId && fp.ProductId == firmproductDto.ProductId);
+    public async Task<FirmProductCreateResult> CreateAsync(
+        CreateFirmProductRequestDto firmProductDto,
+        CancellationToken cancellationToken = default)
+    {
+        var firmExists = await _context.Firms
+            .AnyAsync(firm => firm.Id == firmProductDto.FirmId, cancellationToken);
+        var productExists = await _context.Products
+            .AnyAsync(product => product.Id == firmProductDto.ProductId, cancellationToken);
 
-                    var productExists = await _context.Products.AnyAsync(p => p.Id == firmproductDto.ProductId);
-                    if (!productExists)
-                    {
-                         throw new Exception("ProductId does not exist.");
-                    }
+        if (!firmExists || !productExists)
+        {
+            return FirmProductCreateResult.UnknownFirmOrProduct();
+        }
 
-                    var firmproductModel = new FirmProduct
-                    {
-                         FirmId = firmproductDto.FirmId,
-                         ProductId = firmproductDto.ProductId
-                    };
+        var alreadyAssigned = await _context.FirmProducts.AnyAsync(
+            link => link.FirmId == firmProductDto.FirmId && link.ProductId == firmProductDto.ProductId,
+            cancellationToken);
+        if (alreadyAssigned)
+        {
+            return FirmProductCreateResult.Duplicate();
+        }
 
-                    await _context.FirmProducts.AddAsync(firmproductModel);
-                    await _context.SaveChangesAsync();
+        var firmProduct = new FirmProduct
+        {
+            FirmId = firmProductDto.FirmId,
+            ProductId = firmProductDto.ProductId,
+        };
 
-                    return firmproductModel;
-               }
-               catch (Exception ex)
-               {
-                    throw new Exception("An error occurred while creating the FirmProduct.", ex);
-               }
-          }
+        await _context.FirmProducts.AddAsync(firmProduct, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
-          public async Task<FirmProduct> DeleteAsyncs(int id)
-          {
-               // Log the ID for debugging purposes
-               Console.WriteLine($"Attempting to delete FirmProduct with Id: {id}");
+        return FirmProductCreateResult.Created(new FirmProductDto
+        {
+            Id = firmProduct.Id,
+            FirmId = firmProduct.FirmId,
+            ProductId = firmProduct.ProductId,
+        });
+    }
 
-               var firmproductModel = await _context.FirmProducts
-                   .FirstOrDefaultAsync(x => x.Id == id);
+    public async Task<FirmProduct?> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var firmProduct = await _context.FirmProducts
+            .FirstOrDefaultAsync(link => link.Id == id, cancellationToken);
+        if (firmProduct == null)
+        {
+            return null;
+        }
 
-               if (firmproductModel == null)
-               {
-                    // Log if the entity is not found
-                    Console.WriteLine($"FirmProduct with Id: {id} not found.");
-                    return null;
-               }
+        _context.FirmProducts.Remove(firmProduct);
+        await _context.SaveChangesAsync(cancellationToken);
+        return firmProduct;
+    }
 
-               _context.FirmProducts.Remove(firmproductModel);
-               await _context.SaveChangesAsync();
+    public async Task<IReadOnlyList<FirmProductDto>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await AssignmentRows()
+            .OrderBy(link => link.FirmName)
+            .ThenBy(link => link.ProductName)
+            .ToListAsync(cancellationToken);
+    }
 
-               // Log the successful deletion
-               Console.WriteLine($"FirmProduct with Id: {id} successfully deleted.");
-               return firmproductModel;
-          }
+    public async Task<IReadOnlyList<FirmProductDto>> GetFirmProductAsync(
+        string firmName,
+        CancellationToken cancellationToken = default)
+    {
+        return await AssignmentRows()
+            .Where(link => link.FirmName == firmName)
+            .OrderBy(link => link.ProductName)
+            .ToListAsync(cancellationToken);
+    }
 
-          public async Task<List<FirmProductSummary>> GetAllAsyncs()
-          {
-               var firmproductModel = await _context.FirmProducts
-                   .Select(t => new FirmProductSummary
-                   {
-                        Id = t.Id,
-                        FirmId = t.FirmId,
-                        FirmName = t.Firm.Name,
-                        ProductId = t.ProductId,
-                        ProductName = t.Products.Name
-                   }).ToListAsync();
+    public async Task<IReadOnlyList<CurrentUserProductDto>> GetProductsByFirmIdAsync(
+        int firmId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.FirmProducts
+            .AsNoTracking()
+            .Where(link => link.FirmId == firmId)
+            .OrderBy(link => link.Products.Name)
+            .Select(link => new CurrentUserProductDto
+            {
+                Id = link.ProductId,
+                Name = link.Products.Name,
+            })
+            .ToListAsync(cancellationToken);
+    }
 
-               foreach (var item in firmproductModel)
-               {
-                    Console.WriteLine($"Id: {item.Id}, FirmId: {item.FirmId}, FirmName: {item.FirmName}, ProductId: {item.ProductId}, ProductName: {item.ProductName}");
-               }
+    public async Task<int?> GetFirmIdForUserAsync(
+        string appUserId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.FirmUsers
+            .AsNoTracking()
+            .Where(firmUser => firmUser.AppUserId == appUserId)
+            .Select(firmUser => (int?)firmUser.FirmId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 
-               return firmproductModel;
-          }
-
-          public async Task<List<FirmProductSummary>> GetFirmProductAsync(string firmname)
-          {
-               var firmproduct = await _context.FirmProducts.Where(firmid => firmid.Firm.Name == firmname)
-                   .Select(product => new FirmProductSummary
-                   {
-                        Id = product.Id,
-                        FirmId = product.FirmId,
-                        FirmName = product.Firm.Name,
-                        ProductId = product.ProductId,
-                        ProductName = product.Products.Name
-
-                   }).ToListAsync();
-
-               return firmproduct;
-          }
-     }
+    private IQueryable<FirmProductDto> AssignmentRows()
+    {
+        return _context.FirmProducts
+            .AsNoTracking()
+            .Select(link => new FirmProductDto
+            {
+                Id = link.Id,
+                FirmId = link.FirmId,
+                FirmName = link.Firm.Name,
+                ProductId = link.ProductId,
+                ProductName = link.Products.Name,
+            });
+    }
 }

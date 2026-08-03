@@ -1,16 +1,16 @@
-﻿using TicketSystem.Models;
-using TicketSystem.Models.FirmModels;
 using TicketSystem.Dtos.Firm;
+using TicketSystem.Models;
 
-namespace TicketSystem.Interfaces
+namespace TicketSystem.Interfaces;
+
+public interface IFirmRepository
 {
-     public interface IFirmRepository
-     {
-          Task<Firm> CreateAsync(Firm firmModel);
-          Task<Firm?> DeleteAsync(string id);
-          Task<List<FirmSummary>> GetAllAsync();
-          Task<Firm?> GetByIdAsync(int id);
-          Task<Firm?> UpdateAsync(int id, UpdateFirmRequestDto firmModel);
-          Task<Firm?> GetByNameAsync(string name);
-     }
+    Task<Firm> CreateAsync(Firm firmModel, CancellationToken cancellationToken = default);
+    Task<Firm?> DeleteAsync(int id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<FirmDto>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<Firm?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<Firm?> UpdateAsync(int id, UpdateFirmRequestDto firmModel, CancellationToken cancellationToken = default);
+    Task<Firm?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+    Task<bool> HasTicketHistoryAsync(int id, CancellationToken cancellationToken = default);
+    Task<bool> HasUsersAsync(int id, CancellationToken cancellationToken = default);
 }
