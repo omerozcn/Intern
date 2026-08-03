@@ -1,519 +1,151 @@
 <template>
-  <div v-if="toasts.length > 0" class="toast-container">
-    <div
-        v-for="(toast, index) in toasts"
-        :key="index"
-        :class="['toast', toast.type, 'show']"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-    >
-      <div class="toast-body">
-        {{ toast.message }}
-        <button class="close-btn" @click="removeToast(index)">&times;</button>
+  <section>
+    <PageHeader :title="t('dashboard.title')" :description="dashboardDescription">
+      <template #actions>
+        <RouterLink class="btn btn-primary" :to="isAdmin ? '/adminticket' : '/ticket'">
+          <i class="bi" :class="isAdmin ? 'bi-inbox' : 'bi-plus-lg'" aria-hidden="true"></i>
+          {{ isAdmin ? t('dashboard.viewAll') : t('dashboard.createTicket') }}
+        </RouterLink>
+      </template>
+    </PageHeader>
+
+    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <ErrorState v-else-if="error" :message="error" @retry="loadCounts" />
+
+    <template v-else>
+      <div class="kpi-grid" aria-label="Talep özeti">
+        <article v-for="item in kpis" :key="item.key" class="surface-card kpi-card">
+          <div class="kpi-icon" :class="`kpi-icon--${item.key}`">
+            <i :class="item.icon" aria-hidden="true"></i>
+          </div>
+          <div>
+            <p class="kpi-label">{{ item.label }}</p>
+            <strong class="kpi-value">{{ item.value }}</strong>
+          </div>
+        </article>
       </div>
-    </div>
-  </div>
-  <main style="background-color: white">
-    <div v-if="userRole == 'Admin'">
-      <div
-          class="admin-dashboard"
-          style="background-color: white; border-color: black"
-      >
-        <h2>{{ $t("total_requests") }}</h2>
-        <div class="dashboard-item">
-          <div class="info-box-container">
-            <div class="info-box">
-              <h3>{{ $t("total_requests") }}</h3>
-              <p>{{ totalRequests }}</p>
-            </div>
-            <div class="info-box">
-              <h3>{{ $t("pending_requests") }}</h3>
-              <p>{{ pendingRequests }}</p>
-            </div>
-            <div class="info-box">
-              <h3>{{ $t("in_progress_requests") }}</h3>
-              <p>{{ inProgressRequests }}</p>
-            </div>
-            <div class="info-box">
-              <h3>{{ $t("completed_requests") }}</h3>
-              <p>{{ completedRequests }}</p>
-            </div>
+
+      <div class="surface-card chart-card">
+        <div class="chart-heading">
+          <div>
+            <h2>{{ t('dashboard.distribution') }}</h2>
+            <p>{{ t('dashboard.distributionDescription') }}</p>
           </div>
-          <div class="chart-container">
-            <div class="chart-wrapper">
-              <Bar :data="chartData" :options="chartOptions"></Bar>
-            </div>
-            <div class="chart-wrapper">
-              <Doughnut
-                  :data="doughnutData"
-                  :options="doughnutOptions"
-              ></Doughnut>
-            </div>
-          </div>
-          <router-link
-              to="/adminticket"
-              class="btn btn-primary"
-              style="
-              margin-top: 50px;
-              background-color: #64748b;
-              border-color: #64748b;
-            "
-          >{{ $t("view_requests") }}
-          </router-link
-          >
+          <RouterLink class="text-link" :to="isAdmin ? '/adminticket' : '/request'">
+            {{ t('dashboard.details') }}
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </RouterLink>
+        </div>
+        <div class="chart-wrap">
+          <Bar :data="chartData" :options="chartOptions" />
         </div>
       </div>
-    </div>
-    <div v-else-if="isAuthenticated">
-      <p>{{ $t("User_dashboard_message") }}</p>
-      <div class="User-dashboard">
-        <h2>{{ $t("your_total_requests") }}</h2>
-        <div class="dashboard-item">
-          <div class="info-box-container">
-            <div class="info-box">
-              <h3>{{ $t("total_requests") }}</h3>
-              <p>{{ totalRequests }}</p>
-            </div>
-            <div class="info-box">
-              <h3>{{ $t("pending_requests") }}</h3>
-              <p>{{ pendingRequests }}</p>
-            </div>
-            <div class="info-box">
-              <h3>{{ $t("in_progress_requests") }}</h3>
-              <p>{{ inProgressRequests }}</p>
-            </div>
-            <div class="info-box">
-              <h3>{{ $t("completed_requests") }}</h3>
-              <p>{{ completedRequests }}</p>
-            </div>
-          </div>
-
-          <router-link
-              to="/request"
-              class="btn btn-primary"
-              style="
-              margin-top: 50px;
-              background-color: #64748b;
-              border-color: #64748b;
-            "
-          >{{ $t("view_my_requests") }}
-          </router-link
-          >
-        </div>
-      </div>
-    </div>
-
-    <div v-else>
-      <p>{{ $t("please_sign_in") }}</p>
-      <router-link
-          to="/sign-in"
-          class="btn btn-outline-success sign-in-button"
-          type="submit"
-      >
-        <i class="bi bi-box-arrow-in-right"></i>
-        <span>⠀{{ $t("sign_in") }}</span>
-      </router-link>
-    </div>
-  </main>
+    </template>
+  </section>
 </template>
 
 <script setup>
-import axios from "axios";
-import {ref, onMounted} from "vue";
-import {Bar, Doughnut} from "vue-chartjs";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { Bar } from "vue-chartjs";
 import {
-  Chart as ChartJS,
   BarElement,
   CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
+  Chart as ChartJS,
   Legend,
-  ArcElement,
+  LinearScale,
+  Tooltip,
 } from "chart.js";
-import {useI18n} from "vue-i18n";
-import {useRouter} from "vue-router";
-import {useUserStore} from "@/stores/UserStore.js";
-import {storeToRefs} from "pinia";
+import PageHeader from "@/components/PageHeader.vue";
+import LoadingState from "@/components/LoadingState.vue";
+import ErrorState from "@/components/ErrorState.vue";
+import { api } from "@/services/api";
+import { useAuthStore } from "@/stores/auth";
+import { normalizeTicketCounts, TICKET_STATUS } from "@/utils/tickets";
 
-ChartJS.register(
-    BarElement,
-    CategoryScale,
-    LinearScale,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+
+const { t } = useI18n();
+const auth = useAuthStore();
+const loading = ref(true);
+const error = ref("");
+const counts = ref(normalizeTicketCounts());
+
+const isAdmin = computed(() => auth.user?.role === "Admin");
+const dashboardDescription = computed(() =>
+  isAdmin.value ? t("dashboard.descriptionAdmin") : t("dashboard.descriptionUser"),
 );
 
-const {t} = useI18n();
-const router = useRouter();
-const totalRequests = ref(0);
-const pendingRequests = ref(0);
-const inProgressRequests = ref(0);
-const store = useUserStore();
-const { isAuthenticated, userRole } = storeToRefs(store);
-const completedRequests = ref(0);
-const feedbackText = ref("");
-const toasts = ref([]);
-const maxToasts = 3;
-let toastHistory = [];
-const toastDelay = 3000;
+const kpis = computed(() => [
+  { key: "total", label: t("dashboard.total"), value: counts.value.total, icon: "bi bi-layers" },
+  { key: "pending", label: t("status.pending"), value: counts.value.pending, icon: "bi bi-clock" },
+  { key: "inProgress", label: t("status.inProgress"), value: counts.value.inProgress, icon: "bi bi-arrow-repeat" },
+  { key: "completed", label: t("status.completed"), value: counts.value.completed, icon: "bi bi-check2-circle" },
+]);
 
-const doughnutData = ref({
-  labels: [t("status_1"), t("status_2"), t("status_3")],
-  datasets: [
-    {
-      label: t("requests"),
-      data: [0, 0, 0], // Başlangıç boş
-      backgroundColor: ["#f39c12", "#2980b9", "#27ae60"],
-    },
-  ],
-});
+const chartData = computed(() => ({
+  labels: [t("status.pending"), t("status.inProgress"), t("status.completed")],
+  datasets: [{
+    label: t("dashboard.requests"),
+    data: [
+      counts.value[TICKET_STATUS.PENDING],
+      counts.value[TICKET_STATUS.IN_PROGRESS],
+      counts.value[TICKET_STATUS.COMPLETED],
+    ],
+    backgroundColor: ["#f59e0b", "#0ea5a8", "#15803d"],
+    borderRadius: 8,
+    maxBarThickness: 64,
+  }],
+}));
 
-const doughnutOptions = {
+const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: t("request_distribution"),
-    },
-  },
-};
+  scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } },
+  plugins: { legend: { display: false }, tooltip: { titleFont: { weight: 600 } } },
+}));
 
-const chartData = ref({
-  labels: [t("status_1"), t("status_2"), t("status_3")],
-  datasets: [
-    {
-      label: t("requests"),
-      data: [0, 0, 0],
-      backgroundColor: ["#f39c12", "#2980b9", "#27ae60"],
-    },
-  ],
-});
-
-const chartOptions = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      position: "top",
-    },
-    title: {
-      display: true,
-      text: t("request_distribution"),
-    },
-  },
-};
-
-const fetchChartData = async () => {
+async function loadCounts() {
+  loading.value = true;
+  error.value = "";
   try {
-    const response = await axios.get("http://localhost:5005/api/Ticket/ticketstatuscount");
-    console.log("Chart data response:", response.data);
-    const counts = [0, 0, 0];
-
-    let total = 0;
-    response.data.forEach(item => {
-      if (item.status >= 1 && item.status <= 3) {
-        counts[item.status - 1] = item.count;
-        total += item.count;
-      }
-    });
-
-    totalRequests.value = total;
-    pendingRequests.value = counts[0];
-    inProgressRequests.value = counts[1];
-    completedRequests.value = counts[2];
-
-    doughnutData.value = {
-      ...doughnutData.value,
-      datasets: [
-        {
-          ...doughnutData.value.datasets[0],
-          data: [...counts],
-        },
-      ],
-    };
-
-    chartData.value = {
-      ...chartData.value,
-      datasets: [
-        {
-          ...chartData.value.datasets[0],
-          data: [...counts],
-        },
-      ],
-    };
-
-  } catch (error) {
-    console.error("Veri alınırken hata oluştu:", error);
+    counts.value = normalizeTicketCounts(await api.get("/api/Ticket/ticketstatuscount"));
+  } catch (requestError) {
+    error.value = requestError.message || t("errors.loadDashboard");
+  } finally {
+    loading.value = false;
   }
-};
+}
 
-const submitFeedback = async () => {
-  if (feedbackText.value.trim() === "") {
-    alert(t("feedback_empty_error"));
-    return;
-  }
-
-  try {
-    feedbackText.value = "";
-    alert(t("feedback_submitted_success"));
-  } catch (error) {
-    console.error("Error submitting feedback: ", error);
-    alert(t("feedback_submission_error"));
-  }
-};
-
-const showToast = (message, type) => {
-  const currentTime = Date.now();
-  const isMessageRecent = toastHistory.some(item =>
-      item.message === message && (currentTime - item.timestamp) < toastDelay
-  );
-
-  if (isMessageRecent) return;
-
-  if (toasts.value.length >= maxToasts) {
-    removeToast(0);
-  }
-
-  toasts.value.push({ message, type });
-
-  toastHistory.push({ message, timestamp: currentTime });
-
-  toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
-
-  setTimeout(() => removeToast(0), 1800);
-};
-
-const removeToast = (index) => {
-  const toast = document.querySelectorAll(".toast")[index];
-  if (toast) {
-    toast.classList.add("hide");
-    setTimeout(() => {
-      toasts.value.splice(index, 1);
-    }, 600);
-  }
-};
-
-onMounted(async () => {
-  await store.fetchUserRole();
-  await fetchChartData();
-});
+onMounted(loadCounts);
 </script>
 
 <style scoped>
-main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  text-align: center;
-  padding: 2rem;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-}
-
-.sign-in-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #28a745;
-  border: 2px solid #28a745;
-  border-radius: 0.25rem;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.sign-in-button:hover {
-  background-color: #28a745;
-  color: #fff;
-}
-
-.admin-dashboard,
-.User-dashboard {
-  width: 100%;
-  max-width: 1600px;
-  margin: 2rem auto;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: #fff;
-}
-
-.dashboard-item {
-  margin-bottom: 2rem;
-}
-
-.dashboard-item h3 {
-  margin: 0;
-}
-
-.dashboard-item p {
-  margin: 0.5rem 0;
-  font-size: 1.5rem;
-}
-
-.info-box-container {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
-.info-box {
-  flex: 1;
-  min-width: 200px;
-  padding: 1rem;
-  background-color: #f0f0f0;
-  border-radius: 0.5rem;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+.kpi-card { display: flex; align-items: center; gap: 1rem; min-height: 126px; padding: 1.25rem; }
+.kpi-icon { display: grid; place-items: center; width: 48px; height: 48px; flex: 0 0 48px; border-radius: 14px; color: var(--color-primary); background: var(--color-primary-soft); font-size: 1.25rem; }
+.kpi-icon--pending { color: #9a6700; background: #fff7d6; }
+.kpi-icon--inProgress { color: #03696b; background: #dff7f6; }
+.kpi-icon--completed { color: #166534; background: #dcfce7; }
+.kpi-label { margin: 0 0 .25rem; color: var(--color-text-muted); font-size: .875rem; }
+.kpi-value { color: var(--color-text); font-size: 1.75rem; line-height: 1; }
+.chart-card { padding: 1.5rem; }
+.chart-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+.chart-heading h2 { margin: 0 0 .25rem; font-size: 1.125rem; }
+.chart-heading p { margin: 0; color: var(--color-text-muted); }
+.chart-wrap { height: 320px; }
+.text-link { color: var(--color-primary); font-weight: 700; text-decoration: none; white-space: nowrap; }
 
-.info-box h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.25rem;
-}
-
-.info-box p {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.feedback-section {
-  margin-top: 2rem;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: #f0f0f0;
-}
-
-.feedback-textarea {
-  width: 100%;
-  min-height: 150px;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  resize: vertical;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #fff;
-  background-color: #007bff;
-  border: 2px solid #007bff;
-  border-radius: 0.25rem;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #00408a;
-}
-
-.chart-container {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 2rem;
-  width: 100%;
-}
-
-.chart-wrapper {
-  flex: 1;
-  min-width: 600px;
-  max-width: 800px;
-  height: 500px;
-}
-
-.toast-container {
-  position: fixed;
-  top: 3.2rem;
-  right: 1rem;
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.toast {
-  margin-top: 1rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
-  transform 0.3s ease-in-out,
-    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  pointer-events: all;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #f44336, #e57373);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
-
-.toast.hide {
-  opacity: 0;
-  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
-}
-
-.toast::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 100%;
-  border-radius: 0.5rem 0 0 0.5rem;
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-.toast .close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.toast .close-btn:hover {
-  color: #fff;
+@media (max-width: 1023px) { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .chart-heading { align-items: stretch; flex-direction: column; }
+  .chart-wrap { height: 280px; }
 }
 </style>

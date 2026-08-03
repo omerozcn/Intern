@@ -1,606 +1,189 @@
 <template>
+  <section>
+    <PageHeader :title="t('ticket.createTitle')" :description="t('ticket.createDescription')" />
 
-  <div class="container">
-    <div class="input-group mb-4">
-      <select
-          v-model="selectedProduct"
-          @change="handleProductChange"
-          class="form-select"
-          aria-label="Select a product"
-      >
-        <option value="" disabled>{{ $t("ticket.select_product") }}</option>
-        <option value="0">Yeni Ürün Talebi</option>
-        <option v-for="product in products" :key="product.id" :value="product">
-          {{ product.productName }}
-        </option>
-      </select>
-    </div>
+    <div class="form-layout">
+      <form class="surface-card ticket-form" novalidate @submit.prevent="submit">
+        <fieldset class="request-type">
+          <legend>{{ t('ticket.productType') }}</legend>
+          <label class="type-option" :class="{ active: !form.newProduct }">
+            <input v-model="form.newProduct" type="radio" :value="false" :disabled="busy" />
+            <span class="type-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+            <span>
+              <strong>{{ t('ticket.existingProduct') }}</strong>
+              <small>{{ t('ticket.existingProductHint') }}</small>
+            </span>
+          </label>
+          <label class="type-option" :class="{ active: form.newProduct }">
+            <input v-model="form.newProduct" type="radio" :value="true" :disabled="busy" />
+            <span class="type-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
+            <span>
+              <strong>{{ t('ticket.newProduct') }}</strong>
+              <small>{{ t('ticket.newProductHint') }}</small>
+            </span>
+          </label>
+        </fieldset>
 
-    <div v-if="newProductRequest || selectedProduct" class="mb-4">
-      <form @submit.prevent="handleClick">
-        <div class="form-floating">
-          <textarea
-              class="form-control"
-              placeholder="{{ $t('ticket.enter_request') }}"
-              id="floatingTextarea2"
-              style="height: 100px"
-              v-model="description"
-          ></textarea>
-          <label for="floatingTextarea2">{{ $t("ticket.your_request") }}</label>
-          <div v-if="trimmedRequest.length < 30" class="character-limit">
-            {{ trimmedRequest.length }} / 30
-          </div>
+        <div v-if="!form.newProduct" class="form-field">
+          <label for="ticket-product" class="form-label">{{ t('fields.product') }}</label>
+          <LoadingState v-if="productsLoading" compact :message="t('common.loading')" />
+          <ErrorState v-else-if="productsError" compact :message="productsError" @retry="loadProducts" />
+          <template v-else>
+            <select
+              id="ticket-product"
+              v-model="form.productId"
+              class="form-select"
+              :class="{ 'is-invalid': errors.productId }"
+              :disabled="busy || !products.length"
+            >
+              <option value="" disabled>{{ t('ticket.selectProduct') }}</option>
+              <option v-for="product in products" :key="product.id" :value="product.id">{{ product.name }}</option>
+            </select>
+            <div v-if="errors.productId" class="invalid-feedback">{{ errors.productId }}</div>
+            <p v-if="!products.length" class="form-text">{{ t('ticket.noProducts') }}</p>
+          </template>
         </div>
 
-        <div class="d-grid gap-2 col-6 mx-auto mb-4">
-          <button
-              class="btn btn-primary"
-              type="submit"
-              :disabled="!selectedProduct || trimmedRequest.length < 30"
-              style="
-              background-color: rgb(100, 116, 139);
-              border-color: rgb(100, 116, 139);
-              margin-top: 30px;
-            "
-          >
-            {{ $t("ticket.add_ticket") }}
+        <div class="form-field">
+          <div class="label-row">
+            <label for="ticket-description" class="form-label">{{ t('fields.description') }}</label>
+            <span :class="['character-count', { invalid: descriptionLength > 280 }]">{{ descriptionLength }}/280</span>
+          </div>
+          <textarea
+            id="ticket-description"
+            v-model="form.description"
+            class="form-control"
+            :class="{ 'is-invalid': errors.description }"
+            rows="7"
+            maxlength="280"
+            :placeholder="form.newProduct ? t('ticket.newPlaceholder') : t('ticket.descriptionPlaceholder')"
+            :aria-describedby="errors.description ? 'ticket-description-error' : 'ticket-description-help'"
+            :disabled="busy"
+          ></textarea>
+          <div v-if="errors.description" id="ticket-description-error" class="invalid-feedback">{{ errors.description }}</div>
+          <div v-else id="ticket-description-help" class="form-text">{{ t('ticket.descriptionHelp') }}</div>
+        </div>
+
+        <div class="form-actions">
+          <RouterLink class="btn btn-outline-secondary" to="/request">{{ t('ticket.viewMine') }}</RouterLink>
+          <button class="btn btn-primary" type="submit" :disabled="busy || productsLoading">
+            <span v-if="busy" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <i v-else class="bi bi-send" aria-hidden="true"></i>
+            {{ busy ? t('common.sending') : t('ticket.submit') }}
           </button>
         </div>
       </form>
-    </div>
 
-    <hr/>
-    <h1 class="mb-4">{{ $t("ticket.current_tickets") }}</h1>
-
-    <h2 class="mb-4" v-if="newProductTickets.length">Yeni Ürün Talepleri</h2>
-    <div class="mb-4" v-if="newProductTickets.length">
-      <ol class="list-group list-group-numbered">
-        <li
-            v-for="ticket in newProductTickets"
-            :key="ticket.id"
-            class="list-group-item d-flex justify-content-between align-items-start"
-            style="margin-bottom: 10px"
-        >
-          <div class="ms-2 me-auto text-break">
-            <div class="fw-bold text-break">
-              <strong>{{ $t("ticket.product") }}</strong
-              >{{ "Yeni Ürün Talebi" }}
-            </div>
-            <div class="text-break">
-              <strong>{{ $t("ticket.ticket") }}</strong
-              >{{ ticket.description }}
-            </div>
-            <div>
-              <strong>{{ $t("ticket.response") }}</strong>
-              {{ ticket.answer || $t("ticket.no_response_yet") }}
-            </div>
-            <div>
-              {{ $t("ticket.date") }}
-              {{ ticket.date ? ticket.date.toDate().toLocaleString() : "N/A" }}
-            </div>
-          </div>
-          <span
-              :class="['badge rounded-pill', ticketStatusClass(ticket.status)]"
-          >
-            {{ $t(`status.${ticket.status}`) }}
-          </span>
-          <span
-              v-if="ticket.status !== 'completed'"
-              @click="editTicket(ticket)"
-              class="badge bgen-warning mx-2"
-          >
-            <i class="bi bi-pencil"></i>
-          </span>
-          <span
-              @click="handleDelete(ticket.id)"
-              class="badge bg-danger mx-2"
-              :disabled="ticket.status === 3"
-          >
-            <i class="bi bi-x cursor-pointer"></i>
-          </span>
-        </li>
-      </ol>
-    </div>
-
-    <div
-        class="modal fade"
-        id="editModal"
-        tabindex="-1"
-        aria-labelledby="editModalLabel"
-        aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editModalLabel">Edit Ticket</h5>
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <textarea
-                v-model="editRequest"
-                class="form-control"
-                placeholder="Edit your request"
-            ></textarea>
-            <label for="floatingTextarea2">{{
-                $t("ticket.your_request")
-              }}</label>
-            <div v-if="trimmedRequest.length < 30" class="character-limit">
-              {{ trimmedRequest.length }} / 30
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-            >
-              Close
-            </button>
-            <button type="button" class="btn btn-primary" @click="submitEdit">
-              Save changes
-            </button>
-          </div>
+      <aside class="surface-card info-card">
+        <div class="info-icon"><i class="bi bi-lightbulb" aria-hidden="true"></i></div>
+        <h2>{{ t('ticket.tipsTitle') }}</h2>
+        <ul>
+          <li>{{ t('ticket.tipOne') }}</li>
+          <li>{{ t('ticket.tipTwo') }}</li>
+          <li>{{ t('ticket.tipThree') }}</li>
+        </ul>
+        <div v-if="auth.user?.firm" class="firm-note">
+          <span>{{ t('fields.firm') }}</span>
+          <strong>{{ auth.user.firm.name }}</strong>
         </div>
-      </div>
+      </aside>
     </div>
-
-    <h2 class="mb-4" v-if="existingProductTickets.length">
-      Mevcut Ürün Talepleri
-    </h2>
-    <div class="mb-4" v-if="existingProductTickets.length">
-      <ol class="list-group list-group-numbered">
-        <li
-            v-for="ticket in existingProductTickets"
-            :key="ticket.id"
-            class="list-group-item d-flex justify-content-between align-items-start"
-            style="margin-bottom: 10px"
-        >
-          <div class="ms-2 me-auto text-break">
-            <div class="fw-bold text-break">
-              <strong>{{ $t("product") }}: </strong> {{ ticket.productName }}
-            </div>
-            <div class="fw-bold text-break">
-              <strong>{{ $t("ticket.ticket") }}: </strong> {{ ticket.description }}
-            </div>
-            <div>
-              <strong>{{ $t("ticket.response") }}</strong>
-              {{ ticket.answer || $t("ticket.no_response_yet") }}
-            </div>
-            <div>
-              {{ $t("ticket.date") }}
-              {{ ticket.date ? ticket.date.toDate().toLocaleString() : "N/A" }}
-            </div>
-          </div>
-          <span
-              :class="['badge rounded-pill', ticketStatusClass(ticket.status)]"
-          >
-            {{ $t(`status.${ticket.status}`) }}
-          </span>
-          <span
-              v-if="ticket.status !== 'completed'"
-              @click="editTicket(ticket)"
-              class="badge bgen-warning mx-2"
-          >
-            <i class="bi bi-pencil"></i>
-          </span>
-          <span
-              @click="handleDelete(ticket.id)"
-              class="badge bg-danger mx-2"
-              :disabled="ticket.status === 3"
-          >
-            <i class="bi bi-x"></i>
-          </span>
-        </li>
-      </ol>
-    </div>
-  </div>
+  </section>
 </template>
 
-<script>
-import {ref, computed, onMounted} from "vue";
-import axios from "axios";
+<script setup>
+import { computed, onMounted, reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import PageHeader from "@/components/PageHeader.vue";
+import LoadingState from "@/components/LoadingState.vue";
+import ErrorState from "@/components/ErrorState.vue";
+import { api } from "@/services/api";
+import { useAuthStore } from "@/stores/auth";
+import { useToastStore } from "@/stores/toast";
 
-export default {
-  setup() {
-    const description = ref("");
-    const tickets = ref([]);
-    const products = ref([]);
-    const selectedProduct = ref("");
-    const selectedTicket = ref(null);
-    const answer = ref("");
-    const editRequest = ref("");
-    const toasts = ref([]);
-    const maxToasts = 3;
-    let toastHistory = [];
-    const toastDelay = 3000;
-    const newProductRequest = ref(false);
-    const newProductTickets = ref([]);
-    const existingProductTickets = ref([]);
-    const trimmedRequest = computed(() =>
-        description.value.replace(/\s+/g, "").trim()
-    );
-    const trimmedEditRequest = computed(() =>
-        editRequest.value.replace(/\s+/g, "").trim()
-    );
+const { t } = useI18n();
+const auth = useAuthStore();
+const toast = useToastStore();
+const products = ref([]);
+const productsLoading = ref(true);
+const productsError = ref("");
+const busy = ref(false);
+const form = reactive({ description: "", newProduct: false, productId: "" });
+const errors = reactive({ description: "", productId: "" });
+const descriptionLength = computed(() => form.description.length);
 
-    const handleProductChange = () => {
-      newProductRequest.value = selectedProduct.value === "1";
-    };
+watch(() => form.newProduct, (newProduct) => {
+  errors.productId = "";
+  if (newProduct) form.productId = "";
+});
 
-    const handleClick = async () => {
-      let newProducts = false;
-      if(selectedProduct.value === "0")
-        newProducts = true;
-      console.log(selectedProduct)
-      const query = {
-        description: description.value,
-        newProduct: newProducts,
-        createdBy: sessionStorage.getItem("firstName"),
-        status: 1,
-        firmName: sessionStorage.getItem("firmName"),
-        productId: (selectedProduct.value.id)
-      }
-      console.log(query.productId);
-      try {
-        const response = await axios.post('http://localhost:5005/api/Ticket/createTicket',
-            query
-        );
+async function loadProducts() {
+  productsLoading.value = true;
+  productsError.value = "";
+  try {
+    const result = await api.get("/api/Firmproduct/listProductsForCurrentUser");
+    products.value = (result ?? []).map((item) => ({
+      id: Number(item.id ?? item.productId),
+      name: item.name ?? item.productName,
+    })).filter((item) => item.id && item.name);
+  } catch (error) {
+    productsError.value = error.message || t("errors.loadProducts");
+  } finally {
+    productsLoading.value = false;
+  }
+}
 
-        selectedProduct.value = "";
-        fetchTickets();
-        newProductRequest.value = false;
-        return response;
-      } catch (error) {
-        console.error('Error creating ticket: ', error);
-      }
-    };
+function validate() {
+  const textLength = form.description.trim().length;
+  errors.description = textLength < 30 || textLength > 280 ? t("validation.descriptionLength") : "";
+  errors.productId = !form.newProduct && !form.productId ? t("validation.selectProduct") : "";
+  return !errors.description && !errors.productId;
+}
 
-    const fetchTickets = async () => {
-      try {
-        tickets.value = [];
-        newProductTickets.value = [];
-        existingProductTickets.value = [];
-
-        const response = await axios.get(
-            "http://localhost:5005/api/Ticket/listTicket"
-        );
-          tickets.value = response.data.map((ticket) => ({
-            id: ticket.id,
-            newProduct: ticket.newProduct,
-            description: ticket.description,
-            date: ticket.updated ? new Date(ticket.updated) : null,
-            answer: ticket.answer,
-            status: ticket.status || 1,
-            firmName: ticket.firmName,
-            productName: ticket.productName,
-          }));
-
-        if (tickets.value.length === 0 || "") {
-          showToast("Hiç talep bulunamadı.", "info");
-        } else {
-          showToast("Talepler başarıyla yüklendi!", "success");
-        }
-
-        return tickets.value;
-      } catch (error) {
-        console.error("Error fetching tickets:", error);
-      }
-    };
-
-    const fetchProducts = async () => {
-      const firmname = sessionStorage.getItem("firmName");
-      try {
-        const productResponse = await axios.get(
-            `http://localhost:5005/api/FirmProduct/listProductsByFirm/${firmname}`
-        );
-        const productsData = productResponse.data;
-
-        products.value = productsData.map((product) => ({
-          id: product.id,
-          productName: product.productName,
-        }));
-        console.log(products.value);
-
-        showToast("Ürünler başarıyla yüklendi.", "success");
-      } catch (error) {
-        console.error(
-            "Veri çekme sırasında bir hata oluştu:",
-            error.response?.data || error.message
-        );
-        showToast(
-            "Veri çekme sırasında bir hata oluştu. Lütfen tekrar deneyin.",
-            "error"
-        );
-      }
-    };
-
-    const handleDelete = async (id) => {
-      await deleteDoc(doc(db, "tickets", id));
-      fetchTickets();
-    };
-
-    const updateTicketStatus = async (ticket, newStatus) => {
-      if (ticket.status !== "completed") {
-        await updateDoc(doc(db, "tickets", ticket.id), {status: newStatus});
-        fetchTickets();
-      }
-    };
-
-    const editTicket = (ticket) => {
-      if (ticket.status !== "completed") {
-        selectedTicket.value = ticket;
-        editRequest.value = ticket.description;
-        const modalElement = document.getElementById("editModal");
-        const modal = new bootstrap.Modal(modalElement);
-        modal.show();
-      }
-    };
-
-    const submitEdit = async () => {
-      if (
-          selectedTicket.value &&
-          trimmedEditRequest.value.length >= 30 &&
-          selectedTicket.value.status !== "completed"
-      ) {
-        await updateDoc(doc(db, "tickets", selectedTicket.value.id), {
-          description: editRequest.value,
-        });
-        fetchTickets();
-        const modal = bootstrap.Modal.getInstance(
-            document.getElementById("editModal")
-        );
-        modal.hide();
-        selectedTicket.value = null;
-        editRequest.value = "";
-      }
-    };
-
-    const showToast = (message, type) => {
-      const currentTime = Date.now();
-      const isMessageRecent = toastHistory.some(item =>
-          item.message === message && (currentTime - item.timestamp) < toastDelay
-      );
-
-      if (isMessageRecent) return;
-
-      if (toasts.value.length >= maxToasts) {
-        removeToast(0);
-      }
-
-      toasts.value.push({ message, type });
-
-      toastHistory.push({ message, timestamp: currentTime });
-
-      toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
-
-      setTimeout(() => removeToast(0), 1800);
-    };
-
-    const removeToast = (index) => {
-      const toast = document.querySelectorAll(".toast")[index];
-      if (toast) {
-        toast.classList.add("hide");
-        setTimeout(() => {
-          toasts.value.splice(index, 1);
-        }, 600);
-      }
-    };
-
-    onMounted(async () => {
-      await fetchTickets();
-      await fetchProducts();
+async function submit() {
+  if (!validate() || busy.value) return;
+  busy.value = true;
+  try {
+    await api.post("/api/Ticket/createTicket", {
+      description: form.description.trim(),
+      newProduct: form.newProduct,
+      productId: form.newProduct ? null : Number(form.productId),
     });
+    form.description = "";
+    form.productId = "";
+    form.newProduct = false;
+    toast.success(t("ticket.created"));
+  } catch (error) {
+    toast.error(error.message || t("errors.createTicket"));
+  } finally {
+    busy.value = false;
+  }
+}
 
-    const ticketStatusClass = (status) => {
-      return {
-        "bg-warning": status === "pending",
-        "bg-info": status === "inProgress",
-        "bg-success": status === "completed",
-      };
-    };
-
-    return {
-      description,
-      handleClick,
-      tickets,
-      products,
-      selectedProduct,
-      handleDelete,
-      updateTicketStatus,
-      selectedTicket,
-      editTicket,
-      fetchTickets,
-      fetchProducts,
-      editRequest,
-      submitEdit,
-      removeToast,
-      showToast,
-      ticketStatusClass,
-      trimmedRequest,
-      trimmedEditRequest,
-      newProductRequest,
-      handleProductChange,
-      newProductTickets,
-      existingProductTickets,
-    };
-  },
-};
+onMounted(loadProducts);
 </script>
 
 <style scoped>
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #333;
-}
-
-input,
-select,
-textarea {
-  border-radius: 5px;
-}
-
-.form-select,
-.form-control {
-  border: 1px solid #ced4da;
-  border-radius: 5px;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
-}
-
-.btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: #fff;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.character-limit {
-  font-size: 14px;
-  color: #6c757d;
-}
-
-.modal-dialog {
-  display: flex;
-  align-items: center;
-}
-
-.modal-content {
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.modal-header {
-  background-color: #3a4856;
-  color: #fff;
-}
-
-.modal-body {
-  padding: 20px;
-}
-
-.bg-warning {
-  background-color: #ffc107 !important;
-}
-
-.bg-info {
-  background-color: #17a2b8 !important;
-}
-
-.bg-success {
-  background-color: #28a745 !important;
-}
-
-.badge {
-  border-radius: 50px;
-  padding: 0.5rem 1rem;
-}
-
-.badge.bg-warning {
-  background-color: #ffc107;
-}
-
-.badge.bg-danger {
-  background-color: #dc3545;
-}
-
-.bgen-warning {
-  background-color: gray;
-}
-
-.toast-container {
-  position: fixed;
-  top: 3.2rem;
-  right: 1rem;
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.toast {
-  margin-top: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
-  transform 0.3s ease-in-out,
-    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  pointer-events: all;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #f44336, #e57373);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
-
-.toast.hide {
-  opacity: 0;
-  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
-}
-
-.toast::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 100%;
-  border-radius: 0.5rem 0 0 0.5rem;
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-.toast .close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.toast .close-btn:hover {
-  color: #fff;
-}
+.form-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); align-items: start; gap: 1.5rem; }
+.ticket-form, .info-card { padding: clamp(1.25rem, 3vw, 2rem); }
+.request-type { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 0 0 1.5rem; padding: 0; border: 0; }
+.request-type legend { grid-column: 1 / -1; margin-bottom: .5rem; font-size: .875rem; font-weight: 700; }
+.type-option { position: relative; display: flex; align-items: center; gap: .75rem; min-height: 92px; padding: 1rem; border: 1px solid var(--color-border); border-radius: 14px; cursor: pointer; }
+.type-option.active { border-color: var(--color-primary); background: var(--color-primary-soft); box-shadow: 0 0 0 1px var(--color-primary); }
+.type-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.type-option:focus-within { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.type-option strong, .type-option small { display: block; }
+.type-option small { margin-top: .2rem; color: var(--color-text-muted); }
+.type-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; color: var(--color-primary); background: white; font-size: 1.1rem; }
+.form-field { margin-bottom: 1.5rem; }
+.label-row { display: flex; justify-content: space-between; gap: 1rem; }
+.character-count { color: var(--color-text-muted); font-size: .8rem; }
+.character-count.invalid { color: var(--bs-danger); }
+.form-actions { display: flex; justify-content: flex-end; gap: .75rem; padding-top: .5rem; }
+.info-icon { display: grid; place-items: center; width: 48px; height: 48px; margin-bottom: 1rem; border-radius: 14px; color: var(--color-primary); background: var(--color-primary-soft); font-size: 1.25rem; }
+.info-card h2 { font-size: 1.1rem; }
+.info-card ul { display: grid; gap: .75rem; padding-left: 1.25rem; color: var(--color-text-muted); }
+.firm-note { display: flex; flex-direction: column; gap: .2rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--color-border); }
+.firm-note span { color: var(--color-text-muted); font-size: .8rem; }
+@media (max-width: 767px) { .form-layout { grid-template-columns: 1fr; } .request-type { grid-template-columns: 1fr; } .form-actions { flex-direction: column-reverse; } .form-actions .btn { width: 100%; } }
 </style>

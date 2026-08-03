@@ -1,374 +1,207 @@
 <template>
-  <div v-if="toasts.length > 0" class="toast-container">
-    <div
-        v-for="(toast, index) in toasts"
-        :key="index"
-        :class="['toast', toast.type, 'show']"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-    >
-      <div class="toast-body">
-        {{ toast.message }}
-        <button class="close-btn" @click="removeToast(index)">&times;</button>
+  <div class="auth-page">
+    <section class="auth-card" aria-labelledby="login-title">
+      <div class="auth-brand">
+        <img :src="logo" alt="Turkuvaz" />
+        <span>{{ t('app.name') }}</span>
       </div>
-    </div>
-  </div>
-  <main class="form-signin m-auto w-100">
-    <div class="row">
-      <div class="col-12">
-        <p class="lead mb-4" style="margin-top: 85px">
-          {{ $t("login.title") }}
-        </p>
-        <div class="form-floating mb-3">
-          <input
-              type="email"
-              class="form-control form-control-lg"
-              id="floatingInput"
-              placeholder="{{ $t('login.email') }}"
-              v-model="email"
-              required
-          />
-          <label for="floatingInput">{{ $t("login.email") }}</label>
-        </div>
-        <div class="form-floating mb-4">
-          <input
-              type="password"
-              class="form-control form-control-lg"
-              id="floatingPassword"
-              placeholder="{{ $t('login.password') }}"
-              v-model="password"
-              @keyup.enter="signIn"
-          />
-          <label for="floatingPassword">{{ $t("login.password") }}</label>
-        </div>
-        <button
-            @click="showForgotPasswordModal"
-            class="btn btn-link mt-3 w-100 forgot-password-link"
-        >
-          {{ $t("login.forgot_password") }}
-        </button>
-        <PvButton
-            :label="$t('login.sign_in')"
-            icon="pi pi-User"
-            severity="secondary"
-            class="rounded w-75"
-            @click="signIn"
-        />
-      </div>
-    </div>
 
-    <div
-        v-if="errMsg"
-        class="toast align-items-center text-bg-danger border-0 show"
-        role="alert"
-    >
-      <div class="d-flex">
-        <div class="toast-body">{{ errMsg }}</div>
-        <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            @click="errMsg = ''"
-            aria-label="Close"
-        ></button>
-      </div>
-    </div>
+      <template v-if="!forgotMode">
+        <div class="auth-heading">
+          <p class="eyebrow">{{ t('app.tagline') }}</p>
+          <h1 id="login-title">{{ t('auth.signIn.title') }}</h1>
+          <p>{{ t('auth.signIn.description') }}</p>
+        </div>
 
-    <div
-        v-if="isForgotPasswordModalVisible"
-        class="modal fade show"
-        tabindex="-1"
-        style="display: block"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              {{ $t("login.forgot_password_modal_title") }}
-            </h5>
-            <button
-                type="button"
-                class="btn-close"
-                @click="hideForgotPasswordModal"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p>{{ $t("login.forgot_password_modal_body") }}</p>
+        <form novalidate @submit.prevent="submitLogin">
+          <div class="form-field">
+            <label for="login-email" class="form-label">{{ t('auth.signIn.email') }}</label>
             <input
-                type="email"
-                class="form-control"
-                v-model="forgotPasswordEmail"
-                placeholder="E-Mail"
+              id="login-email"
+              v-model.trim="credentials.email"
+              class="form-control"
+              :class="{ 'is-invalid': errors.email }"
+              type="email"
+              autocomplete="username"
+              inputmode="email"
+              :aria-describedby="errors.email ? 'login-email-error' : undefined"
+              :disabled="busy"
             />
+            <div v-if="errors.email" id="login-email-error" class="invalid-feedback">{{ errors.email }}</div>
           </div>
-          <div class="modal-footer">
-            <button
+
+          <div class="form-field">
+            <label for="login-password" class="form-label">{{ t('auth.signIn.password') }}</label>
+            <div class="password-field">
+              <input
+                id="login-password"
+                v-model="credentials.password"
+                class="form-control"
+                :class="{ 'is-invalid': errors.password }"
+                :type="showPassword ? 'text' : 'password'"
+                autocomplete="current-password"
+                :aria-describedby="errors.password ? 'login-password-error' : undefined"
+                :disabled="busy"
+              />
+              <button
                 type="button"
-                class="btn btn-secondary"
-                @click="hideForgotPasswordModal"
-            >
-              {{ $t("login.cancel") }}
-            </button>
-            <button
-                type="button"
-                class="btn btn-primary"
-                @click="resetPassword"
-            >
-              {{ $t("login.reset_password") }}
-            </button>
+                class="password-toggle"
+                :aria-label="showPassword ? t('auth.signIn.hidePassword') : t('auth.signIn.showPassword')"
+                :aria-pressed="showPassword"
+                @click="showPassword = !showPassword"
+              >
+                <i :class="showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div v-if="errors.password" id="login-password-error" class="invalid-feedback d-block">{{ errors.password }}</div>
           </div>
+
+          <div class="auth-row">
+            <button type="button" class="link-button" @click="openForgot">{{ t('auth.signIn.forgotPassword') }}</button>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg w-100" :disabled="busy">
+            <span v-if="busy" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            {{ busy ? t('common.loading') : t('auth.signIn.submit') }}
+          </button>
+        </form>
+      </template>
+
+      <template v-else>
+        <div class="auth-heading">
+          <p class="eyebrow">{{ t('app.tagline') }}</p>
+          <h1 id="login-title">{{ t('auth.forgot.title') }}</h1>
+          <p>{{ forgotSent ? t('auth.forgot.accepted') : t('auth.forgot.description') }}</p>
         </div>
-      </div>
-    </div>
-  </main>
+
+        <div v-if="forgotSent" class="notice notice--success" role="status">
+          <i class="bi bi-envelope-check" aria-hidden="true"></i>
+          <span>{{ t('auth.forgot.accepted') }}</span>
+        </div>
+
+        <form v-else novalidate @submit.prevent="submitForgotPassword">
+          <div class="form-field">
+            <label for="forgot-email" class="form-label">{{ t('auth.signIn.email') }}</label>
+            <input
+              id="forgot-email"
+              v-model.trim="forgotEmail"
+              class="form-control"
+              :class="{ 'is-invalid': forgotError }"
+              type="email"
+              autocomplete="email"
+              inputmode="email"
+              :disabled="busy"
+            />
+            <div v-if="forgotError" class="invalid-feedback">{{ forgotError }}</div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg w-100" :disabled="busy">
+            <span v-if="busy" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            {{ busy ? t('common.sending') : t('auth.forgot.submit') }}
+          </button>
+        </form>
+
+        <button type="button" class="btn btn-link auth-back" :disabled="busy" @click="closeForgot">
+          <i class="bi bi-arrow-left" aria-hidden="true"></i>
+          {{ t('common.cancel') }}
+        </button>
+      </template>
+    </section>
+  </div>
 </template>
 
 <script setup>
-import {ref} from "vue";
-import {useRouter} from "vue-router";
-import axios from "axios";
-import { useUserStore } from '../stores/UserStore.js';
+import { reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
+import logo from "@/assets/Turkuvaz Logo.png";
+import { api } from "@/services/api";
+import { useAuthStore } from "@/stores/auth";
+import { useToastStore } from "@/stores/toast";
 
-const email = ref("");
-const password = ref("");
-const errMsg = ref("");
-const token = sessionStorage.getItem("token");
-const toasts = ref([]);
-const store = useUserStore();
-const isAuthenticated = ref();
-const userRole = ref();
-const isForgotPasswordModalVisible = ref(false);
-const forgotPasswordEmail = ref("");
-const maxToasts = 3;
-let toastHistory = [];
-const toastDelay = 3000;
-
+const { t } = useI18n();
+const route = useRoute();
 const router = useRouter();
+const auth = useAuthStore();
+const toast = useToastStore();
 
+const credentials = reactive({ email: "", password: "" });
+const errors = reactive({ email: "", password: "" });
+const showPassword = ref(false);
+const busy = ref(false);
+const forgotMode = ref(false);
+const forgotEmail = ref("");
+const forgotError = ref("");
+const forgotSent = ref(false);
 
-const signIn = async () => {
-  const loginDto = {email: email.value, password: password.value};
+function validEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function validateLogin() {
+  errors.email = validEmail(credentials.email) ? "" : t("validation.email");
+  errors.password = credentials.password ? "" : t("validation.required");
+  return !errors.email && !errors.password;
+}
+
+async function submitLogin() {
+  if (!validateLogin() || busy.value) return;
+  busy.value = true;
   try {
-    const response = await axios.post(
-        "http://localhost:5005/api/account/login",
-        loginDto
-    );
-
-    if (response.data.token) {
-      sessionStorage.setItem("token", response.data.token);
-      sessionStorage.setItem("email", response.data.email);
-      sessionStorage.setItem("userName", response.data.userName);
-      sessionStorage.setItem("firstName", response.data.firstName);
-      sessionStorage.setItem("lastName", response.data.lastName);
-      sessionStorage.setItem("firmName", response.data.firmName);
-      showToast("Giriş başarılı! Ana sayfaya yönlendiriliyorsunuz...", "info");
-
-      setTimeout(async () => {
-        await store.fetchUserRole();
-        isAuthenticated.value = store.isAuthenticated;
-        userRole.value = store.userRole;
-        await router.push("/");
-      }, 2000);
-    }
-  } catch (e) {
-    if (e.response && e.response.status === 401) {
-
-      showToast("E-posta veya şifre hatalı. Lütfen tekrar deneyin.", "error");
-    } else if (e.response && e.response.status === 400 || (email.value || password.value === null) ) {
-
-      showToast("Giriş bilgileri eksik veya hatalı. Lütfen tüm alanları doldurun ve tekrar deneyin.", "warning");
-    } else if (e.response && e.response.status === 500) {
-
-      showToast("Sunucu hatası! Lütfen daha sonra tekrar deneyin.", "warning");
-    } else {
-
-      showToast("Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin.", "error");
-    }
-    console.error("Error during login:", e);
-  }
-};
-
-const showForgotPasswordModal = () => {
-  isForgotPasswordModalVisible.value = true;
-};
-
-const hideForgotPasswordModal = () => {
-  isForgotPasswordModalVisible.value = false;
-  forgotPasswordEmail.value = "";
-};
-
-const resetPassword = async () => {
-  if (!forgotPasswordEmail.value) {
-    errMsg.value = $t("login.error.generic");
-    return;
-  }
-
-  try {
-    await sendPasswordResetEmail(auth, forgotPasswordEmail.value);
-    hideForgotPasswordModal();
-    alert($t("login.password_reset_email_sent"));
+    await auth.login({ ...credentials });
+    const returnUrl = typeof route.query.returnUrl === "string" && route.query.returnUrl.startsWith("/")
+      ? route.query.returnUrl
+      : "/";
+    await router.replace(returnUrl);
   } catch (error) {
-    handleAuthError(error);
+    toast.error(error.message || t("errors.login"));
+  } finally {
+    busy.value = false;
   }
-};
+}
 
-const showToast = (message, type) => {
-  const currentTime = Date.now();
-  const isMessageRecent = toastHistory.some(item =>
-      item.message === message && (currentTime - item.timestamp) < toastDelay
-  );
+function openForgot() {
+  forgotEmail.value = credentials.email;
+  forgotError.value = "";
+  forgotSent.value = false;
+  forgotMode.value = true;
+}
 
-  if (isMessageRecent) return;
+function closeForgot() {
+  forgotMode.value = false;
+  forgotSent.value = false;
+}
 
-  if (toasts.value.length >= maxToasts) {
-    removeToast(0);
+async function submitForgotPassword() {
+  forgotError.value = validEmail(forgotEmail.value) ? "" : t("validation.email");
+  if (forgotError.value || busy.value) return;
+  busy.value = true;
+  try {
+    await api.post("/api/account/forgot-password", { email: forgotEmail.value });
+    forgotSent.value = true;
+  } catch (error) {
+    toast.error(error.message || t("errors.generic"));
+  } finally {
+    busy.value = false;
   }
-
-  toasts.value.push({ message, type });
-
-  toastHistory.push({ message, timestamp: currentTime });
-
-  toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
-
-  setTimeout(() => removeToast(0), 1800);
-};
-
-const removeToast = (index) => {
-  const toast = document.querySelectorAll(".toast")[index];
-  if (toast) {
-    toast.classList.add("hide");
-    setTimeout(() => {
-      toasts.value.splice(index, 1);
-    }, 600);
-  }
-};
-
-
+}
 </script>
 
 <style scoped>
-.form-signin {
-  text-align: center;
-  font-family: "Arial", sans-serif;
-  font-size: 1rem;
-  margin: 180px auto 0;
-  max-width: 400px;
-}
-
-.lead {
-  font-size: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.form-floating {
-  position: relative;
-  margin-bottom: 1.5rem;
-}
-
-.btn-link {
-  color: #007bff;
-  font-weight: bold;
-}
-
-.btn-link:hover {
-  color: #0056b3;
-}
-
-.toast {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.modal.show {
-  display: block;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.modal-content {
-  border-radius: 0.375rem;
-}
-
-.modal-header .btn-close {
-  filter: invert(1);
-}
-
-.forgot-password-link {
-  display: block;
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
-
-.toast-container {
-  position: fixed;
-  top: 3.2rem;
-  right: 1rem;
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.toast {
-  margin-top: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
-  transform 0.3s ease-in-out,
-    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  pointer-events: all;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #f44336, #e57373);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
-
-.toast.hide {
-  opacity: 0;
-  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
-}
-
-.toast::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 100%;
-  border-radius: 0.5rem 0 0 0.5rem;
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-.toast .close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.toast .close-btn:hover {
-  color: #fff;
-}
+.auth-page { min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem; background: radial-gradient(circle at top right, #d9f3f1 0, transparent 36%), var(--color-page); }
+.auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--color-border); border-radius: 20px; background: #fff; box-shadow: 0 24px 60px rgba(15, 42, 51, .11); }
+.auth-brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--color-text); font-weight: 800; }
+.auth-brand img { width: 46px; height: 46px; object-fit: contain; }
+.auth-heading { margin-bottom: 1.75rem; }
+.auth-heading h1 { margin: .2rem 0 .5rem; font-size: clamp(1.75rem, 7vw, 2.25rem); }
+.auth-heading p:not(.eyebrow) { margin: 0; color: var(--color-text-muted); }
+.eyebrow { margin: 0; color: var(--color-primary); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.form-field { margin-bottom: 1.25rem; }
+.password-field { position: relative; }
+.password-field .form-control { padding-right: 3.25rem; }
+.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--color-text-muted); background: transparent; }
+.auth-row { display: flex; justify-content: flex-end; margin: -.25rem 0 1.25rem; }
+.link-button { min-height: 44px; padding: .5rem 0; border: 0; color: var(--color-primary); background: none; font-weight: 700; }
+.notice { display: flex; gap: .75rem; padding: 1rem; border-radius: 12px; }
+.notice--success { color: #166534; background: #dcfce7; }
+.auth-back { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; }
 </style>

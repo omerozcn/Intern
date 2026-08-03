@@ -1,259 +1,109 @@
 <template>
-  <div class="main">
-    <div class="feedback-section">
-      <h2>{{ $t("submit_feedback") }}</h2>
-      <textarea
-          v-model="newfeedbackContent"
-          placeholder="Enter your feedback here..."
-          class="feedback-textarea"
-      ></textarea>
-      <button
-          @click="submitFeedback"
-          class="btn btn-primary"
-          :style="{ backgroundColor: '#64748b', borderColor: '#64748b' }"
-      >
-        {{ $t("submit") }}
-      </button>
-    </div>
-    <!-- Toast Mesajları -->
-    <div v-if="toasts.length > 0" class="toast-container">
-      <div
-          v-for="(toast, index) in toasts"
-          :key="index"
-          :class="['toast', toast.type, 'show']"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-      >
-        <div class="toast-body">
-          {{ toast.message }}
-          <button class="close-btn" @click="removeToast(index)">&times;</button>
+  <section>
+    <PageHeader :title="t('feedback.sendTitle')" :description="t('feedback.sendDescription')" />
+
+    <div class="feedback-layout">
+      <div class="surface-card feedback-card">
+        <div v-if="submitted" class="success-state" role="status">
+          <span><i class="bi bi-check2" aria-hidden="true"></i></span>
+          <h2>{{ t('feedback.thankYou') }}</h2>
+          <p>{{ t('feedback.thankYouDescription') }}</p>
+          <button type="button" class="btn btn-outline-primary" @click="reset">{{ t('feedback.sendAnother') }}</button>
         </div>
+
+        <form v-else novalidate @submit.prevent="submit">
+          <div class="form-field">
+            <div class="label-row">
+              <label for="feedback-content" class="form-label">{{ t('feedback.message') }}</label>
+              <span :class="{ invalid: form.content.length > 1000 }">{{ form.content.length }}/1000</span>
+            </div>
+            <textarea
+              id="feedback-content"
+              v-model="form.content"
+              class="form-control"
+              :class="{ 'is-invalid': contentError }"
+              rows="9"
+              maxlength="1000"
+              :placeholder="t('feedback.placeholder')"
+              :aria-describedby="contentError ? 'feedback-error' : 'feedback-help'"
+              :disabled="busy"
+            ></textarea>
+            <div v-if="contentError" id="feedback-error" class="invalid-feedback">{{ contentError }}</div>
+            <div v-else id="feedback-help" class="form-text">{{ t('feedback.messageHint') }}</div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" :disabled="busy">
+              <span v-if="busy" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+              <i v-else class="bi bi-send" aria-hidden="true"></i>
+              {{ busy ? t('common.sending') : t('feedback.submit') }}
+            </button>
+          </div>
+        </form>
       </div>
+
+      <aside class="surface-card privacy-card">
+        <span class="privacy-icon"><i class="bi bi-chat-heart" aria-hidden="true"></i></span>
+        <h2>{{ t('feedback.whyTitle') }}</h2>
+        <p>{{ t('feedback.whyDescription') }}</p>
+        <ul>
+          <li><i class="bi bi-check-circle" aria-hidden="true"></i>{{ t('feedback.pointOne') }}</li>
+          <li><i class="bi bi-check-circle" aria-hidden="true"></i>{{ t('feedback.pointTwo') }}</li>
+          <li><i class="bi bi-check-circle" aria-hidden="true"></i>{{ t('feedback.pointThree') }}</li>
+        </ul>
+      </aside>
     </div>
-  </div>
+  </section>
 </template>
 
-<script>
-import {onMounted, ref} from "vue";
-import axios from "axios";
+<script setup>
+import { reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import PageHeader from "@/components/PageHeader.vue";
+import { api } from "@/services/api";
+import { useToastStore } from "@/stores/toast";
 
-export default {
+const { t } = useI18n();
+const toast = useToastStore();
+const form = reactive({ content: "" });
+const contentError = ref("");
+const busy = ref(false);
+const submitted = ref(false);
 
-  setup() {
-    const newfeedbackContent = ref();
-    const toasts = ref([]);
-    const maxToasts = 3;
-    let toastHistory = [];
-    const toastDelay = 3000;
+async function submit() {
+  const length = form.content.trim().length;
+  contentError.value = length < 10 || length > 1000 ? t("validation.feedbackLength") : "";
+  if (contentError.value || busy.value) return;
+  busy.value = true;
+  try {
+    await api.post("/api/Feedback/createFeedback", { feedbackContent: form.content.trim() });
+    submitted.value = true;
+    form.content = "";
+  } catch (error) {
+    toast.error(error.message || t("errors.sendFeedback"));
+  } finally {
+    busy.value = false;
+  }
+}
 
-    const showToast1 = async () => {
-      showToast("Geri bildiriminizi yazın.", "success");
-      return;
-    }
-    const submitFeedback = async () => {
-      try {
-        if (
-            !newfeedbackContent.value ||
-            newfeedbackContent.value.trim() === ""
-        ) {
-          showToast(
-              "Geri bildirim içeriği boş olamaz. Lütfen bir şeyler yazın.",
-              "warning"
-          );
-          return;
-        }
-        const newFeedbackData = {feedbackContent: newfeedbackContent.value};
-
-        const response = await axios.post(
-            "http://localhost:5005/api/Feedback/createFeedback",
-            newFeedbackData
-        );
-        showToast("Geri bildirim başarıyla gönderildi!", "success");
-      } catch (error) {
-        console.error(
-            "Geri bildirim oluşturulurken bir hata oluştu:",
-            error.response?.data || error.message
-        );
-
-        if (error.response?.data?.errors) {
-          console.error("Doğrulama Hataları:", error.response.data.errors);
-        }
-        console.error("Tam Hata Detayları:", error);
-
-        showToast(
-            "Geri bildirim gönderilirken bir hata oluştu. Lütfen tekrar deneyin.",
-            "error"
-        );
-      }
-    };
-
-    const showToast = (message, type) => {
-      const currentTime = Date.now();
-      const isMessageRecent = toastHistory.some(item =>
-          item.message === message && (currentTime - item.timestamp) < toastDelay
-      );
-
-      if (isMessageRecent) return;
-
-      if (toasts.value.length >= maxToasts) {
-        removeToast(0);
-      }
-
-      toasts.value.push({ message, type });
-
-      toastHistory.push({ message, timestamp: currentTime });
-
-      toastHistory = toastHistory.filter(item => currentTime - item.timestamp < toastDelay);
-
-      setTimeout(() => removeToast(0), 1800);
-    };
-
-    const removeToast = (index) => {
-      const toast = document.querySelectorAll(".toast")[index];
-      if (toast) {
-        toast.classList.add("hide");
-        setTimeout(() => {
-          toasts.value.splice(index, 1);
-        }, 600);
-      }
-    };
-
-    return {
-      submitFeedback,
-      showToast1,
-      showToast,
-      newfeedbackContent,
-      toasts,
-    };
-  },
-};
+function reset() { submitted.value = false; contentError.value = ""; }
 </script>
 
 <style scoped>
-.main {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: white;
-  padding: 3rem;
-}
-
-.feedback-section {
-  padding: 3rem;
-  border: 1px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: #f0f0f0;
-  width: 100%;
-  max-width: 1000px;
-  text-align: center;
-}
-
-.feedback-section h2 {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-}
-
-.feedback-textarea {
-  width: 100%;
-  min-height: 250px;
-  padding: 1.5rem;
-  font-size: 1.5rem;
-  border: 1px solid #ccc;
-  border-radius: 0.25rem;
-  resize: vertical;
-  margin-bottom: 2rem;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem 3rem;
-  font-size: 1.75rem;
-  font-weight: bold;
-  color: #fff;
-  border-radius: 0.25rem;
-  text-decoration: none;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.toast-container {
-  position: fixed;
-  top: 3.2rem;
-  right: 1rem;
-  z-index: 1050;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: none;
-}
-
-.toast {
-  margin-top: 0.5rem;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  color: #fff;
-  font-size: 1rem;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  opacity: 0;
-  transform: translateX(100%) scale(0.9);
-  transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease,
-  transform 0.3s ease-in-out,
-    /* Added transition for scaling */ background 1s ease; /* Smooth background transition */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  pointer-events: all;
-}
-
-.toast.success {
-  background: linear-gradient(135deg, #4caf50, #81c784);
-}
-
-.toast.error {
-  background: linear-gradient(135deg, #f44336, #e57373);
-}
-
-.toast.show {
-  opacity: 1;
-  transform: translateX(0) scale(1);
-}
-
-.toast.hide {
-  opacity: 0;
-  transform: translateX(100%) scale(0.8); /* Shrinks while fading out */
-}
-
-.toast::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-  width: 5px;
-  height: 100%;
-  border-radius: 0.5rem 0 0 0.5rem;
-  background-color: rgba(255, 255, 255, 0.4);
-}
-
-.toast .close-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.toast .close-btn:hover {
-  color: #fff;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-  border-color: #00408a;
-}
+.feedback-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); align-items: start; gap: 1.5rem; }
+.feedback-card, .privacy-card { padding: clamp(1.25rem, 3vw, 2rem); }
+.label-row { display: flex; justify-content: space-between; gap: 1rem; }
+.label-row span { color: var(--color-text-muted); font-size: .8rem; }
+.label-row span.invalid { color: var(--bs-danger); }
+.form-actions { display: flex; justify-content: flex-end; margin-top: 1.25rem; }
+.privacy-icon, .success-state > span { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 15px; color: var(--color-primary); background: var(--color-primary-soft); font-size: 1.35rem; }
+.privacy-card h2 { margin: 1rem 0 .5rem; font-size: 1.1rem; }
+.privacy-card p { color: var(--color-text-muted); }
+.privacy-card ul { display: grid; gap: .75rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
+.privacy-card li { display: flex; gap: .6rem; color: var(--color-text-muted); }
+.privacy-card li i { color: var(--color-primary); }
+.success-state { display: grid; justify-items: center; min-height: 350px; align-content: center; text-align: center; }
+.success-state > span { color: #166534; background: #dcfce7; }
+.success-state h2 { margin: 1rem 0 .5rem; }
+.success-state p { max-width: 460px; margin: 0 0 1.25rem; color: var(--color-text-muted); }
+@media (max-width: 767px) { .feedback-layout { grid-template-columns: 1fr; } .form-actions .btn { width: 100%; } }
 </style>
