@@ -47,6 +47,9 @@ export default defineConfig(({ mode }) => {
       clearMocks: true,
       restoreMocks: true,
       setupFiles: ['./src/tests/setup.js'],
+      // e2e/ belongs to Playwright; Vitest cannot load @playwright/test.
+      include: ['src/**/*.{test,spec}.{js,mjs}'],
+      exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
     },
   }
 })
