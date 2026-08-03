@@ -26,7 +26,32 @@ dotnet user-secrets set "Smtp:FromEmail" "<from-address>"
 
 Dağıtım ortamında aynı anahtarları environment secret olarak verin; örneğin `Jwt__SigningKey` ve `ConnectionStrings__DefaultConnection`. Depoda daha önce kullanılmış SQL/JWT değerlerini ilgili dış sistemlerde ayrıca döndürün.
 
+### Veritabanı bağlantısı
+
+`appsettings.json` içindeki bağlantı dizesi **boştur** — depoda makineye özel hiçbir değer tutulmaz. Bağlantı çalıştığı ortamdan gelir:
+
+| Ortam | Kaynak |
+| --- | --- |
+| Geliştirme (Windows) | `appsettings.Development.json` içindeki LocalDB varsayılanı, ya da User Secrets ile geçersiz kılınır |
+| Docker | `docker-compose.yml` tarafından verilen `ConnectionStrings__DefaultConnection` |
+| Dağıtım | `ConnectionStrings__DefaultConnection` environment değişkeni |
+
+Bağlantı hiçbir kaynaktan gelmezse uygulama açılışta `ConnectionStrings__DefaultConnection must be configured.` hatasıyla durur.
+
 ## Çalıştırma
+
+### Docker ile (LocalDB gerektirmez)
+
+```powershell
+cp .env.example .env   # MSSQL_SA_PASSWORD ve JWT_SIGNING_KEY doldurun
+docker compose up -d --build
+```
+
+SQL Server konteyneri sağlıklı duruma gelene kadar API başlatılmaz. API `http://localhost:5005` adresinde açılır ve migration'ları uygulayıp geliştirme hesaplarını oluşturur. Veri `mssql-data` adlı volume'de kalıcıdır.
+
+Durdurmak için `docker compose down`, veriyi de silmek için `docker compose down -v`.
+
+### Yerel olarak
 
 API:
 
