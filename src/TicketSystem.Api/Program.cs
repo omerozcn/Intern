@@ -381,6 +381,9 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<ApplicationDbContext>("database");
 
+builder.Services.AddSingleton<IPasswordResetNotifier, PasswordResetNotifier>();
+builder.Services.AddHostedService<PasswordResetEmailDispatcher>();
+
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IJwtSecurityStampValidator, JwtSecurityStampValidator>();

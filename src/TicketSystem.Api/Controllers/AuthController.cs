@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using TicketSystem.Configuration;
 using TicketSystem.Dtos.Account;
+using TicketSystem.Infrastructure;
 using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
@@ -27,7 +28,7 @@ public sealed class AuthController : ControllerBase
     private readonly SignInManager<AppUser> _signInManager;
     private readonly ITokenService _tokenService;
     private readonly IAccountRepository _accountRepository;
-    private readonly IEmailService _emailService;
+    private readonly IPasswordResetNotifier _emailQueue;
     private readonly FrontendOptions _frontendOptions;
     private readonly ILogger<AuthController> _logger;
 
@@ -36,7 +37,7 @@ public sealed class AuthController : ControllerBase
         SignInManager<AppUser> signInManager,
         ITokenService tokenService,
         IAccountRepository accountRepository,
-        IEmailService emailService,
+        IPasswordResetNotifier emailQueue,
         IOptions<FrontendOptions> frontendOptions,
         ILogger<AuthController> logger)
     {
@@ -44,7 +45,7 @@ public sealed class AuthController : ControllerBase
         _signInManager = signInManager;
         _tokenService = tokenService;
         _accountRepository = accountRepository;
-        _emailService = emailService;
+        _emailQueue = emailQueue;
         _frontendOptions = frontendOptions.Value;
         _logger = logger;
     }
@@ -58,9 +59,15 @@ public sealed class AuthController : ControllerBase
         [FromBody] LoginDto loginDto,
         CancellationToken cancellationToken)
     {
+        // Authentication outcomes are logged with the account id and the client address
+        // only. The submitted email and password never reach the log.
+        var clientAddress = HttpContext.Connection.RemoteIpAddress;
+
         var user = await _userManager.FindByEmailAsync(loginDto.Email.Trim());
         if (user is null)
         {
+            _logger.LogWarning(
+                "Sign-in failed for an unknown address from {ClientAddress}.", clientAddress);
             return AuthenticationFailed();
         }
 
@@ -70,17 +77,37 @@ public sealed class AuthController : ControllerBase
             lockoutOnFailure: true);
         if (!signInResult.Succeeded)
         {
+            if (signInResult.IsLockedOut)
+            {
+                _logger.LogWarning(
+                    "Sign-in rejected: account {AccountId} is locked out. Client {ClientAddress}.",
+                    user.Id,
+                    clientAddress);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Sign-in failed for account {AccountId} from {ClientAddress}.",
+                    user.Id,
+                    clientAddress);
+            }
+
             return AuthenticationFailed();
         }
 
         var profile = await _accountRepository.GetByIdAsync(user.Id, cancellationToken);
         if (profile?.Firm is null || string.IsNullOrWhiteSpace(profile.Role))
         {
+            _logger.LogWarning(
+                "Account {AccountId} signed in but has no role or firm assigned.", user.Id);
             return Problem(
                 statusCode: StatusCodes.Status403Forbidden,
                 title: "Account is not configured",
                 detail: "Ask an administrator to assign this account to a role and firm.");
         }
+
+        _logger.LogInformation(
+            "Account {AccountId} signed in from {ClientAddress}.", user.Id, clientAddress);
 
         var issuedToken = await _tokenService.CreateTokenAsync(user, profile, cancellationToken);
         return Ok(new AuthSessionDto
@@ -126,21 +153,15 @@ public sealed class AuthController : ControllerBase
                 new[] { user.FirstName, user.LastName }
                     .Where(value => !string.IsNullOrWhiteSpace(value)));
 
-            try
-            {
-                await _emailService.SendPasswordResetAsync(
-                    user.Email,
-                    string.IsNullOrWhiteSpace(recipientName) ? user.Email : recipientName,
-                    resetUrl,
-                    cancellationToken);
-            }
-            catch (Exception exception) when (exception is not OperationCanceledException)
-            {
-                _logger.LogError(
-                    exception,
-                    "Password reset email delivery failed for account {AccountId}",
-                    user.Id);
-            }
+            // Queued rather than sent inline: an inline SMTP round trip would make the
+            // response measurably slower for a known address than an unknown one, which
+            // is an account-enumeration oracle regardless of the identical body below.
+            _emailQueue.Enqueue(new PasswordResetEmail(
+                user.Email,
+                string.IsNullOrWhiteSpace(recipientName) ? user.Email : recipientName,
+                resetUrl));
+
+            _logger.LogInformation("Password reset requested for account {AccountId}.", user.Id);
         }
 
         return Accepted(new { message = GenericResetMessage });
@@ -188,7 +209,9 @@ public sealed class AuthController : ControllerBase
             throw new InvalidOperationException("The account security stamp could not be refreshed.");
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
+        // No cancellation check past this point: the password has already changed, so
+        // throwing here would tell the caller it failed when it did not.
+        _logger.LogInformation("Password reset completed for account {AccountId}.", user.Id);
         return NoContent();
     }
 
@@ -224,7 +247,8 @@ public sealed class AuthController : ControllerBase
             throw new InvalidOperationException("The account security stamp could not be refreshed.");
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
+        // See ResetPassword: the change is already committed.
+        _logger.LogInformation("Password changed for account {AccountId}.", user.Id);
         return NoContent();
     }
 
@@ -249,7 +273,8 @@ public sealed class AuthController : ControllerBase
             throw new InvalidOperationException("The account security stamp could not be refreshed.");
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
+        // See ResetPassword: the tokens are already revoked.
+        _logger.LogInformation("Account {AccountId} signed out.", user.Id);
         return NoContent();
     }
 
@@ -273,12 +298,18 @@ public sealed class AuthController : ControllerBase
     {
         var baseUri = new Uri(_frontendOptions.BaseUrl.TrimEnd('/') + '/', UriKind.Absolute);
         var resetUri = new Uri(baseUri, "reset-password").ToString();
-        return QueryHelpers.AddQueryString(
-            resetUri,
+
+        // Carried in the fragment, not the query string: a fragment is never sent to a
+        // server, so the token stays out of proxy logs and out of the Referer header of
+        // anything the reset page loads.
+        var fragment = QueryHelpers.AddQueryString(
+            string.Empty,
             new Dictionary<string, string?>
             {
                 ["email"] = email,
                 ["token"] = encodedToken
             });
+
+        return $"{resetUri}#{fragment.TrimStart('?')}";
     }
 }

@@ -27,9 +27,11 @@ dotnet_style_qualification_for_property = false:suggestion
 # synchronization context to deadlock against.
 dotnet_diagnostic.CA2007.severity = none
 
-# Source-generated LoggerMessage delegates are disproportionate for the handful of
-# log statements this project has.
+# Source-generated LoggerMessage delegates (CA1848) and IsEnabled guards around every
+# call site (CA1873) are high-throughput logging patterns. This project logs a couple
+# of dozen events, all on paths that already do database or network work.
 dotnet_diagnostic.CA1848.severity = none
+dotnet_diagnostic.CA1873.severity = none
 
 # PagedResult<T>.Create is a factory on a generic type, which is the idiomatic way
 # to build one; the alternative is a non-generic helper class nobody would look for.

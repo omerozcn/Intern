@@ -79,8 +79,20 @@ const showPassword = ref(false);
 const busy = ref(false);
 const complete = ref(false);
 
-const email = computed(() => typeof route.query.email === "string" ? route.query.email : "");
-const token = computed(() => typeof route.query.token === "string" ? route.query.token : "");
+// The reset link carries its parameters in the fragment so that the token is never
+// sent to a server or leaked through the Referer header. The query string is still
+// read as a fallback for links issued before that change.
+const resetParameters = computed(() => {
+  const fragment = new URLSearchParams(route.hash.replace(/^#/, ""));
+  const fromQuery = (key) => (typeof route.query[key] === "string" ? route.query[key] : "");
+  return {
+    email: fragment.get("email") || fromQuery("email"),
+    token: fragment.get("token") || fromQuery("token"),
+  };
+});
+
+const email = computed(() => resetParameters.value.email);
+const token = computed(() => resetParameters.value.token);
 const hasResetParameters = computed(() => Boolean(email.value && token.value));
 
 function validate() {
