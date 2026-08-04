@@ -75,8 +75,13 @@ async function request(method, path, body, options = {}) {
 
     if (!response.ok) {
       const error = toApiError(response, data)
-      if (!skipAuthHandling && response.status === 401) await unauthorizedHandler?.(error)
-      if (!skipAuthHandling && response.status === 403) await forbiddenHandler?.(error)
+      // A handler that rejects must not turn the real status into a network error below.
+      if (!skipAuthHandling && response.status === 401) {
+        await unauthorizedHandler?.(error)?.catch?.(() => {})
+      }
+      if (!skipAuthHandling && response.status === 403) {
+        await forbiddenHandler?.(error)?.catch?.(() => {})
+      }
       throw error
     }
 

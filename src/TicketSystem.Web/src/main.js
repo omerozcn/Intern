@@ -33,10 +33,14 @@ configureApi({
       ? router.currentRoute.value.fullPath
       : undefined
 
-    auth.clearSession()
-    toast.warning(i18n.global.t('errors.sessionExpired'))
-    await router.replace({ name: 'sign-in', query: returnUrl ? { returnUrl } : {} })
-    handlingUnauthorized = false
+    try {
+      auth.clearSession()
+      toast.warning(i18n.global.t('errors.sessionExpired'))
+      await router.replace({ name: 'sign-in', query: returnUrl ? { returnUrl } : {} })
+    } finally {
+      // A navigation rejected by a guard must not latch this handler off for good.
+      handlingUnauthorized = false
+    }
   },
   onForbidden: async () => {
     toast.error(i18n.global.t('errors.forbidden'))
