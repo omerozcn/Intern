@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -151,6 +152,15 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Ticket System API",
         Version = "v1"
     });
+
+    var xmlDocumentation = Path.Combine(
+        AppContext.BaseDirectory,
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    if (File.Exists(xmlDocumentation))
+    {
+        options.IncludeXmlComments(xmlDocumentation);
+    }
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,

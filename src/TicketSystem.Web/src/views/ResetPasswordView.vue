@@ -64,7 +64,7 @@
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import logo from "@/assets/turkuvaz-logo.png";
+import logo from "@/assets/turkuvaz-logo.webp";
 import ErrorState from "@/components/ErrorState.vue";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";

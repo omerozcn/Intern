@@ -1,0 +1,61 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+[*.{cs,csx}]
+indent_size = 4
+
+# Match the style the codebase already uses, so `dotnet format` is a no-op on
+# existing files rather than a repo-wide rewrite.
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_prefer_braces = true:suggestion
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_using_directive_placement = outside_namespace:suggestion
+dotnet_sort_system_directives_first = true
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+
+# ConfigureAwait(false) is not wanted in an ASP.NET Core app: there is no
+# synchronization context to deadlock against.
+dotnet_diagnostic.CA2007.severity = none
+
+# Source-generated LoggerMessage delegates are disproportionate for the handful of
+# log statements this project has.
+dotnet_diagnostic.CA1848.severity = none
+
+# PagedResult<T>.Create is a factory on a generic type, which is the idiomatic way
+# to build one; the alternative is a non-generic helper class nobody would look for.
+dotnet_diagnostic.CA1000.severity = none
+
+# EF Core owns these files and regenerates them; style rules do not apply.
+[src/TicketSystem.Api/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+# xUnit convention: Method_name_reads_as_a_sentence, and [CollectionDefinition]
+# types are named *Collection.
+[tests/**/*.cs]
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1711.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA1863.severity = none
+
+[*.{js,mjs,cjs,vue,json,jsonc,yml,yaml,css,html}]
+indent_size = 2
+
+[*.{csproj,props,targets}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab

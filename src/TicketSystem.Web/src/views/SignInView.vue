@@ -113,7 +113,7 @@
 import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import logo from "@/assets/turkuvaz-logo.png";
+import logo from "@/assets/turkuvaz-logo.webp";
 import { api } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
