@@ -282,7 +282,7 @@ namespace TicketSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Feedbacks", (string)null);
+                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("TicketSystem.Models.Firm", b =>
@@ -526,7 +526,7 @@ namespace TicketSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TicketSystem.Models.Product", "Products")
+                    b.HasOne("TicketSystem.Models.Product", "Product")
                         .WithMany("FirmProducts")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -534,7 +534,7 @@ namespace TicketSystem.Migrations
 
                     b.Navigation("Firm");
 
-                    b.Navigation("Products");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("TicketSystem.Models.FirmUser", b =>
@@ -557,7 +557,7 @@ namespace TicketSystem.Migrations
 
             modelBuilder.Entity("TicketSystem.Models.ProductTicket", b =>
                 {
-                    b.HasOne("TicketSystem.Models.Product", "Products")
+                    b.HasOne("TicketSystem.Models.Product", "Product")
                         .WithMany("ProductTickets")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -569,7 +569,7 @@ namespace TicketSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Products");
+                    b.Navigation("Product");
 
                     b.Navigation("Ticket");
                 });

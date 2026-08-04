@@ -10,6 +10,6 @@ public interface IAccountRepository
     Task<ProfileDto?> GetByIdAsync(string id, CancellationToken cancellationToken = default);
     Task<ProfileDto?> GetByEmailAsync(string email, CancellationToken cancellationToken = default);
     Task<IdentityResult> CreateAsync(RegisterDto registerDto, CancellationToken cancellationToken = default);
-    Task<IdentityResult?> UpdateAsync(string id, UpdateDto updateDto, CancellationToken cancellationToken = default);
+    Task<IdentityResult?> UpdateAsync(string id, UpdateUserRequestDto updateDto, CancellationToken cancellationToken = default);
     Task<IdentityResult?> DeleteAsync(string id, CancellationToken cancellationToken = default);
 }

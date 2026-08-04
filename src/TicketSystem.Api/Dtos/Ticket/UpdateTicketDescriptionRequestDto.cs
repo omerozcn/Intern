@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TicketSystem.Dtos.Ticket;
 
-public class UpdateTicketDescriptionRequestDto
+public sealed class UpdateTicketDescriptionRequestDto
 {
     private string _description = string.Empty;
 

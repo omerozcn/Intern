@@ -59,12 +59,12 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             entity.HasIndex(product => product.Name).IsUnique();
 
             entity.HasMany(product => product.FirmProducts)
-                .WithOne(firmProduct => firmProduct.Products)
+                .WithOne(firmProduct => firmProduct.Product)
                 .HasForeignKey(firmProduct => firmProduct.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasMany(product => product.ProductTickets)
-                .WithOne(productTicket => productTicket.Products)
+                .WithOne(productTicket => productTicket.Product)
                 .HasForeignKey(productTicket => productTicket.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
@@ -145,7 +145,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
                 .HasForeignKey(firmProduct => firmProduct.FirmId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(firmProduct => firmProduct.Products)
+            entity.HasOne(firmProduct => firmProduct.Product)
                 .WithMany(product => product.FirmProducts)
                 .HasForeignKey(firmProduct => firmProduct.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
@@ -164,7 +164,7 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
                 .HasForeignKey(link => link.TicketId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(link => link.Products)
+            entity.HasOne(link => link.Product)
                 .WithMany(product => product.ProductTickets)
                 .HasForeignKey(link => link.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);

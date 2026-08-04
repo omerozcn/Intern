@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TicketSystem.Dtos.Firm;
 
-public class CreateFirmRequestDto
+public sealed class CreateFirmRequestDto
 {
     private string? _name;
 

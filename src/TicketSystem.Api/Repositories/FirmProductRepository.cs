@@ -97,11 +97,11 @@ public sealed class FirmProductRepository : IFirmProductRepository
         return await _context.FirmProducts
             .AsNoTracking()
             .Where(link => link.FirmId == firmId)
-            .OrderBy(link => link.Products.Name)
+            .OrderBy(link => link.Product.Name)
             .Select(link => new CurrentUserProductDto
             {
                 Id = link.ProductId,
-                Name = link.Products.Name,
+                Name = link.Product.Name,
             })
             .ToListAsync(cancellationToken);
     }
@@ -127,7 +127,7 @@ public sealed class FirmProductRepository : IFirmProductRepository
                 FirmId = link.FirmId,
                 FirmName = link.Firm.Name,
                 ProductId = link.ProductId,
-                ProductName = link.Products.Name,
+                ProductName = link.Product.Name,
             });
     }
 }

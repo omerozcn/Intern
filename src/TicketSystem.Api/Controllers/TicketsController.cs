@@ -268,7 +268,7 @@ public sealed class TicketsController : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateTicketStatus(
         [FromRoute] int id,
-        [FromBody] UpdateStatusTicketDto updateDto,
+        [FromBody] UpdateTicketStatusRequestDto updateDto,
         CancellationToken cancellationToken)
     {
         if (!TicketStatuses.TryParseApiValue(updateDto.Status, out var status))

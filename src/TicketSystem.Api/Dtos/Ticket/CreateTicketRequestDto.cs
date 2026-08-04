@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace TicketSystem.Dtos.Ticket;
 
-public class CreateTicketRequestDto
+public sealed class CreateTicketRequestDto
 {
     private string _description = string.Empty;
 

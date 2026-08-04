@@ -17,5 +17,5 @@ public class FirmProduct
 
     // Populated by EF when the relation is loaded.
     public Firm Firm { get; set; } = null!;
-    public Product Products { get; set; } = null!;
+    public Product Product { get; set; } = null!;
 }

@@ -69,7 +69,7 @@ public sealed class UsersController : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<ProfileDto>> Update(
         [FromRoute] string id,
-        [FromBody] UpdateDto updateDto,
+        [FromBody] UpdateUserRequestDto updateDto,
         CancellationToken cancellationToken)
     {
         var result = await _accountRepository.UpdateAsync(id, updateDto, cancellationToken);

@@ -1,13 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TicketSystem.Dtos.Ticket
-{
-    public class UpdateTicketRequestDto
-    {
-        [StringLength(2000, ErrorMessage = "Answer cannot exceed 2000 characters.")]
-        public string? Answer { get; set; }
+namespace TicketSystem.Dtos.Ticket;
 
-        [Required]
-        public string Status { get; set; } = string.Empty;
-    }
+public sealed class UpdateTicketRequestDto
+{
+    [StringLength(2000, ErrorMessage = "Answer cannot exceed 2000 characters.")]
+    public string? Answer { get; set; }
+
+    [Required]
+    public string Status { get; set; } = string.Empty;
 }

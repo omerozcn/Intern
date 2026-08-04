@@ -155,7 +155,7 @@ public sealed class AccountRepository : IAccountRepository
 
     public async Task<IdentityResult?> UpdateAsync(
         string id,
-        UpdateDto updateDto,
+        UpdateUserRequestDto updateDto,
         CancellationToken cancellationToken = default)
     {
         var user = await _context.Users

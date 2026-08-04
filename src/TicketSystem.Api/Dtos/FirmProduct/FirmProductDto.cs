@@ -1,6 +1,6 @@
 namespace TicketSystem.Dtos.FirmProduct;
 
-public class FirmProductDto
+public sealed class FirmProductDto
 {
     public int Id { get; set; }
 

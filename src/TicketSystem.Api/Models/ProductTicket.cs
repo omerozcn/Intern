@@ -17,5 +17,5 @@ public class ProductTicket
 
     // Populated by EF when the relation is loaded.
     public Ticket Ticket { get; set; } = null!;
-    public Product Products { get; set; } = null!;
+    public Product Product { get; set; } = null!;
 }

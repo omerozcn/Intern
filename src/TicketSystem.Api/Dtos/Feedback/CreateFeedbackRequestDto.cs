@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TicketSystem.Dtos.Feedback;
 
-public class CreateFeedbackRequestDto
+public sealed class CreateFeedbackRequestDto
 {
     private string _feedbackContent = string.Empty;
 

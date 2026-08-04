@@ -1,6 +1,6 @@
 namespace TicketSystem.Dtos.Product;
 
-public class ProductDto
+public sealed class ProductDto
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

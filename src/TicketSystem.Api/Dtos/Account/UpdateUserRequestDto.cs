@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TicketSystem.Dtos.Account;
 
-public sealed class UpdateDto
+public sealed class UpdateUserRequestDto
 {
     [Required]
     [StringLength(100, MinimumLength = 1)]

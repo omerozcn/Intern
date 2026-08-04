@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TicketSystem.Dtos.Product;
 
-public class CreateProductRequestDto
+public sealed class CreateProductRequestDto
 {
     private string? _name;
 

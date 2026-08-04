@@ -307,7 +307,7 @@ public sealed class TicketRepository : ITicketRepository
                     .Select(firmUser => firmUser.Firm.Name)
                     .FirstOrDefault(),
                 ProductName = ticket.ProductTickets
-                    .Select(link => link.Products.Name)
+                    .Select(link => link.Product.Name)
                     .FirstOrDefault(),
             });
     }
