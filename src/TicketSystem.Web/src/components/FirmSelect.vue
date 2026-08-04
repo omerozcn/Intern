@@ -7,8 +7,8 @@
       type="search"
       role="combobox"
       autocomplete="off"
-      aria-expanded="true"
-      :aria-controls="`${inputId}-options`"
+      :aria-expanded="listboxVisible"
+      :aria-controls="listboxVisible ? `${inputId}-options` : undefined"
       :placeholder="placeholder || t('firmSelect.placeholder')"
       :disabled="disabled"
     />
@@ -17,7 +17,7 @@
     <p v-else-if="error" class="firm-select__hint firm-select__hint--error">{{ error }}</p>
     <p v-else-if="loaded && !options.length" class="firm-select__hint">{{ t('firmSelect.noResults') }}</p>
 
-    <ul v-else :id="`${inputId}-options`" class="firm-select__options" role="listbox">
+    <ul v-else-if="listboxVisible" :id="`${inputId}-options`" class="firm-select__options" role="listbox">
       <li v-for="firm in options" :key="firm.id" role="option" :aria-selected="firm.id === modelValue">
         <button
           type="button"
@@ -36,7 +36,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onScopeDispose, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { api } from '@/services/api'
@@ -74,6 +74,9 @@ const options = computed(() =>
   ),
 )
 const hasMore = computed(() => totalCount.value > rows.value.length)
+// aria-expanded must track the listbox, and aria-controls must not point at an id
+// that is absent from the DOM while loading, erroring or empty.
+const listboxVisible = computed(() => !loading.value && !error.value && options.value.length > 0)
 
 async function fetchFirms() {
   loading.value = true
@@ -113,6 +116,10 @@ watch(term, () => {
   globalThis.clearTimeout(timer)
   timer = globalThis.setTimeout(fetchFirms, DEBOUNCE_MS)
 })
+
+// This component is rendered once per row on the services page; a pending debounce
+// must not outlive it.
+onScopeDispose(() => globalThis.clearTimeout(timer))
 
 onMounted(fetchFirms)
 

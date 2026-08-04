@@ -94,11 +94,19 @@ public sealed class ProductsController : ControllerBase
     [HttpPut("{id:int}")]
     [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<ProductDto>> Update(
         [FromRoute] int id,
         [FromBody] UpdateProductRequestDto updateDto,
         CancellationToken cancellationToken)
     {
+        // Existence first: a missing product must answer 404, not 409 for a name clash
+        // with some other product. FirmsController.Update follows the same order.
+        if (await _productRepository.GetByIdAsync(id, cancellationToken) is null)
+        {
+            return ProductNotFound();
+        }
+
         var duplicate = await _productRepository.GetByNameAsync(updateDto.Name!, cancellationToken);
         if (duplicate is not null && duplicate.Id != id)
         {

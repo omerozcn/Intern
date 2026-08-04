@@ -5,7 +5,7 @@
       class="btn btn-sm btn-outline-secondary"
       :disabled="!hasPrevious || busy"
       :aria-label="t('pagination.previous')"
-      @click="$emit('change', page - 1)"
+      @click="go(page - 1)"
     >
       <i class="bi bi-chevron-left" aria-hidden="true"></i>
       <span class="label-text">{{ t('pagination.previous') }}</span>
@@ -20,7 +20,7 @@
       class="btn btn-sm btn-outline-secondary"
       :disabled="!hasNext || busy"
       :aria-label="t('pagination.next')"
-      @click="$emit('change', page + 1)"
+      @click="go(page + 1)"
     >
       <span class="label-text">{{ t('pagination.next') }}</span>
       <i class="bi bi-chevron-right" aria-hidden="true"></i>
@@ -31,7 +31,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 
-defineProps({
+const props = defineProps({
   page: { type: Number, required: true },
   totalPages: { type: Number, required: true },
   totalCount: { type: Number, default: 0 },
@@ -40,9 +40,17 @@ defineProps({
   busy: { type: Boolean, default: false },
 })
 
-defineEmits(['change'])
+const emit = defineEmits(['change'])
 
 const { t } = useI18n()
+
+// `disabled` alone is not enough: a programmatic click still reaches the handler.
+function go(target) {
+  if (props.busy) return
+  if (target < props.page && !props.hasPrevious) return
+  if (target > props.page && !props.hasNext) return
+  emit('change', target)
+}
 </script>
 
 <style scoped>
