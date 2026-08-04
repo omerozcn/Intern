@@ -242,20 +242,21 @@ textarea.form-control {
 }
 
 .brand {
-  display: flex;
+  display: grid;
   min-height: 56px;
-  align-items: center;
-  gap: 12px;
+  gap: 10px;
+  justify-items: start;
   color: inherit;
   text-decoration: none;
 }
 
+/* The asset is a ~4:1 wordmark. Boxing it into a square left it rendering about
+   12px tall and unreadable, so the plate follows the artwork instead. */
 .brand__logo {
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  object-fit: contain;
-  border-radius: 12px;
+  width: auto;
+  height: 34px;
+  padding: 5px 10px;
+  border-radius: 10px;
   background: var(--tv-white);
 }
 
@@ -846,14 +847,15 @@ textarea.form-control {
   border-radius: var(--tv-radius-lg);
   background: rgb(255 255 255 / 0.96);
   box-shadow: var(--tv-shadow-md);
+  animation: tv-rise 420ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
+/* Same reason as .brand__logo: the wordmark needs its own aspect ratio, not a square. */
 .auth-card__logo {
   display: block;
-  width: 92px;
-  height: 92px;
+  width: auto;
+  height: 40px;
   margin: 0 auto 24px;
-  object-fit: contain;
 }
 
 .auth-card h1 {
@@ -938,6 +940,104 @@ textarea.form-control {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Motion
+
+   One easing curve and three durations, so everything moves like part of the
+   same product. Every rule here is disabled by the reduced-motion block at the
+   bottom of this file.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --tv-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --tv-duration-fast: 140ms;
+  --tv-duration: 220ms;
+  --tv-duration-slow: 380ms;
+}
+
+@keyframes tv-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes tv-shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* Route transition, driven by <Transition name="page"> in App.vue. */
+.page-enter-active { transition: opacity var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease); }
+.page-leave-active { transition: opacity var(--tv-duration-fast) ease-in, transform var(--tv-duration-fast) ease-in; }
+.page-enter-from { opacity: 0; transform: translateY(8px); }
+.page-leave-to { opacity: 0; transform: translateY(-4px); }
+
+/* Entrance for cards and rows. The delay steps are capped at eight because past
+   that the last item arrives late enough to feel like lag rather than sequence. */
+.tv-rise { animation: tv-rise var(--tv-duration-slow) var(--tv-ease) both; }
+.tv-stagger > * { animation: tv-rise var(--tv-duration-slow) var(--tv-ease) both; }
+.tv-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.tv-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.tv-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.tv-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.tv-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.tv-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.tv-stagger > *:nth-child(7) { animation-delay: 240ms; }
+.tv-stagger > *:nth-child(n + 8) { animation-delay: 280ms; }
+
+/* Skeleton placeholder: shows the shape of the content that is loading, which
+   reads as faster than a spinner because the layout stops jumping. */
+.tv-skeleton {
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--tv-slate-100) 25%,
+    var(--tv-slate-200) 37%,
+    var(--tv-slate-100) 63%
+  );
+  background-size: 200% 100%;
+  animation: tv-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Micro-interactions ------------------------------------------------------- */
+
+.surface-card {
+  transition: transform var(--tv-duration) var(--tv-ease), box-shadow var(--tv-duration) var(--tv-ease);
+}
+
+.surface-card--interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--tv-shadow-md);
+}
+
+.btn {
+  transition: transform var(--tv-duration-fast) var(--tv-ease), box-shadow var(--tv-duration-fast) var(--tv-ease),
+    background-color var(--tv-duration-fast) ease, border-color var(--tv-duration-fast) ease, color var(--tv-duration-fast) ease;
+}
+
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+.icon-button { transition: transform var(--tv-duration-fast) var(--tv-ease), background-color var(--tv-duration-fast) ease, color var(--tv-duration-fast) ease, border-color var(--tv-duration-fast) ease; }
+.icon-button:active:not(:disabled) { transform: scale(0.94); }
+
+/* The active navigation item grows a rail on the left rather than appearing
+   abruptly, which makes the selection change legible at a glance. */
+.sidebar-link { position: relative; }
+
+.sidebar-link::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 0;
+  border-radius: 0 3px 3px 0;
+  background: var(--tv-teal-100);
+  content: "";
+  transform: translateY(-50%);
+  transition: height var(--tv-duration) var(--tv-ease);
+}
+
+.sidebar-link.router-link-active::before { height: 22px; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -946,5 +1046,15 @@ textarea.form-control {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  /* The shimmer is decorative; without motion it should simply be a flat block
+     rather than a one-frame flash. */
+  .tv-skeleton { animation: none !important; background: var(--tv-slate-100); }
+
+  .surface-card--interactive:hover,
+  .btn:active:not(:disabled),
+  .icon-button:active:not(:disabled) {
+    transform: none !important;
   }
 }

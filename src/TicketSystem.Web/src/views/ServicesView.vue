@@ -24,12 +24,12 @@
       <span>{{ t('services.count', { count: totalCount }) }}</span>
     </div>
 
-    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState v-else-if="!products.length" icon="bi-box-seam" :title="t('services.emptyTitle')" :message="t('services.emptyDescription')" />
 
-    <div v-else class="service-grid">
-      <article v-for="product in products" :key="product.id" class="surface-card service-card">
+    <div v-else class="service-grid tv-stagger">
+      <article v-for="product in products" :key="product.id" class="surface-card surface-card--interactive service-card">
         <div class="service-head">
           <div class="service-title">
             <span class="service-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
@@ -104,7 +104,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
-import LoadingState from "@/components/LoadingState.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";

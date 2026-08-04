@@ -74,7 +74,7 @@
       </label>
     </div>
 
-    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState v-else-if="!users.length" icon="bi-people" :title="t('accounts.emptyTitle')" :message="t('accounts.emptyDescription')" />
 
@@ -136,7 +136,7 @@
 import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
-import LoadingState from "@/components/LoadingState.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
@@ -251,7 +251,10 @@ onMounted(load);
 .form-heading p { margin: 0 0 1.25rem; color: var(--color-text-muted); }
 .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .form-actions { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1.25rem; }
-.toolbar { display: grid; grid-template-columns: minmax(240px, 1fr) 180px 220px; gap: .75rem; margin-bottom: 1rem; padding: .75rem; }
+/* align-items: start keeps each control at its natural height. Stretching made the
+   search wrapper as tall as the row, which dragged its absolutely positioned
+   magnifier icon down to the vertical centre of that tall box. */
+.toolbar { display: grid; grid-template-columns: minmax(240px, 1fr) 180px 220px; align-items: start; gap: .75rem; margin-bottom: 1rem; padding: .75rem; }
 .search-field { position: relative; }
 .search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--color-text-muted); }
 .search-field input { padding-left: 2.6rem; }

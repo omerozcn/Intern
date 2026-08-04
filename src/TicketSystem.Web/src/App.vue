@@ -3,13 +3,19 @@
 
   <RouterView v-slot="{ Component, route }">
     <AppShell v-if="route.meta.shell !== false">
-      <component :is="Component" />
+      <!-- Keyed on the route so each page animates in; mode="out-in" avoids the two
+           views overlapping mid-transition. -->
+      <Transition name="page" mode="out-in">
+        <component :is="Component" :key="route.name" />
+      </Transition>
     </AppShell>
 
     <div v-else class="auth-layout">
       <a class="skip-link" href="#main-content">{{ t('common.skipToContent') }}</a>
       <main id="main-content" class="auth-layout__content" tabindex="-1">
-        <component :is="Component" />
+        <Transition name="page" mode="out-in">
+          <component :is="Component" :key="route.name" />
+        </Transition>
       </main>
     </div>
   </RouterView>

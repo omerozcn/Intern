@@ -41,9 +41,15 @@ API projesinin ad alanları `TicketSystem.*` olarak kalır; `.Api` soneki yalnı
 
 Bağlantı dizesi, JWT imzalama anahtarı ve SMTP kimlik bilgileri izlenen ayar dosyalarına yazılmaz. API klasöründe User Secrets kullanın:
 
+> Aşağıdaki `<...>` ifadeleri **yer tutucudur, birebir yazılmamalıdır.** Örneğin
+> `<connection-string>` metnini olduğu gibi kaydederseniz uygulama açılışta
+> `Format of the initialization string does not conform to specification` hatasıyla durur.
+>
+> **Bağlantı dizesi satırı geliştirme için gerekli değildir:** `appsettings.Development.json`
+> zaten bir LocalDB varsayılanı taşır. Yalnızca farklı bir sunucuya bağlanacaksanız verin.
+
 ```powershell
 cd src/TicketSystem.Api
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<connection-string>"
 dotnet user-secrets set "Jwt:SigningKey" "<en-az-32-byte-rastgele-anahtar>"
 dotnet user-secrets set "Smtp:Host" "<smtp-host>"
 dotnet user-secrets set "Smtp:Port" "587"

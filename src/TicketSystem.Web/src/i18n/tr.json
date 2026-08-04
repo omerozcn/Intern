@@ -110,6 +110,7 @@
     "pending": "Bekleyen",
     "inProgress": "İşlemde",
     "completed": "Tamamlanan",
+    "summaryLabel": "Talep özeti",
     "distribution": "Talep dağılımı",
     "distributionDescription": "Duruma göre güncel talep sayıları",
     "requests": "Talepler",

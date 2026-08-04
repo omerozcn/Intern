@@ -120,7 +120,8 @@ async function submit() {
 </script>
 
 <style scoped>
-.auth-page { min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem; background: var(--color-page); }
+/* See SignInView: the layout wrapper owns the centring and the background. */
+.auth-page { display: grid; place-items: center; width: 100%; }
 .auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--color-border); border-radius: 20px; background: white; box-shadow: 0 24px 60px rgba(15, 42, 51, .11); }
 .brand-link { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--color-text); font-weight: 800; text-decoration: none; }
 .brand-link img { width: 46px; height: 46px; object-fit: contain; }

@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState v-else-if="!tickets.length" icon="bi-inbox" :title="t('adminTickets.emptyTitle')" :message="t('adminTickets.emptyMessage')" />
 
@@ -144,7 +144,7 @@ import { computed, nextTick, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
-import LoadingState from "@/components/LoadingState.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import PaginationBar from "@/components/PaginationBar.vue";

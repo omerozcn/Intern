@@ -24,12 +24,12 @@
       <span>{{ t('firms.count', { count: totalCount }) }}</span>
     </div>
 
-    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState v-else-if="!firms.length" icon="bi-buildings" :title="t('firms.emptyTitle')" :message="t('firms.emptyDescription')" />
 
-    <div v-else class="firm-grid">
-      <article v-for="firm in firms" :key="firm.id" class="surface-card firm-card">
+    <div v-else class="firm-grid tv-stagger">
+      <article v-for="firm in firms" :key="firm.id" class="surface-card surface-card--interactive firm-card">
         <div class="firm-main">
           <span class="firm-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
           <div class="firm-content">
@@ -71,7 +71,7 @@
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
-import LoadingState from "@/components/LoadingState.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
@@ -174,11 +174,17 @@ onMounted(load);
 .firm-icon { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; color: var(--color-primary); background: var(--color-primary-soft); }
 .firm-content { min-width: 0; }
 .firm-id { color: var(--color-text-muted); font-size: .7rem; }
-.name-row, .edit-row { display: flex; align-items: center; gap: .5rem; }
-.name-row h2 { margin: .1rem 0 0; overflow-wrap: anywhere; font-size: 1rem; }
+/* Wraps the badge onto its own line instead of squeezing the heading: with a
+   nowrap badge beside it, `overflow-wrap: anywhere` used to break a single-word
+   name mid-word ("TUR / KUV / AZ"). */
+.name-row, .edit-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.name-row h2 { margin: .1rem 0 0; overflow-wrap: break-word; font-size: 1rem; }
 .firm-content p { margin: .25rem 0 0; color: var(--color-text-muted); font-size: .8rem; }
 .protected-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .25rem .5rem; border-radius: 999px; color: #03696b; background: var(--color-primary-soft); font-size: .7rem; font-weight: 700; white-space: nowrap; }
-.firm-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .4rem; }
+/* nowrap + no shrink: with the protected badge widening the content column, the
+   buttons used to wrap onto two lines in one card and stay inline in the next,
+   so two cards in the same grid disagreed about their layout. */
+.firm-actions { display: flex; flex-shrink: 0; flex-wrap: nowrap; justify-content: flex-end; gap: .4rem; }
 .icon-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--color-border); border-radius: 10px; color: var(--color-text-muted); background: white; }
 .icon-button--success { color: #15803d; }
 @media (max-width: 899px) { .firm-grid { grid-template-columns: 1fr; } }

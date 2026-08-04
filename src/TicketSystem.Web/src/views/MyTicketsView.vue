@@ -24,7 +24,7 @@
       </button>
     </div>
 
-    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState
       v-else-if="!tickets.length"
@@ -37,8 +37,8 @@
       </template>
     </EmptyState>
 
-    <div v-else class="ticket-grid">
-      <article v-for="ticket in tickets" :key="ticket.id" class="surface-card ticket-card">
+    <div v-else class="ticket-grid tv-stagger">
+      <article v-for="ticket in tickets" :key="ticket.id" class="surface-card surface-card--interactive ticket-card">
         <div class="ticket-card__top">
           <div class="ticket-product">
             <span class="product-icon"><i :class="ticket.newProduct ? 'bi bi-stars' : 'bi bi-box-seam'" aria-hidden="true"></i></span>
@@ -134,7 +134,7 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
-import LoadingState from "@/components/LoadingState.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";

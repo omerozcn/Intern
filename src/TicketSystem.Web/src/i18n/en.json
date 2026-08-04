@@ -110,6 +110,7 @@
     "pending": "Pending",
     "inProgress": "In progress",
     "completed": "Completed",
+    "summaryLabel": "Request summary",
     "distribution": "Request distribution",
     "distributionDescription": "Current request counts by status",
     "requests": "Requests",
