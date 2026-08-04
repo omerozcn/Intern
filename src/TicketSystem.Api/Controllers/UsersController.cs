@@ -72,6 +72,14 @@ public sealed class UsersController : ControllerBase
         [FromBody] UpdateUserRequestDto updateDto,
         CancellationToken cancellationToken)
     {
+        // Changing your own role revokes your own token mid-request and can leave the
+        // system with no administrator at all.
+        if (SelfTargeted(id) && !string.Equals(updateDto.Role, AppRoles.Admin, StringComparison.Ordinal))
+        {
+            return SelfModificationRejected(
+                "Administrators cannot change their own role. Ask another administrator.");
+        }
+
         var result = await _accountRepository.UpdateAsync(id, updateDto, cancellationToken);
         if (result is null)
         {
@@ -100,6 +108,12 @@ public sealed class UsersController : ControllerBase
         [FromRoute] string id,
         CancellationToken cancellationToken)
     {
+        if (SelfTargeted(id))
+        {
+            return SelfModificationRejected(
+                "Administrators cannot delete their own account. Ask another administrator.");
+        }
+
         var result = await _accountRepository.DeleteAsync(id, cancellationToken);
         if (result is null)
         {
@@ -122,5 +136,16 @@ public sealed class UsersController : ControllerBase
         return Problem(
             statusCode: StatusCodes.Status404NotFound,
             title: "Account not found");
+    }
+
+    private bool SelfTargeted(string id) =>
+        string.Equals(User.GetUserId(), id, StringComparison.Ordinal);
+
+    private ObjectResult SelfModificationRejected(string detail)
+    {
+        return Problem(
+            statusCode: StatusCodes.Status409Conflict,
+            title: "Account cannot modify itself",
+            detail: detail);
     }
 }

@@ -61,7 +61,9 @@ public sealed class TicketsController : ControllerBase
 
             if (!await _ticketRepository.IsOwnedByAsync(id, appUserId, cancellationToken))
             {
-                return AccessDenied();
+                // 404 rather than 403: telling a non-owner that the ticket exists lets
+                // them walk the id range and count the tickets in the system.
+                return TicketNotFound();
             }
         }
 
