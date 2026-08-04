@@ -1,0 +1,22 @@
+<Project>
+
+  <!--
+    Shared MSBuild settings for every project in the solution. Keeping them here
+    means a new project inherits the same target framework and analysis level
+    instead of drifting.
+
+    The warning backlog was cleared before TreatWarningsAsErrors was switched on,
+    so the build starts from zero. Rules that conflict with a deliberate
+    convention are configured in .editorconfig with the reason next to them,
+    rather than being silenced wholesale here.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

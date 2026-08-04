@@ -31,6 +31,8 @@ export default defineConfig({
       timeout: 180_000,
       env: {
         ASPNETCORE_ENVIRONMENT: 'Development',
+        // Seeding is opt-in and is what creates the accounts e2e/accounts.js signs in with.
+        Seed__DevelopmentAccounts: 'true',
         // Every test signs in, which would otherwise trip the 5-per-minute login limit.
         RateLimiting__LoginPermitLimit: '100000',
         RateLimiting__PasswordPermitLimit: '100000',

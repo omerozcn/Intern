@@ -1,14 +1,19 @@
 using System.Diagnostics;
+using System.Net;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TicketSystem.Configuration;
@@ -29,18 +34,10 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-var configuredJwt = builder.Configuration
-    .GetSection(JwtOptions.SectionName)
-    .Get<JwtOptions>() ?? new JwtOptions();
-
-if (string.IsNullOrWhiteSpace(configuredJwt.Issuer)
-    || string.IsNullOrWhiteSpace(configuredJwt.Audience))
-{
-    throw new InvalidOperationException("Jwt__Issuer and Jwt__Audience must be configured.");
-}
-
+// The signing key is the one setting that cannot be expressed as an attribute: an
+// empty value is legal in Development, where an ephemeral key is generated instead.
 var usesEphemeralDevelopmentKey = false;
-var effectiveSigningKey = configuredJwt.SigningKey;
+var effectiveSigningKey = builder.Configuration[$"{JwtOptions.SectionName}:SigningKey"];
 if (string.IsNullOrWhiteSpace(effectiveSigningKey))
 {
     if (!builder.Environment.IsDevelopment())
@@ -53,38 +50,63 @@ if (string.IsNullOrWhiteSpace(effectiveSigningKey))
     usesEphemeralDevelopmentKey = true;
 }
 
-if (Encoding.UTF8.GetByteCount(effectiveSigningKey) < 32)
-{
-    throw new InvalidOperationException("Jwt__SigningKey must contain at least 32 bytes.");
-}
-
-if (configuredJwt.ExpirationMinutes is < 1 or > 1440
-    || configuredJwt.ClockSkewSeconds is < 0 or > 300)
-{
-    throw new InvalidOperationException(
-        "JWT expiration must be 1-1440 minutes and clock skew must be 0-300 seconds.");
-}
-
-var frontend = builder.Configuration
-    .GetSection(FrontendOptions.SectionName)
-    .Get<FrontendOptions>() ?? new FrontendOptions();
-if (!Uri.TryCreate(frontend.BaseUrl, UriKind.Absolute, out var frontendUri)
-    || (frontendUri.Scheme != Uri.UriSchemeHttp && frontendUri.Scheme != Uri.UriSchemeHttps))
-{
-    throw new InvalidOperationException("Frontend__BaseUrl must be an absolute HTTP or HTTPS URL.");
-}
-
+// Rate limiter partitions are built during service registration, before the options
+// system is available, so this one section is still read eagerly. It is validated
+// through the same ValidateOnStart pipeline below.
 var rateLimits = builder.Configuration
     .GetSection(RateLimitOptions.SectionName)
     .Get<RateLimitOptions>() ?? new RateLimitOptions();
-if (rateLimits.GlobalPermitLimit <= 0
-    || rateLimits.GlobalWindowSeconds <= 0
-    || rateLimits.LoginPermitLimit <= 0
-    || rateLimits.LoginWindowSeconds <= 0
-    || rateLimits.PasswordPermitLimit <= 0
-    || rateLimits.PasswordWindowSeconds <= 0)
+
+// The rate limiter partitions on the client IP. Behind a reverse proxy every request
+// arrives with the proxy's address, which would collapse all callers into one bucket,
+// so X-Forwarded-For is honoured only for proxies that are explicitly trusted here.
+// With nothing configured the middleware stays off and the socket address is used.
+var knownProxies = builder.Configuration
+    .GetSection("ForwardedHeaders:KnownProxies")
+    .Get<string[]>() ?? [];
+var knownNetworks = builder.Configuration
+    .GetSection("ForwardedHeaders:KnownNetworks")
+    .Get<string[]>() ?? [];
+var trustsForwardedHeaders = knownProxies.Length > 0 || knownNetworks.Length > 0;
+
+if (trustsForwardedHeaders)
 {
-    throw new InvalidOperationException("All rate limiting values must be positive.");
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+
+        // The defaults trust loopback only; replace them with the configured allowlist.
+        options.KnownProxies.Clear();
+        options.KnownNetworks.Clear();
+
+        foreach (var proxy in knownProxies)
+        {
+            if (!IPAddress.TryParse(proxy.Trim(), out var address))
+            {
+                throw new InvalidOperationException(
+                    $"ForwardedHeaders__KnownProxies contains '{proxy}', which is not an IP address.");
+            }
+
+            options.KnownProxies.Add(address);
+        }
+
+        foreach (var network in knownNetworks)
+        {
+            var parts = network.Split('/', 2);
+            if (parts.Length != 2
+                || !IPAddress.TryParse(parts[0].Trim(), out var prefix)
+                || !int.TryParse(parts[1].Trim(), out var prefixLength))
+            {
+                throw new InvalidOperationException(
+                    $"ForwardedHeaders__KnownNetworks contains '{network}', which is not CIDR notation.");
+            }
+
+            // Fully qualified: System.Net also has an IPNetwork in .NET 8.
+            options.KnownNetworks.Add(
+                new Microsoft.AspNetCore.HttpOverrides.IPNetwork(prefix, prefixLength));
+        }
+    });
 }
 
 var allowedOrigins = builder.Configuration
@@ -99,17 +121,45 @@ if (allowedOrigins.Length == 0)
     throw new InvalidOperationException("At least one Cors__AllowedOrigins origin must be configured.");
 }
 
+// Every section is bound, validated and checked at startup, so a misconfigured app
+// fails immediately and the object that gets validated is the object that gets
+// injected — rather than a second copy read separately.
 builder.Services
     .AddOptions<JwtOptions>()
-    .Configure(options =>
-    {
-        builder.Configuration.GetSection(JwtOptions.SectionName).Bind(options);
-        options.SigningKey = effectiveSigningKey;
-    });
-builder.Services.Configure<SmtpOptions>(
-    builder.Configuration.GetSection(SmtpOptions.SectionName));
-builder.Services.Configure<FrontendOptions>(
-    builder.Configuration.GetSection(FrontendOptions.SectionName));
+    .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+    .PostConfigure(options => options.SigningKey = effectiveSigningKey)
+    .ValidateDataAnnotations()
+    .Validate(
+        options => Encoding.UTF8.GetByteCount(options.SigningKey) >= 32,
+        "Jwt__SigningKey must contain at least 32 bytes.")
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<FrontendOptions>()
+    .Bind(builder.Configuration.GetSection(FrontendOptions.SectionName))
+    .ValidateDataAnnotations()
+    .Validate(
+        options => Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps),
+        "Frontend__BaseUrl must be an absolute HTTP or HTTPS URL.")
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<RateLimitOptions>()
+    .Bind(builder.Configuration.GetSection(RateLimitOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+// Only validated when a host is configured: password reset is the sole consumer, and
+// an installation that never sends mail should still start.
+builder.Services
+    .AddOptions<SmtpOptions>()
+    .Bind(builder.Configuration.GetSection(SmtpOptions.SectionName))
+    .Validate(
+        options => string.IsNullOrWhiteSpace(options.Host)
+            || (options.Port is > 0 and <= 65535 && !string.IsNullOrWhiteSpace(options.FromEmail)),
+        "Smtp__Port must be 1-65535 and Smtp__FromEmail must be set when Smtp__Host is configured.")
+    .ValidateOnStart();
 
 builder.Services.AddExceptionHandler<UniqueConstraintExceptionHandler>();
 builder.Services.AddProblemDetails(options =>
@@ -151,6 +201,15 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Ticket System API",
         Version = "v1"
     });
+
+    var xmlDocumentation = Path.Combine(
+        AppContext.BaseDirectory,
+        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    if (File.Exists(xmlDocumentation))
+    {
+        options.IncludeXmlComments(xmlDocumentation);
+    }
+
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -225,21 +284,6 @@ builder.Services
     {
         options.MapInboundClaims = false;
         options.SaveToken = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = configuredJwt.Issuer,
-            ValidateAudience = true,
-            ValidAudience = configuredJwt.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = signingKey,
-            ValidateLifetime = true,
-            RequireExpirationTime = true,
-            RequireSignedTokens = true,
-            ClockSkew = TimeSpan.FromSeconds(configuredJwt.ClockSkewSeconds),
-            NameClaimType = AuthClaimTypes.Name,
-            RoleClaimType = AuthClaimTypes.Role
-        };
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = async context =>
@@ -270,6 +314,32 @@ builder.Services
                 "Access forbidden",
                 "You do not have permission to perform this action.",
                 context.HttpContext.RequestAborted)
+        };
+    });
+
+// Reads the same validated JwtOptions instance the rest of the app is injected with,
+// rather than binding the section a second time.
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((bearer, jwtOptions) =>
+    {
+        var jwt = jwtOptions.Value;
+        bearer.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            RequireSignedTokens = true,
+            // Pinned so a token cannot ask to be validated with a different algorithm.
+            ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+            ClockSkew = TimeSpan.FromSeconds(jwt.ClockSkewSeconds),
+            NameClaimType = AuthClaimTypes.Name,
+            RoleClaimType = AuthClaimTypes.Role
         };
     });
 
@@ -307,6 +377,13 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// Lets an orchestrator tell "the process is up" apart from "it can reach its database".
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("database");
+
+builder.Services.AddSingleton<IPasswordResetNotifier, PasswordResetNotifier>();
+builder.Services.AddHostedService<PasswordResetEmailDispatcher>();
+
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IJwtSecurityStampValidator, JwtSecurityStampValidator>();
@@ -326,18 +403,48 @@ if (usesEphemeralDevelopmentKey)
         "Jwt__SigningKey is not configured; an ephemeral development-only key is in use. Tokens will be invalid after restart.");
 }
 
-if (app.Environment.IsDevelopment())
+// Seeding creates an administrator whose password is published in the README, and it
+// applies migrations. Both need an explicit opt-in rather than riding on the
+// environment name, so that a container started in Development stays inert by default.
+if (app.Configuration.GetValue(DevelopmentDataSeeder.EnabledKey, defaultValue: false))
 {
     await DevelopmentDataSeeder.SeedAsync(app.Services, app.Logger);
+}
+
+// Must run before anything reads the client address or scheme.
+if (trustsForwardedHeaders)
+{
+    app.UseForwardedHeaders();
 }
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "no-referrer";
+
+    // This API only ever answers with JSON, so it needs no script, style or frame
+    // privileges at all. Swagger UI does, which is why it is left out in Development.
+    if (!app.Environment.IsDevelopment())
+    {
+        headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
+    }
+
+    await next();
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -348,6 +455,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Liveness: the process answers. Readiness: it can also reach the database.
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false })
+    .AllowAnonymous();
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();
 

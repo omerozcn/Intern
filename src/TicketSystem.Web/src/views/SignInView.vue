@@ -113,7 +113,7 @@
 import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import logo from "@/assets/turkuvaz-logo.png";
+import logo from "@/assets/turkuvaz-logo.webp";
 import { api } from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
@@ -187,10 +187,14 @@ async function submitForgotPassword() {
 </script>
 
 <style scoped>
-.auth-page { min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem; background: radial-gradient(circle at top right, #d9f3f1 0, transparent 36%), var(--color-page); }
+/* The .auth-layout wrapper already centres this and paints the gradient. Repeating
+   an opaque background here painted a white column over that gradient, because
+   this element is only as wide as the centred grid track. */
+.auth-page { display: grid; place-items: center; width: 100%; }
 .auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--color-border); border-radius: 20px; background: #fff; box-shadow: 0 24px 60px rgba(15, 42, 51, .11); }
 .auth-brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--color-text); font-weight: 800; }
-.auth-brand img { width: 46px; height: 46px; object-fit: contain; }
+/* Wordmark, not an icon: a fixed square rendered it about 11px tall. */
+.auth-brand img { width: auto; height: 32px; }
 .auth-heading { margin-bottom: 1.75rem; }
 .auth-heading h1 { margin: .2rem 0 .5rem; font-size: clamp(1.75rem, 7vw, 2.25rem); }
 .auth-heading p:not(.eyebrow) { margin: 0; color: var(--color-text-muted); }

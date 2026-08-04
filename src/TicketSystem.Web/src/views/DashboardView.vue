@@ -13,8 +13,10 @@
     <ErrorState v-else-if="error" :message="error" @retry="loadCounts" />
 
     <template v-else>
-      <div class="kpi-grid" aria-label="Talep özeti">
-        <article v-for="item in kpis" :key="item.key" class="surface-card kpi-card">
+      <!-- role="group" is required for the label to be exposed: a bare div is not a
+           name-required element, so screen readers drop aria-label on it. -->
+      <div class="kpi-grid tv-stagger" role="group" :aria-label="t('dashboard.summaryLabel')">
+        <article v-for="item in kpis" :key="item.key" class="surface-card surface-card--interactive kpi-card">
           <div class="kpi-icon" :class="`kpi-icon--${item.key}`">
             <i :class="item.icon" aria-hidden="true"></i>
           </div>

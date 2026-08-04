@@ -86,7 +86,11 @@ public sealed class FirmRepository : IFirmRepository
                 Id = firm.Id,
                 Name = firm.Name,
                 ProductCount = firm.FirmProducts.Count,
-                IsProtected = firm.Name == ProtectedFirm.Name,
+                // Mirrors ProtectedFirm.IsProtectedName (trimmed, case-insensitive).
+                // The helper itself is not translatable, and neither is StringComparison;
+                // the case-insensitivity here comes from the SQL Server collation, which
+                // is what every other search in this project already relies on.
+                IsProtected = firm.Name.Trim() == ProtectedFirm.Name,
             })
             .ToPagedResultAsync(request, cancellationToken);
     }

@@ -13,6 +13,10 @@
       already stored with `dotnet user-secrets set`. Left as-is deliberately.
     -->
     <UserSecretsId>TicketSystem-deneme2-54d4e20c-7f8d-49a5-8e87-1d4cf8eb0842</UserSecretsId>
+    <!-- Publishes the XML doc comments so Swagger can show them. CS1591 stays off:
+         documenting every public member is not the goal, surfacing the ones we wrote is. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +29,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.29" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.29" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.29">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -75,8 +75,13 @@ async function request(method, path, body, options = {}) {
 
     if (!response.ok) {
       const error = toApiError(response, data)
-      if (!skipAuthHandling && response.status === 401) await unauthorizedHandler?.(error)
-      if (!skipAuthHandling && response.status === 403) await forbiddenHandler?.(error)
+      // A handler that rejects must not turn the real status into a network error below.
+      if (!skipAuthHandling && response.status === 401) {
+        await unauthorizedHandler?.(error)?.catch?.(() => {})
+      }
+      if (!skipAuthHandling && response.status === 403) {
+        await forbiddenHandler?.(error)?.catch?.(() => {})
+      }
       throw error
     }
 
@@ -142,7 +147,16 @@ function normalizeBaseUrl(value) {
 }
 
 function resolveUrl(path) {
-  if (/^https?:\/\//i.test(path)) return path
+  // Absolute URLs are refused outright. Every call site passes a literal "/api/..."
+  // today, but the bearer token is attached unconditionally — so the day a path is
+  // ever derived from server data, an absolute URL would ship the token off-origin.
+  if (/^[a-z][a-z0-9+.-]*:/i.test(path) || String(path).startsWith('//')) {
+    throw new ApiError({
+      status: 0,
+      title: 'Invalid request path',
+      code: 'generic',
+    })
+  }
 
   let normalizedPath = String(path || '').trim()
   if (!normalizedPath.startsWith('/')) normalizedPath = `/${normalizedPath}`

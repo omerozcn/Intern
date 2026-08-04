@@ -10,12 +10,22 @@ namespace TicketSystem.Tests;
 /// Boots the real API against a throwaway database.
 ///
 /// The connection comes from TEST_DB_CONNECTION so the same tests run against LocalDB on a
-/// developer machine and against the SQL Server service container in CI. A real database is
-/// required: the repositories open explicit serializable transactions, which the in-memory
-/// provider does not support.
+/// developer machine and against the SQL Server service container in CI.
+///
+/// A real SQL Server is required, but not because of the isolation level — the in-memory
+/// provider rejects every transaction, serializable or not. The actual blockers are that
+/// startup calls MigrateAsync, that UniqueConstraintExceptionHandler matches SqlException
+/// error numbers, and that the search endpoints rely on a case-insensitive collation.
+/// SQLite in-memory would satisfy the first two but not the third.
 /// </summary>
 public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    /// <summary>Seed password this test host installs; not a shipped credential.</summary>
+    public const string AdminPassword = "IntegrationAdmin!2026";
+
+    /// <inheritdoc cref="AdminPassword"/>
+    public const string UserPassword = "IntegrationUser!2026";
+
     private const string DefaultConnection =
         "Server=(localdb)\\MSSQLLocalDB;Database={0};Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
 
@@ -34,8 +44,14 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Development seeds the two accounts the tests sign in with and applies migrations.
         builder.UseEnvironment("Development");
+
+        // Seeding is opt-in; it applies migrations and creates the two accounts the
+        // tests sign in with. The passwords are supplied here rather than taken from
+        // the API's defaults, so the tests do not depend on a shipped credential.
+        builder.UseSetting("Seed:DevelopmentAccounts", "true");
+        builder.UseSetting("Seed:AdminPassword", AdminPassword);
+        builder.UseSetting("Seed:UserPassword", UserPassword);
 
         builder.UseSetting("ConnectionStrings:DefaultConnection", ConnectionString);
         builder.UseSetting("Jwt:Issuer", "http://localhost");

@@ -1,12 +1,16 @@
-/** Accounts created by DevelopmentDataSeeder when the API runs in Development. */
+/**
+ * Accounts created by DevelopmentDataSeeder when the API runs in Development.
+ * Overridable from the environment so a non-default seed can be tested without
+ * editing this file.
+ */
 export const ADMIN = {
-  email: 'admin.test@turkuvaz.local',
-  password: 'AdminTest!2026',
+  email: process.env.E2E_ADMIN_EMAIL || 'admin.test@turkuvaz.local',
+  password: process.env.E2E_ADMIN_PASSWORD || 'AdminTest!2026',
 }
 
 export const USER = {
-  email: 'user.test@turkuvaz.local',
-  password: 'UserTest!2026',
+  email: process.env.E2E_USER_EMAIL || 'user.test@turkuvaz.local',
+  password: process.env.E2E_USER_PASSWORD || 'UserTest!2026',
 }
 
 export async function signIn(page, account) {

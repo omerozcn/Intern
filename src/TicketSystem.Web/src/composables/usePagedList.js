@@ -1,4 +1,4 @@
-import { isRef, ref, unref, watch } from 'vue'
+import { isRef, onScopeDispose, ref, unref, watch } from 'vue'
 
 import { api } from '@/services/api'
 
@@ -82,6 +82,10 @@ export function usePagedList(path, { pageSize = 20, map, params } = {}) {
       load()
     }, SEARCH_DEBOUNCE_MS)
   })
+
+  // Without this a pending debounce fires after the component is gone and writes to
+  // refs nobody is watching any more.
+  onScopeDispose(() => globalThis.clearTimeout(searchTimer))
 
   // Filters apply across the whole result set, so changing one restarts at page 1.
   if (isRef(params)) {

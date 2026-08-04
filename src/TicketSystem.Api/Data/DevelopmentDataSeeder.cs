@@ -5,22 +5,38 @@ using TicketSystem.Security;
 
 namespace TicketSystem.Data;
 
+/// <summary>
+/// Creates the two accounts the development environment and the test suite sign in
+/// with. Never runs unless <c>Seed:DevelopmentAccounts</c> is switched on.
+/// </summary>
 public static class DevelopmentDataSeeder
 {
+    /// <summary>Configuration section that decides whether seeding runs at all.</summary>
+    public const string EnabledKey = "Seed:DevelopmentAccounts";
+
     public const string AdminEmail = "admin.test@turkuvaz.local";
-    public const string AdminPassword = "AdminTest!2026";
     public const string UserEmail = "user.test@turkuvaz.local";
-    public const string UserPassword = "UserTest!2026";
+
+    // Defaults for local development only. They are published in the README, so any
+    // reachable environment must override them or leave seeding switched off.
+    private const string DefaultAdminPassword = "AdminTest!2026";
+    private const string DefaultUserPassword = "UserTest!2026";
 
     public static async Task SeedAsync(IServiceProvider services, ILogger logger)
     {
+        await using var scope = services.CreateAsyncScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+        // Blank counts as "not supplied": compose passes an empty string for an unset
+        // variable, which must not become an empty password.
+        var adminPassword = Coalesce(configuration["Seed:AdminPassword"], DefaultAdminPassword);
+        var userPassword = Coalesce(configuration["Seed:UserPassword"], DefaultUserPassword);
+
         try
         {
-            await using var scope = services.CreateAsyncScope();
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
             await context.Database.MigrateAsync();
 
             foreach (var role in new[] { AppRoles.Admin, AppRoles.User })
@@ -35,19 +51,25 @@ public static class DevelopmentDataSeeder
             var userFirm = await GetOrCreateFirmAsync(context, "TEST FIRMASI");
 
             await EnsureUserAsync(
-                context, userManager, AdminEmail, AdminPassword,
+                context, userManager, AdminEmail, adminPassword,
                 "Test", "Admin", AppRoles.Admin, adminFirm.Id);
             await EnsureUserAsync(
-                context, userManager, UserEmail, UserPassword,
+                context, userManager, UserEmail, userPassword,
                 "Test", "Kullanıcı", AppRoles.User, userFirm.Id);
 
             logger.LogInformation("Development test accounts are ready.");
         }
         catch (Exception exception)
         {
-            logger.LogWarning(exception, "Development test accounts could not be seeded.");
+            // Starting with a half-migrated database only turns into confusing 401s
+            // further downstream, so fail here where the cause is still visible.
+            logger.LogError(exception, "Development seeding failed; the application cannot start.");
+            throw;
         }
     }
+
+    private static string Coalesce(string? configured, string fallback) =>
+        string.IsNullOrWhiteSpace(configured) ? fallback : configured;
 
     private static async Task<Firm> GetOrCreateFirmAsync(
         ApplicationDbContext context,

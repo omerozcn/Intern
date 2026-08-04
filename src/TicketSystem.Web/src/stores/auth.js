@@ -4,11 +4,12 @@ import { defineStore } from 'pinia'
 import { api } from '@/services/api'
 
 const STORAGE_KEY = 'turkuvaz.auth.session'
-let hydrationPromise = null
 
 export const useAuthStore = defineStore('auth', () => {
   const status = ref('unknown')
   const session = ref(null)
+  // Store-scoped, not module-scoped: a fresh Pinia instance must start with a clean slate.
+  let hydrationPromise = null
 
   const user = computed(() => session.value?.user ?? null)
   const accessToken = computed(() => session.value?.accessToken ?? null)
@@ -77,9 +78,16 @@ export const useAuthStore = defineStore('auth', () => {
         const hydratedUser = response?.user ?? response
         persistSession({ ...stored, user: hydratedUser })
         return hydratedUser
-      } catch {
-        clearSession()
-        return null
+      } catch (error) {
+        // Only the server rejecting the token ends the session. A 500 or a dropped
+        // connection must not log out someone whose credentials are still valid.
+        if (error?.status === 401 || error?.status === 403) {
+          clearSession()
+          return null
+        }
+
+        status.value = 'authenticated'
+        return stored.user ?? null
       }
     })()
 

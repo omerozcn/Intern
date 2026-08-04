@@ -64,7 +64,7 @@
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import logo from "@/assets/turkuvaz-logo.png";
+import logo from "@/assets/turkuvaz-logo.webp";
 import ErrorState from "@/components/ErrorState.vue";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
@@ -79,8 +79,20 @@ const showPassword = ref(false);
 const busy = ref(false);
 const complete = ref(false);
 
-const email = computed(() => typeof route.query.email === "string" ? route.query.email : "");
-const token = computed(() => typeof route.query.token === "string" ? route.query.token : "");
+// The reset link carries its parameters in the fragment so that the token is never
+// sent to a server or leaked through the Referer header. The query string is still
+// read as a fallback for links issued before that change.
+const resetParameters = computed(() => {
+  const fragment = new URLSearchParams(route.hash.replace(/^#/, ""));
+  const fromQuery = (key) => (typeof route.query[key] === "string" ? route.query[key] : "");
+  return {
+    email: fragment.get("email") || fromQuery("email"),
+    token: fragment.get("token") || fromQuery("token"),
+  };
+});
+
+const email = computed(() => resetParameters.value.email);
+const token = computed(() => resetParameters.value.token);
 const hasResetParameters = computed(() => Boolean(email.value && token.value));
 
 function validate() {
@@ -108,7 +120,8 @@ async function submit() {
 </script>
 
 <style scoped>
-.auth-page { min-height: 100dvh; display: grid; place-items: center; padding: 1.5rem; background: var(--color-page); }
+/* See SignInView: the layout wrapper owns the centring and the background. */
+.auth-page { display: grid; place-items: center; width: 100%; }
 .auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--color-border); border-radius: 20px; background: white; box-shadow: 0 24px 60px rgba(15, 42, 51, .11); }
 .brand-link { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--color-text); font-weight: 800; text-decoration: none; }
 .brand-link img { width: 46px; height: 46px; object-fit: contain; }

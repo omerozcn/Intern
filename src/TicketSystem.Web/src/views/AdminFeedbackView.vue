@@ -11,11 +11,11 @@
       <span>{{ t('feedback.count', { count: totalCount }) }}</span>
     </div>
 
-    <LoadingState v-if="loading" :message="t('common.loading')" />
+    <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
     <EmptyState v-else-if="!feedback.length" icon="bi-chat-square-text" :title="t('feedback.emptyTitle')" :message="t('feedback.emptyDescription')" />
 
-    <div v-else class="feedback-grid">
+    <div v-else class="feedback-grid tv-stagger">
       <article v-for="item in feedback" :key="item.id" class="surface-card feedback-item">
         <div class="quote-icon"><i class="bi bi-quote" aria-hidden="true"></i></div>
         <p>{{ item.feedbackContent }}</p>
@@ -39,7 +39,7 @@
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
-import LoadingState from "@/components/LoadingState.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
