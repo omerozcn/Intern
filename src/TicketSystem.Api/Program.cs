@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TicketSystem.Configuration;
@@ -33,18 +34,10 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-var configuredJwt = builder.Configuration
-    .GetSection(JwtOptions.SectionName)
-    .Get<JwtOptions>() ?? new JwtOptions();
-
-if (string.IsNullOrWhiteSpace(configuredJwt.Issuer)
-    || string.IsNullOrWhiteSpace(configuredJwt.Audience))
-{
-    throw new InvalidOperationException("Jwt__Issuer and Jwt__Audience must be configured.");
-}
-
+// The signing key is the one setting that cannot be expressed as an attribute: an
+// empty value is legal in Development, where an ephemeral key is generated instead.
 var usesEphemeralDevelopmentKey = false;
-var effectiveSigningKey = configuredJwt.SigningKey;
+var effectiveSigningKey = builder.Configuration[$"{JwtOptions.SectionName}:SigningKey"];
 if (string.IsNullOrWhiteSpace(effectiveSigningKey))
 {
     if (!builder.Environment.IsDevelopment())
@@ -57,39 +50,12 @@ if (string.IsNullOrWhiteSpace(effectiveSigningKey))
     usesEphemeralDevelopmentKey = true;
 }
 
-if (Encoding.UTF8.GetByteCount(effectiveSigningKey) < 32)
-{
-    throw new InvalidOperationException("Jwt__SigningKey must contain at least 32 bytes.");
-}
-
-if (configuredJwt.ExpirationMinutes is < 1 or > 1440
-    || configuredJwt.ClockSkewSeconds is < 0 or > 300)
-{
-    throw new InvalidOperationException(
-        "JWT expiration must be 1-1440 minutes and clock skew must be 0-300 seconds.");
-}
-
-var frontend = builder.Configuration
-    .GetSection(FrontendOptions.SectionName)
-    .Get<FrontendOptions>() ?? new FrontendOptions();
-if (!Uri.TryCreate(frontend.BaseUrl, UriKind.Absolute, out var frontendUri)
-    || (frontendUri.Scheme != Uri.UriSchemeHttp && frontendUri.Scheme != Uri.UriSchemeHttps))
-{
-    throw new InvalidOperationException("Frontend__BaseUrl must be an absolute HTTP or HTTPS URL.");
-}
-
+// Rate limiter partitions are built during service registration, before the options
+// system is available, so this one section is still read eagerly. It is validated
+// through the same ValidateOnStart pipeline below.
 var rateLimits = builder.Configuration
     .GetSection(RateLimitOptions.SectionName)
     .Get<RateLimitOptions>() ?? new RateLimitOptions();
-if (rateLimits.GlobalPermitLimit <= 0
-    || rateLimits.GlobalWindowSeconds <= 0
-    || rateLimits.LoginPermitLimit <= 0
-    || rateLimits.LoginWindowSeconds <= 0
-    || rateLimits.PasswordPermitLimit <= 0
-    || rateLimits.PasswordWindowSeconds <= 0)
-{
-    throw new InvalidOperationException("All rate limiting values must be positive.");
-}
 
 // The rate limiter partitions on the client IP. Behind a reverse proxy every request
 // arrives with the proxy's address, which would collapse all callers into one bucket,
@@ -155,17 +121,45 @@ if (allowedOrigins.Length == 0)
     throw new InvalidOperationException("At least one Cors__AllowedOrigins origin must be configured.");
 }
 
+// Every section is bound, validated and checked at startup, so a misconfigured app
+// fails immediately and the object that gets validated is the object that gets
+// injected — rather than a second copy read separately.
 builder.Services
     .AddOptions<JwtOptions>()
-    .Configure(options =>
-    {
-        builder.Configuration.GetSection(JwtOptions.SectionName).Bind(options);
-        options.SigningKey = effectiveSigningKey;
-    });
-builder.Services.Configure<SmtpOptions>(
-    builder.Configuration.GetSection(SmtpOptions.SectionName));
-builder.Services.Configure<FrontendOptions>(
-    builder.Configuration.GetSection(FrontendOptions.SectionName));
+    .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+    .PostConfigure(options => options.SigningKey = effectiveSigningKey)
+    .ValidateDataAnnotations()
+    .Validate(
+        options => Encoding.UTF8.GetByteCount(options.SigningKey) >= 32,
+        "Jwt__SigningKey must contain at least 32 bytes.")
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<FrontendOptions>()
+    .Bind(builder.Configuration.GetSection(FrontendOptions.SectionName))
+    .ValidateDataAnnotations()
+    .Validate(
+        options => Uri.TryCreate(options.BaseUrl, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps),
+        "Frontend__BaseUrl must be an absolute HTTP or HTTPS URL.")
+    .ValidateOnStart();
+
+builder.Services
+    .AddOptions<RateLimitOptions>()
+    .Bind(builder.Configuration.GetSection(RateLimitOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+// Only validated when a host is configured: password reset is the sole consumer, and
+// an installation that never sends mail should still start.
+builder.Services
+    .AddOptions<SmtpOptions>()
+    .Bind(builder.Configuration.GetSection(SmtpOptions.SectionName))
+    .Validate(
+        options => string.IsNullOrWhiteSpace(options.Host)
+            || (options.Port is > 0 and <= 65535 && !string.IsNullOrWhiteSpace(options.FromEmail)),
+        "Smtp__Port must be 1-65535 and Smtp__FromEmail must be set when Smtp__Host is configured.")
+    .ValidateOnStart();
 
 builder.Services.AddExceptionHandler<UniqueConstraintExceptionHandler>();
 builder.Services.AddProblemDetails(options =>
@@ -290,21 +284,6 @@ builder.Services
     {
         options.MapInboundClaims = false;
         options.SaveToken = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = configuredJwt.Issuer,
-            ValidateAudience = true,
-            ValidAudience = configuredJwt.Audience,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = signingKey,
-            ValidateLifetime = true,
-            RequireExpirationTime = true,
-            RequireSignedTokens = true,
-            ClockSkew = TimeSpan.FromSeconds(configuredJwt.ClockSkewSeconds),
-            NameClaimType = AuthClaimTypes.Name,
-            RoleClaimType = AuthClaimTypes.Role
-        };
         options.Events = new JwtBearerEvents
         {
             OnTokenValidated = async context =>
@@ -335,6 +314,32 @@ builder.Services
                 "Access forbidden",
                 "You do not have permission to perform this action.",
                 context.HttpContext.RequestAborted)
+        };
+    });
+
+// Reads the same validated JwtOptions instance the rest of the app is injected with,
+// rather than binding the section a second time.
+builder.Services
+    .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<IOptions<JwtOptions>>((bearer, jwtOptions) =>
+    {
+        var jwt = jwtOptions.Value;
+        bearer.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwt.Audience,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = signingKey,
+            ValidateLifetime = true,
+            RequireExpirationTime = true,
+            RequireSignedTokens = true,
+            // Pinned so a token cannot ask to be validated with a different algorithm.
+            ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+            ClockSkew = TimeSpan.FromSeconds(jwt.ClockSkewSeconds),
+            NameClaimType = AuthClaimTypes.Name,
+            RoleClaimType = AuthClaimTypes.Role
         };
     });
 
