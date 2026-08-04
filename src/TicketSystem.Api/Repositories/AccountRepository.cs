@@ -116,7 +116,13 @@ public sealed class AccountRepository : IAccountRepository
             UserName = $"u{Guid.NewGuid():N}",
             FirstName = registerDto.FirstName.Trim(),
             LastName = registerDto.LastName.Trim(),
-            Email = registerDto.Email.Trim().ToLowerInvariant()
+            Email = registerDto.Email.Trim().ToLowerInvariant(),
+
+            // There is no self-registration: accounts exist only because an
+            // administrator created them, so the administrator is the verification
+            // step. Recorded explicitly rather than left silently false, which would
+            // read as "unverified" and block a confirmation flow added later.
+            EmailConfirmed = true
         };
 
         await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
