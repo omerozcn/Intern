@@ -2,7 +2,7 @@
   <section>
     <PageHeader :title="t('tickets.myTitle')" :description="t('tickets.myDescription')">
       <template #actions>
-        <RouterLink class="btn btn-primary" to="/ticket">
+        <RouterLink class="btn btn-primary" to="/tickets/new">
           <i class="bi bi-plus-lg" aria-hidden="true"></i>
           {{ t('tickets.new') }}
         </RouterLink>
@@ -33,7 +33,7 @@
       :message="activeFilter === 'all' ? t('tickets.emptyDescription') : t('tickets.emptyFilter')"
     >
       <template #actions>
-        <RouterLink class="btn btn-primary" to="/ticket">{{ t('tickets.createFirst') }}</RouterLink>
+        <RouterLink class="btn btn-primary" to="/tickets/new">{{ t('tickets.createFirst') }}</RouterLink>
       </template>
     </EmptyState>
 

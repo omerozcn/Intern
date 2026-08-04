@@ -65,7 +65,7 @@
         </div>
 
         <div class="form-actions">
-          <RouterLink class="btn btn-outline-secondary" to="/request">{{ t('ticket.viewMine') }}</RouterLink>
+          <RouterLink class="btn btn-outline-secondary" to="/tickets">{{ t('ticket.viewMine') }}</RouterLink>
           <button class="btn btn-primary" type="submit" :disabled="busy || productsLoading">
             <span v-if="busy" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
             <i v-else class="bi bi-send" aria-hidden="true"></i>

@@ -2,7 +2,7 @@
   <section>
     <PageHeader :title="t('dashboard.title')" :description="dashboardDescription">
       <template #actions>
-        <RouterLink class="btn btn-primary" :to="isAdmin ? '/adminticket' : '/ticket'">
+        <RouterLink class="btn btn-primary" :to="isAdmin ? '/admin/tickets' : '/tickets/new'">
           <i class="bi" :class="isAdmin ? 'bi-inbox' : 'bi-plus-lg'" aria-hidden="true"></i>
           {{ isAdmin ? t('dashboard.viewAll') : t('dashboard.createTicket') }}
         </RouterLink>
@@ -31,7 +31,7 @@
             <h2>{{ t('dashboard.distribution') }}</h2>
             <p>{{ t('dashboard.distributionDescription') }}</p>
           </div>
-          <RouterLink class="text-link" :to="isAdmin ? '/adminticket' : '/request'">
+          <RouterLink class="text-link" :to="isAdmin ? '/admin/tickets' : '/tickets'">
             {{ t('dashboard.details') }}
             <i class="bi bi-arrow-right" aria-hidden="true"></i>
           </RouterLink>

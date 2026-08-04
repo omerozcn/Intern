@@ -9,7 +9,7 @@ test.describe('ticket flow', () => {
   test('a user creates a ticket and sees it in their list', async ({ page, request }) => {
     await signIn(page, USER)
 
-    await page.goto('/ticket')
+    await page.goto('/tickets/new')
     await page.getByRole('radio', { name: 'Yeni ürün talebi' }).check()
     await page.getByLabel('Açıklama').fill(DESCRIPTION)
 
@@ -23,7 +23,7 @@ test.describe('ticket flow', () => {
     expect(response.status()).toBe(201)
     const created = await response.json()
 
-    await page.goto('/request')
+    await page.goto('/tickets')
     await expect(page.getByText(DESCRIPTION)).toBeVisible()
 
     // Leave the seeded data as it was found.
@@ -38,7 +38,7 @@ test.describe('ticket flow', () => {
   test('the description length rule is enforced', async ({ page }) => {
     await signIn(page, USER)
 
-    await page.goto('/ticket')
+    await page.goto('/tickets/new')
     await page.getByRole('radio', { name: 'Yeni ürün talebi' }).check()
     await page.getByLabel('Açıklama').fill('cok kisa')
     await page.getByRole('button', { name: 'Talebi gönder' }).click()
@@ -50,7 +50,7 @@ test.describe('ticket flow', () => {
   test('an admin sees the ticket and its status tabs', async ({ page }) => {
     await signIn(page, ADMIN)
 
-    await page.goto('/adminticket')
+    await page.goto('/admin/tickets')
 
     await expect(page.getByRole('heading', { name: 'Talep yönetimi' })).toBeVisible()
     await expect(page.getByRole('button', { name: /Bekliyor/ })).toBeVisible()

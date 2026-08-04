@@ -24,7 +24,8 @@ export default [
       'vue/html-self-closing': 'off',
       'vue/html-indent': 'off',
       'vue/max-attributes-per-line': 'off',
-      'vue/multi-word-component-names': 'off',
+      // Every component and view is multi-word now, so the rule can stay on.
+      'vue/multi-word-component-names': 'error',
       'vue/multiline-html-element-content-newline': 'off',
       'vue/no-v-html': 'error',
       'vue/singleline-html-element-content-newline': 'off',

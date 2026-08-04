@@ -163,7 +163,7 @@ import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
-import logoUrl from '@/assets/Turkuvaz Logo.png'
+import logoUrl from '@/assets/turkuvaz-logo.png'
 import { setLocale, supportedLocales } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
@@ -183,7 +183,7 @@ const links = [
   { name: 'dashboard', labelKey: 'nav.dashboard', icon: 'bi-grid-1x2' },
   { name: 'create-ticket', labelKey: 'nav.createTicket', icon: 'bi-plus-square', roles: ['User'] },
   { name: 'my-tickets', labelKey: 'nav.myTickets', icon: 'bi-inbox', roles: ['User'] },
-  { name: 'communication', labelKey: 'nav.sendFeedback', icon: 'bi-chat-square-text', roles: ['User'] },
+  { name: 'send-feedback', labelKey: 'nav.sendFeedback', icon: 'bi-chat-square-text', roles: ['User'] },
   { name: 'admin-tickets', labelKey: 'nav.tickets', icon: 'bi-kanban', roles: ['Admin'] },
   { name: 'services', labelKey: 'nav.services', icon: 'bi-box-seam', roles: ['Admin'] },
   { name: 'firms', labelKey: 'nav.firms', icon: 'bi-buildings', roles: ['Admin'] },
