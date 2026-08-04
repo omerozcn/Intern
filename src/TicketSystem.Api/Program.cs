@@ -1,10 +1,13 @@
 using System.Diagnostics;
+using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -86,6 +89,58 @@ if (rateLimits.GlobalPermitLimit <= 0
     || rateLimits.PasswordWindowSeconds <= 0)
 {
     throw new InvalidOperationException("All rate limiting values must be positive.");
+}
+
+// The rate limiter partitions on the client IP. Behind a reverse proxy every request
+// arrives with the proxy's address, which would collapse all callers into one bucket,
+// so X-Forwarded-For is honoured only for proxies that are explicitly trusted here.
+// With nothing configured the middleware stays off and the socket address is used.
+var knownProxies = builder.Configuration
+    .GetSection("ForwardedHeaders:KnownProxies")
+    .Get<string[]>() ?? [];
+var knownNetworks = builder.Configuration
+    .GetSection("ForwardedHeaders:KnownNetworks")
+    .Get<string[]>() ?? [];
+var trustsForwardedHeaders = knownProxies.Length > 0 || knownNetworks.Length > 0;
+
+if (trustsForwardedHeaders)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+
+        // The defaults trust loopback only; replace them with the configured allowlist.
+        options.KnownProxies.Clear();
+        options.KnownNetworks.Clear();
+
+        foreach (var proxy in knownProxies)
+        {
+            if (!IPAddress.TryParse(proxy.Trim(), out var address))
+            {
+                throw new InvalidOperationException(
+                    $"ForwardedHeaders__KnownProxies contains '{proxy}', which is not an IP address.");
+            }
+
+            options.KnownProxies.Add(address);
+        }
+
+        foreach (var network in knownNetworks)
+        {
+            var parts = network.Split('/', 2);
+            if (parts.Length != 2
+                || !IPAddress.TryParse(parts[0].Trim(), out var prefix)
+                || !int.TryParse(parts[1].Trim(), out var prefixLength))
+            {
+                throw new InvalidOperationException(
+                    $"ForwardedHeaders__KnownNetworks contains '{network}', which is not CIDR notation.");
+            }
+
+            // Fully qualified: System.Net also has an IPNetwork in .NET 8.
+            options.KnownNetworks.Add(
+                new Microsoft.AspNetCore.HttpOverrides.IPNetwork(prefix, prefixLength));
+        }
+    });
 }
 
 var allowedOrigins = builder.Configuration
@@ -317,6 +372,10 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// Lets an orchestrator tell "the process is up" apart from "it can reach its database".
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("database");
+
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IJwtSecurityStampValidator, JwtSecurityStampValidator>();
@@ -336,18 +395,48 @@ if (usesEphemeralDevelopmentKey)
         "Jwt__SigningKey is not configured; an ephemeral development-only key is in use. Tokens will be invalid after restart.");
 }
 
-if (app.Environment.IsDevelopment())
+// Seeding creates an administrator whose password is published in the README, and it
+// applies migrations. Both need an explicit opt-in rather than riding on the
+// environment name, so that a container started in Development stays inert by default.
+if (app.Configuration.GetValue(DevelopmentDataSeeder.EnabledKey, defaultValue: false))
 {
     await DevelopmentDataSeeder.SeedAsync(app.Services, app.Logger);
+}
+
+// Must run before anything reads the client address or scheme.
+if (trustsForwardedHeaders)
+{
+    app.UseForwardedHeaders();
 }
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "no-referrer";
+
+    // This API only ever answers with JSON, so it needs no script, style or frame
+    // privileges at all. Swagger UI does, which is why it is left out in Development.
+    if (!app.Environment.IsDevelopment())
+    {
+        headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'";
+    }
+
+    await next();
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+else
+{
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -358,6 +447,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Liveness: the process answers. Readiness: it can also reach the database.
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false })
+    .AllowAnonymous();
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.Run();
 

@@ -11,10 +11,10 @@ public static class ApiClient
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     public static Task<HttpClient> AdminAsync(ApiFactory factory) =>
-        SignInAsync(factory, DevelopmentDataSeeder.AdminEmail, DevelopmentDataSeeder.AdminPassword);
+        SignInAsync(factory, DevelopmentDataSeeder.AdminEmail, ApiFactory.AdminPassword);
 
     public static Task<HttpClient> UserAsync(ApiFactory factory) =>
-        SignInAsync(factory, DevelopmentDataSeeder.UserEmail, DevelopmentDataSeeder.UserPassword);
+        SignInAsync(factory, DevelopmentDataSeeder.UserEmail, ApiFactory.UserPassword);
 
     public static async Task<HttpClient> SignInAsync(ApiFactory factory, string email, string password)
     {

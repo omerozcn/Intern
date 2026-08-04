@@ -8,6 +8,7 @@ services:
       MSSQL_PID: Developer
     ports:
       - "${DB_PORT:-1433}:1433"
+    restart: unless-stopped
     volumes:
       - mssql-data:/var/opt/mssql
     healthcheck:
@@ -31,8 +32,15 @@ services:
       db:
         condition: service_healthy
     environment:
-      # Development applies migrations and seeds the test accounts on startup.
-      ASPNETCORE_ENVIRONMENT: Development
+      # This stack is a local demo. Seeding is what applies the migrations and creates
+      # the two accounts documented in the README, so it defaults to on here — but it
+      # is an explicit switch, not a side effect of the environment name. Set
+      # SEED_DEVELOPMENT_ACCOUNTS=false (and migrate separately) for anything reachable,
+      # and override the two passwords if you leave it on.
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      Seed__DevelopmentAccounts: ${SEED_DEVELOPMENT_ACCOUNTS:-true}
+      Seed__AdminPassword: ${SEED_ADMIN_PASSWORD:-}
+      Seed__UserPassword: ${SEED_USER_PASSWORD:-}
       ConnectionStrings__DefaultConnection: "Server=db,1433;Database=TicketSystem;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
       Jwt__Issuer: ${JWT_ISSUER:-http://localhost:5005}
       Jwt__Audience: ${JWT_AUDIENCE:-http://localhost:5005}
@@ -41,6 +49,14 @@ services:
       Cors__AllowedOrigins__0: ${FRONTEND_BASE_URL:-http://localhost:5173}
     ports:
       - "${API_PORT:-5005}:8080"
+    restart: unless-stopped
+    healthcheck:
+      # /health also verifies the database connection, so a web container can wait on it.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
 
 volumes:
   mssql-data:
