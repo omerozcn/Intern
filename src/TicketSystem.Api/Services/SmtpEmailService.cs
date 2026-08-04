@@ -6,7 +6,7 @@ using MimeKit;
 using TicketSystem.Configuration;
 using TicketSystem.Interfaces;
 
-namespace TicketSystem.Service;
+namespace TicketSystem.Services;
 
 public sealed class SmtpEmailService : IEmailService
 {

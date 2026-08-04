@@ -5,7 +5,7 @@ using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Security;
 
-namespace TicketSystem.Service;
+namespace TicketSystem.Services;
 
 public sealed class JwtSecurityStampValidator : IJwtSecurityStampValidator
 {

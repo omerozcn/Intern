@@ -7,7 +7,7 @@ using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 
-namespace TicketSystem.Repository;
+namespace TicketSystem.Repositories;
 
 public sealed class ProductRepository : IProductRepository
 {

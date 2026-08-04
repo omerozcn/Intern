@@ -9,7 +9,7 @@ using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Security;
 
-namespace TicketSystem.Repository;
+namespace TicketSystem.Repositories;
 
 public sealed class AccountRepository : IAccountRepository
 {

@@ -16,9 +16,9 @@ using TicketSystem.Data;
 using TicketSystem.Infrastructure;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
-using TicketSystem.Repository;
+using TicketSystem.Repositories;
 using TicketSystem.Security;
-using TicketSystem.Service;
+using TicketSystem.Services;
 
 const string CorsPolicyName = "ConfiguredOrigins";
 
