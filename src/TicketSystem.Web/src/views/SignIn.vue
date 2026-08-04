@@ -176,7 +176,7 @@ async function submitForgotPassword() {
   if (forgotError.value || busy.value) return;
   busy.value = true;
   try {
-    await api.post("/api/account/forgot-password", { email: forgotEmail.value });
+    await api.post("/api/auth/forgot-password", { email: forgotEmail.value });
     forgotSent.value = true;
   } catch (error) {
     toast.error(error.message || t("errors.generic"));

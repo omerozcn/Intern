@@ -130,7 +130,7 @@ const {
   error,
   load,
   goToPage,
-} = usePagedList("/api/Product/listProduct", {
+} = usePagedList("/api/products", {
   map: (rows) => rows.map((item) => ({
     id: Number(item.id),
     name: item.name,
@@ -164,7 +164,7 @@ async function createProduct() {
   if (createError.value || creating.value) return;
   creating.value = true;
   try {
-    await api.post("/api/Product/createProduct", { name: newProductName.value });
+    await api.post("/api/products", { name: newProductName.value });
     newProductName.value = "";
     await load();
     toast.success(t("services.created"));
@@ -179,7 +179,7 @@ async function saveEdit(product) {
   if (editName.value.length < 2 || savingId.value) { toast.warning(t("validation.nameLength")); return; }
   savingId.value = product.id;
   try {
-    await api.put(`/api/Product/updateProduct/${product.id}`, { id: product.id, name: editName.value });
+    await api.put(`/api/products/${product.id}`, { id: product.id, name: editName.value });
     cancelEdit();
     await load();
     toast.success(t("services.updated"));
@@ -192,7 +192,7 @@ async function assignFirm(product) {
   if (!firmId || assigningId.value) return;
   assigningId.value = product.id;
   try {
-    await api.post("/api/Firmproduct/createfirmProduct", { firmId, productId: product.id });
+    await api.post("/api/firm-products", { firmId, productId: product.id });
     assignmentSelections[product.id] = "";
     await load();
     toast.success(t("services.assignmentUpdated"));
@@ -206,8 +206,8 @@ async function confirmRemoval() {
   if (!confirmTarget.value || removing.value) return;
   removing.value = true;
   try {
-    if (confirmTarget.value.type === "product") await api.delete(`/api/Product/deleteProduct/${confirmTarget.value.product.id}`);
-    else await api.delete(`/api/Firmproduct/deletefirmProduct/${confirmTarget.value.firm.relationId}`);
+    if (confirmTarget.value.type === "product") await api.delete(`/api/products/${confirmTarget.value.product.id}`);
+    else await api.delete(`/api/firm-products/${confirmTarget.value.firm.relationId}`);
     confirmOpen.value = false;
     confirmTarget.value = null;
     await load();

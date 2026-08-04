@@ -93,7 +93,7 @@ async function submit() {
   if (!validate() || busy.value) return;
   busy.value = true;
   try {
-    await api.post("/api/account/reset-password", {
+    await api.post("/api/auth/reset-password", {
       email: email.value,
       token: token.value,
       newPassword: form.newPassword,

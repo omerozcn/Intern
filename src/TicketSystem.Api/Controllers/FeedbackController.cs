@@ -10,7 +10,7 @@ namespace TicketSystem.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/Feedback")]
+[Route("api/feedback")]
 public sealed class FeedbackController : ControllerBase
 {
     private readonly IFeedbackRepository _feedbackRepository;
@@ -21,7 +21,7 @@ public sealed class FeedbackController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.Admin)]
-    [HttpGet("listFeedbacks")]
+    [HttpGet]
     [ProducesResponseType<PagedResult<FeedbackDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<FeedbackDto>>> GetAll(
         [FromQuery] PageRequest request,
@@ -31,7 +31,7 @@ public sealed class FeedbackController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.User)]
-    [HttpPost("createFeedback")]
+    [HttpPost]
     [ProducesResponseType<FeedbackDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<FeedbackDto>> Create(

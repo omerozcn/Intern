@@ -14,11 +14,11 @@ public sealed class AuthorizationTests
     }
 
     [Theory]
-    [InlineData("/api/Ticket/listTicket")]
-    [InlineData("/api/Product/listProduct")]
-    [InlineData("/api/Firm/listFirm")]
-    [InlineData("/api/account/listUsers")]
-    [InlineData("/api/Feedback/listFeedbacks")]
+    [InlineData("/api/tickets")]
+    [InlineData("/api/products")]
+    [InlineData("/api/firms")]
+    [InlineData("/api/users")]
+    [InlineData("/api/feedback")]
     public async Task Anonymous_requests_are_rejected(string path)
     {
         var client = _factory.CreateClient();
@@ -29,11 +29,11 @@ public sealed class AuthorizationTests
     }
 
     [Theory]
-    [InlineData("/api/Ticket/listTicket")]
-    [InlineData("/api/Product/listProduct")]
-    [InlineData("/api/Firm/listFirm")]
-    [InlineData("/api/account/listUsers")]
-    [InlineData("/api/Feedback/listFeedbacks")]
+    [InlineData("/api/tickets")]
+    [InlineData("/api/products")]
+    [InlineData("/api/firms")]
+    [InlineData("/api/users")]
+    [InlineData("/api/feedback")]
     public async Task Admin_only_endpoints_reject_the_user_role(string path)
     {
         var client = await ApiClient.UserAsync(_factory);
@@ -44,8 +44,8 @@ public sealed class AuthorizationTests
     }
 
     [Theory]
-    [InlineData("/api/Ticket/listByUserId")]
-    [InlineData("/api/Firmproduct/listProductsForCurrentUser")]
+    [InlineData("/api/tickets/mine")]
+    [InlineData("/api/products/mine")]
     public async Task User_only_endpoints_reject_the_admin_role(string path)
     {
         var client = await ApiClient.AdminAsync(_factory);
@@ -61,7 +61,7 @@ public sealed class AuthorizationTests
         var client = _factory.CreateClient();
 
         var response = await client.PostAsJsonAsync(
-            "/api/account/login",
+            "/api/auth/login",
             new { email = "admin.test@turkuvaz.local", password = "wrong-password" });
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -72,7 +72,7 @@ public sealed class AuthorizationTests
     {
         var client = await ApiClient.AdminAsync(_factory);
 
-        var profile = await client.GetFromJsonAsync<ProfileResponse>("/api/account/me", ApiClient.Json);
+        var profile = await client.GetFromJsonAsync<ProfileResponse>("/api/auth/me", ApiClient.Json);
 
         Assert.NotNull(profile);
         Assert.Equal("Admin", profile!.Role);

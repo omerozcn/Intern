@@ -190,7 +190,7 @@ const {
   error,
   load,
   goToPage,
-} = usePagedList("/api/account/listUsers", {
+} = usePagedList("/api/users", {
   params: listParams,
   map: (rows) => rows.map(normalizeUser),
 });
@@ -212,7 +212,7 @@ async function createAccount() {
   if (!validateCreate() || creating.value) return;
   creating.value = true;
   try {
-    await api.post("/api/account/register", { firstName: createForm.firstName, lastName: createForm.lastName, email: createForm.email, password: createForm.password, role: createForm.role, firmId: createForm.role === "User" ? Number(createForm.firmId) : null });
+    await api.post("/api/users", { firstName: createForm.firstName, lastName: createForm.lastName, email: createForm.email, password: createForm.password, role: createForm.role, firmId: createForm.role === "User" ? Number(createForm.firmId) : null });
     resetCreate(); await load(); toast.success(t("accounts.created"));
   } catch (requestError) { toast.error(requestError.message || t("errors.createAccount")); }
   finally { creating.value = false; }
@@ -227,7 +227,7 @@ async function saveAccount() {
   if (!editForm.firstName || !editForm.lastName || !validEmail(editForm.email) || (editForm.role === "User" && !editForm.firmId)) { editError.value = t("validation.checkFields"); return; }
   saving.value = true;
   try {
-    await api.put(`/api/account/updateAccount/${selectedUser.value.id}`, { id: selectedUser.value.id, firstName: editForm.firstName, lastName: editForm.lastName, email: editForm.email, role: editForm.role, firmId: editForm.role === "User" ? Number(editForm.firmId) : null });
+    await api.put(`/api/users/${selectedUser.value.id}`, { id: selectedUser.value.id, firstName: editForm.firstName, lastName: editForm.lastName, email: editForm.email, role: editForm.role, firmId: editForm.role === "User" ? Number(editForm.firmId) : null });
     editDialog.value?.close(); await load(); toast.success(t("accounts.updated"));
   } catch (requestError) { toast.error(requestError.message || t("errors.updateAccount")); }
   finally { saving.value = false; }
@@ -237,7 +237,7 @@ function askDelete(user) { selectedForDelete.value = user; confirmOpen.value = t
 async function deleteAccount() {
   if (!selectedForDelete.value || deleting.value) return;
   deleting.value = true;
-  try { await api.delete(`/api/account/deleteUser/${selectedForDelete.value.id}`); confirmOpen.value = false; selectedForDelete.value = null; await load(); toast.success(t("accounts.deleted")); }
+  try { await api.delete(`/api/users/${selectedForDelete.value.id}`); confirmOpen.value = false; selectedForDelete.value = null; await load(); toast.success(t("accounts.deleted")); }
   catch (requestError) { toast.error(requestError.message || t("errors.deleteAccount")); }
   finally { deleting.value = false; }
 }

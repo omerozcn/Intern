@@ -7,17 +7,18 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using TicketSystem.Configuration;
-using TicketSystem.Dtos.Common;
 using TicketSystem.Dtos.Account;
+using TicketSystem.Extensions;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
 using TicketSystem.Security;
 
 namespace TicketSystem.Controllers;
 
+/// <summary>Sign-in, sign-out and password lifecycle for the current session.</summary>
 [ApiController]
-[Route("api/account")]
-public sealed class AccountController : ControllerBase
+[Route("api/auth")]
+public sealed class AuthController : ControllerBase
 {
     private const string GenericResetMessage =
         "If an account exists for that email address, a password reset link has been sent.";
@@ -28,16 +29,16 @@ public sealed class AccountController : ControllerBase
     private readonly IAccountRepository _accountRepository;
     private readonly IEmailService _emailService;
     private readonly FrontendOptions _frontendOptions;
-    private readonly ILogger<AccountController> _logger;
+    private readonly ILogger<AuthController> _logger;
 
-    public AccountController(
+    public AuthController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         ITokenService tokenService,
         IAccountRepository accountRepository,
         IEmailService emailService,
         IOptions<FrontendOptions> frontendOptions,
-        ILogger<AccountController> logger)
+        ILogger<AuthController> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -90,9 +91,9 @@ public sealed class AccountController : ControllerBase
         });
     }
 
+    /// <summary>The profile of the signed-in account.</summary>
     [Authorize]
     [HttpGet("me")]
-    [HttpGet("getbyusername")]
     [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]
     public async Task<ActionResult<ProfileDto>> Me(CancellationToken cancellationToken)
     {
@@ -104,106 +105,6 @@ public sealed class AccountController : ControllerBase
 
         var profile = await _accountRepository.GetByIdAsync(userId, cancellationToken);
         return profile is null ? Unauthorized() : Ok(profile);
-    }
-
-    [Authorize(Roles = AppRoles.Admin)]
-    [HttpGet("listUsers")]
-    [ProducesResponseType<PagedResult<ProfileDto>>(StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResult<ProfileDto>>> GetAll(
-        [FromQuery] UserListRequest request,
-        CancellationToken cancellationToken)
-    {
-        return Ok(await _accountRepository.GetAllAsync(request, cancellationToken));
-    }
-
-    [Authorize(Roles = AppRoles.Admin)]
-    [HttpGet("listById/{id}")]
-    [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileDto>> GetById(
-        [FromRoute] string id,
-        CancellationToken cancellationToken)
-    {
-        var profile = await _accountRepository.GetByIdAsync(id, cancellationToken);
-        return profile is null
-            ? Problem(statusCode: StatusCodes.Status404NotFound, title: "Account not found")
-            : Ok(profile);
-    }
-
-    [Authorize(Roles = AppRoles.Admin)]
-    [HttpPost("register")]
-    [ProducesResponseType<ProfileDto>(StatusCodes.Status201Created)]
-    public async Task<ActionResult<ProfileDto>> Register(
-        [FromBody] RegisterDto registerDto,
-        CancellationToken cancellationToken)
-    {
-        var result = await _accountRepository.CreateAsync(registerDto, cancellationToken);
-        if (!result.Succeeded)
-        {
-            return IdentityFailure(result);
-        }
-
-        var profile = await _accountRepository.GetByEmailAsync(registerDto.Email, cancellationToken);
-        if (profile is null)
-        {
-            throw new InvalidOperationException("The new account could not be reloaded.");
-        }
-
-        return CreatedAtAction(nameof(GetById), new { id = profile.Id }, profile);
-    }
-
-    [Authorize(Roles = AppRoles.Admin)]
-    [HttpPut("updateAccount/{id}")]
-    [ProducesResponseType<ProfileDto>(StatusCodes.Status200OK)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ProfileDto>> Update(
-        [FromRoute] string id,
-        [FromBody] UpdateDto updateDto,
-        CancellationToken cancellationToken)
-    {
-        var result = await _accountRepository.UpdateAsync(id, updateDto, cancellationToken);
-        if (result is null)
-        {
-            return Problem(statusCode: StatusCodes.Status404NotFound, title: "Account not found");
-        }
-
-        if (!result.Succeeded)
-        {
-            return IdentityFailure(result);
-        }
-
-        var profile = await _accountRepository.GetByIdAsync(id, cancellationToken);
-        if (profile is null)
-        {
-            throw new InvalidOperationException("The updated account could not be reloaded.");
-        }
-
-        return Ok(profile);
-    }
-
-    [Authorize(Roles = AppRoles.Admin)]
-    [HttpDelete("deleteUser/{id}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(
-        [FromRoute] string id,
-        CancellationToken cancellationToken)
-    {
-        var result = await _accountRepository.DeleteAsync(id, cancellationToken);
-        if (result is null)
-        {
-            return Problem(statusCode: StatusCodes.Status404NotFound, title: "Account not found");
-        }
-
-        if (result.Errors.Any(error => error.Code == "AccountHasTicketHistory"))
-        {
-            return Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Account cannot be deleted",
-                detail: "Accounts referenced by ticket history must be retained.");
-        }
-
-        return result.Succeeded ? NoContent() : IdentityFailure(result);
     }
 
     [AllowAnonymous]
@@ -278,7 +179,7 @@ public sealed class AccountController : ControllerBase
         {
             return resetResult.Errors.Any(error => error.Code == "InvalidToken")
                 ? InvalidResetRequest()
-                : IdentityFailure(resetResult);
+                : this.IdentityFailure(resetResult);
         }
 
         var stampResult = await _userManager.UpdateSecurityStampAsync(user);
@@ -314,7 +215,7 @@ public sealed class AccountController : ControllerBase
             changePasswordDto.NewPassword);
         if (!changeResult.Succeeded)
         {
-            return IdentityFailure(changeResult);
+            return this.IdentityFailure(changeResult);
         }
 
         var stampResult = await _userManager.UpdateSecurityStampAsync(user);
@@ -341,6 +242,7 @@ public sealed class AccountController : ControllerBase
             return Unauthorized();
         }
 
+        // Bumping the stamp invalidates every token already issued for this account.
         var result = await _userManager.UpdateSecurityStampAsync(user);
         if (!result.Succeeded)
         {
@@ -365,27 +267,6 @@ public sealed class AccountController : ControllerBase
             statusCode: StatusCodes.Status400BadRequest,
             title: "Invalid password reset request",
             detail: "The password reset link is invalid or has expired.");
-    }
-
-    private ObjectResult IdentityFailure(IdentityResult result)
-    {
-        var errors = result.Errors
-            .GroupBy(error => string.IsNullOrWhiteSpace(error.Code) ? "account" : error.Code)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(error => error.Description).Distinct().ToArray());
-
-        var problem = new ValidationProblemDetails(errors)
-        {
-            Status = StatusCodes.Status400BadRequest,
-            Title = "Account validation failed",
-            Instance = HttpContext.Request.Path
-        };
-        problem.Extensions["traceId"] = HttpContext.TraceIdentifier;
-
-        var response = BadRequest(problem);
-        response.ContentTypes.Add("application/problem+json");
-        return response;
     }
 
     private string BuildResetUrl(string email, string encodedToken)

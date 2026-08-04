@@ -109,7 +109,7 @@ async function loadCounts() {
   loading.value = true;
   error.value = "";
   try {
-    counts.value = normalizeTicketCounts(await api.get("/api/Ticket/ticketstatuscount"));
+    counts.value = normalizeTicketCounts(await api.get("/api/tickets/status-counts"));
   } catch (requestError) {
     error.value = requestError.message || t("errors.loadDashboard");
   } finally {

@@ -19,7 +19,7 @@ public static class ApiClient
     public static async Task<HttpClient> SignInAsync(ApiFactory factory, string email, string password)
     {
         var client = factory.CreateClient();
-        var response = await client.PostAsJsonAsync("/api/account/login", new { email, password });
+        var response = await client.PostAsJsonAsync("/api/auth/login", new { email, password });
         response.EnsureSuccessStatusCode();
 
         var session = await response.Content.ReadFromJsonAsync<AuthSession>(Json);

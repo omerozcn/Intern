@@ -71,7 +71,7 @@ async function changePassword() {
   if (!validate() || busy.value) return;
   busy.value = true;
   try {
-    await api.post("/api/account/change-password", { currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword });
+    await api.post("/api/auth/change-password", { currentPassword: passwordForm.currentPassword, newPassword: passwordForm.newPassword });
     toast.success(t("profile.passwordUpdated"));
     await auth.logout();
     await router.replace({ path: "/sign-in", query: { passwordChanged: "1" } });

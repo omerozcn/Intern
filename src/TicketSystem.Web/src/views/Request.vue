@@ -173,7 +173,7 @@ const {
   error,
   load: loadPage,
   goToPage,
-} = usePagedList("/api/Ticket/listByUserId", {
+} = usePagedList("/api/tickets/mine", {
   params: listParams,
   map: (rows) => rows.map(normalizeTicket),
 });
@@ -188,7 +188,7 @@ const filters = computed(() => [
 /** Tab counts cover every page, so they come from the dedicated summary endpoint. */
 async function loadStatusCounts() {
   try {
-    const rows = await api.get("/api/Ticket/ticketstatuscount");
+    const rows = await api.get("/api/tickets/status-counts");
     const byStatus = Object.fromEntries((rows ?? []).map((row) => [row.status, Number(row.count) || 0]));
     statusCounts.pending = byStatus[TICKET_STATUS.PENDING] ?? 0;
     statusCounts.inProgress = byStatus[TICKET_STATUS.IN_PROGRESS] ?? 0;
@@ -229,7 +229,7 @@ async function saveEdit(ticket) {
   if (editError.value || savingId.value) return;
   savingId.value = ticket.id;
   try {
-    await api.put(`/api/Ticket/updateDescription/${ticket.id}`, { description: editText.value.trim() });
+    await api.put(`/api/tickets/${ticket.id}/description`, { description: editText.value.trim() });
     cancelEdit();
     await load();
     toast.success(t("ticket.updated"));
@@ -249,7 +249,7 @@ async function deleteTicket() {
   if (!selectedTicket.value || deleting.value) return;
   deleting.value = true;
   try {
-    await api.delete(`/api/Ticket/deleteTicket/${selectedTicket.value.id}`);
+    await api.delete(`/api/tickets/${selectedTicket.value.id}`);
     deleteDialogOpen.value = false;
     selectedTicket.value = null;
     await load();

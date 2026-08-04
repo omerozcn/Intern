@@ -59,7 +59,7 @@ const {
   error,
   load,
   goToPage,
-} = usePagedList("/api/Feedback/listFeedbacks", {
+} = usePagedList("/api/feedback", {
   map: (rows) => rows.map((item) => ({
     id: Number(item.id),
     feedbackContent: item.feedbackContent ?? "",

@@ -182,7 +182,7 @@ const {
   error,
   load: loadPage,
   goToPage,
-} = usePagedList("/api/Ticket/listTicket", {
+} = usePagedList("/api/tickets", {
   params: listParams,
   map: (rows) => rows.map(normalizeTicket),
 });
@@ -201,7 +201,7 @@ function formatDate(value) {
 /** Tab counts cover every page, so they come from the dedicated summary endpoint. */
 async function loadStatusCounts() {
   try {
-    const rows = await api.get("/api/Ticket/ticketstatuscount");
+    const rows = await api.get("/api/tickets/status-counts");
     const byStatus = Object.fromEntries((rows ?? []).map((row) => [row.status, Number(row.count) || 0]));
     statusCounts.pending = byStatus[TICKET_STATUS.PENDING] ?? 0;
     statusCounts.inProgress = byStatus[TICKET_STATUS.IN_PROGRESS] ?? 0;
@@ -240,7 +240,7 @@ async function saveTicket() {
   if (answerError.value || saving.value || !selectedTicket.value) return;
   saving.value = true;
   try {
-    await api.put(`/api/Ticket/updateTicket/${selectedTicket.value.id}`, {
+    await api.put(`/api/tickets/${selectedTicket.value.id}`, {
       status: manageForm.status,
       answer: manageForm.answer.trim() || null,
     });

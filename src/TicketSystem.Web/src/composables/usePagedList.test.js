@@ -34,7 +34,7 @@ describe('usePagedList', () => {
   it('sends the paging parameters and exposes the envelope', async () => {
     api.get.mockResolvedValue(envelope([{ id: 1 }], { totalCount: 42, totalPages: 3, hasNext: true }))
 
-    const list = usePagedList('/api/Firm/listFirm')
+    const list = usePagedList('/api/firms')
     await list.load()
 
     expect(lastQuery().get('page')).toBe('1')
@@ -47,7 +47,7 @@ describe('usePagedList', () => {
   it('maps rows before handing them to the view', async () => {
     api.get.mockResolvedValue(envelope([{ id: '7', name: 'Firma' }]))
 
-    const list = usePagedList('/api/Firm/listFirm', {
+    const list = usePagedList('/api/firms', {
       map: (rows) => rows.map((row) => ({ id: Number(row.id) })),
     })
     await list.load()
@@ -57,7 +57,7 @@ describe('usePagedList', () => {
 
   it('clamps the requested page to the available range', async () => {
     api.get.mockResolvedValue(envelope([{ id: 1 }], { totalPages: 2 }))
-    const list = usePagedList('/api/Firm/listFirm')
+    const list = usePagedList('/api/firms')
     await list.load()
 
     await list.goToPage(99)
@@ -69,7 +69,7 @@ describe('usePagedList', () => {
     api.get.mockResolvedValue(envelope([]))
     const params = ref({ status: 'pending', firmId: '' })
 
-    const list = usePagedList('/api/Ticket/listTicket', { params })
+    const list = usePagedList('/api/tickets', { params })
     await list.load()
 
     expect(lastQuery().get('status')).toBe('pending')
@@ -79,7 +79,7 @@ describe('usePagedList', () => {
   it('restarts at the first page when a filter changes', async () => {
     api.get.mockResolvedValue(envelope([{ id: 1 }], { totalPages: 5 }))
     const params = ref({ status: '' })
-    const list = usePagedList('/api/Ticket/listTicket', { params })
+    const list = usePagedList('/api/tickets', { params })
     await list.load()
     await list.goToPage(3)
     expect(list.page.value).toBe(3)
@@ -97,7 +97,7 @@ describe('usePagedList', () => {
       .mockResolvedValueOnce(envelope([], { page: 2, totalCount: 1, totalPages: 1 }))
       .mockResolvedValueOnce(envelope([{ id: 1 }], { totalCount: 1, totalPages: 1 }))
 
-    const list = usePagedList('/api/Firm/listFirm')
+    const list = usePagedList('/api/firms')
     await list.load()
     await list.goToPage(2)
     await list.load()
@@ -108,7 +108,7 @@ describe('usePagedList', () => {
   it('surfaces the error message and clears the rows', async () => {
     api.get.mockRejectedValue(new Error('Sunucuya ulaşılamadı.'))
 
-    const list = usePagedList('/api/Firm/listFirm')
+    const list = usePagedList('/api/firms')
     await list.load()
 
     expect(list.error.value).toBe('Sunucuya ulaşılamadı.')
@@ -122,7 +122,7 @@ describe('usePagedList', () => {
       .mockImplementationOnce(() => new Promise((resolve) => { resolveFirst = resolve }))
       .mockResolvedValueOnce(envelope([{ id: 'new' }]))
 
-    const list = usePagedList('/api/Firm/listFirm')
+    const list = usePagedList('/api/firms')
     const stale = list.load()
     const fresh = list.load()
     resolveFirst(envelope([{ id: 'stale' }]))

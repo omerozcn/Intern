@@ -121,7 +121,7 @@ async function loadProducts() {
   productsLoading.value = true;
   productsError.value = "";
   try {
-    const result = await api.get("/api/Firmproduct/listProductsForCurrentUser");
+    const result = await api.get("/api/products/mine");
     products.value = (result ?? []).map((item) => ({
       id: Number(item.id ?? item.productId),
       name: item.name ?? item.productName,
@@ -144,7 +144,7 @@ async function submit() {
   if (!validate() || busy.value) return;
   busy.value = true;
   try {
-    await api.post("/api/Ticket/createTicket", {
+    await api.post("/api/tickets", {
       description: form.description.trim(),
       newProduct: form.newProduct,
       productId: form.newProduct ? null : Number(form.productId),

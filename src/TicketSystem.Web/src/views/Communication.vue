@@ -75,7 +75,7 @@ async function submit() {
   if (contentError.value || busy.value) return;
   busy.value = true;
   try {
-    await api.post("/api/Feedback/createFeedback", { feedbackContent: form.content.trim() });
+    await api.post("/api/feedback", { feedbackContent: form.content.trim() });
     submitted.value = true;
     form.content = "";
   } catch (error) {

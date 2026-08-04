@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(credentials) {
-    const response = await api.post('/account/login', credentials, {
+    const response = await api.post('/api/auth/login', credentials, {
       skipAuth: true,
       skipAuthHandling: true,
     })
@@ -73,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
       session.value = stored
 
       try {
-        const response = await api.get('/account/me', { skipAuthHandling: true })
+        const response = await api.get('/api/auth/me', { skipAuthHandling: true })
         const hydratedUser = response?.user ?? response
         persistSession({ ...stored, user: hydratedUser })
         return hydratedUser
@@ -93,7 +93,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     try {
       if (accessToken.value) {
-        await api.post('/account/logout', undefined, { skipAuthHandling: true })
+        await api.post('/api/auth/logout', undefined, { skipAuthHandling: true })
       }
     } catch {
       // The local session must still end when the server is temporarily unreachable.

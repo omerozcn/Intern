@@ -25,11 +25,11 @@ public sealed class TicketLifecycleTests
         Assert.Equal("pending", created.Status);
 
         var edited = await user.PutAsJsonAsync(
-            $"/api/Ticket/updateDescription/{created.Id}",
+            $"/api/tickets/{created.Id}/description",
             new { description = ValidDescription + " Guncellendi." });
         Assert.Equal(HttpStatusCode.OK, edited.StatusCode);
 
-        var deleted = await user.DeleteAsync($"/api/Ticket/deleteTicket/{created.Id}");
+        var deleted = await user.DeleteAsync($"/api/tickets/{created.Id}");
         Assert.Equal(HttpStatusCode.NoContent, deleted.StatusCode);
     }
 
@@ -41,16 +41,16 @@ public sealed class TicketLifecycleTests
         var ticket = await CreateTicketAsync(user);
 
         var moved = await admin.PutAsJsonAsync(
-            $"/api/Ticket/updateStatus/{ticket.Id}",
+            $"/api/tickets/{ticket.Id}/status",
             new { status = "inProgress" });
         Assert.Equal(HttpStatusCode.NoContent, moved.StatusCode);
 
         var edit = await user.PutAsJsonAsync(
-            $"/api/Ticket/updateDescription/{ticket.Id}",
+            $"/api/tickets/{ticket.Id}/description",
             new { description = ValidDescription + " Tekrar." });
         Assert.Equal(HttpStatusCode.Conflict, edit.StatusCode);
 
-        var delete = await user.DeleteAsync($"/api/Ticket/deleteTicket/{ticket.Id}");
+        var delete = await user.DeleteAsync($"/api/tickets/{ticket.Id}");
         Assert.Equal(HttpStatusCode.Conflict, delete.StatusCode);
 
         await CleanUpAsync(user, admin, ticket.Id);
@@ -64,7 +64,7 @@ public sealed class TicketLifecycleTests
         var ticket = await CreateTicketAsync(user);
 
         var response = await admin.PutAsJsonAsync(
-            $"/api/Ticket/updateStatus/{ticket.Id}",
+            $"/api/tickets/{ticket.Id}/status",
             new { status = "completed" });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -80,7 +80,7 @@ public sealed class TicketLifecycleTests
         var user = await ApiClient.UserAsync(_factory);
 
         var response = await user.PostAsJsonAsync(
-            "/api/Ticket/createTicket",
+            "/api/tickets",
             new { description, newProduct = true });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -92,7 +92,7 @@ public sealed class TicketLifecycleTests
         var user = await ApiClient.UserAsync(_factory);
 
         var response = await user.PostAsJsonAsync(
-            "/api/Ticket/createTicket",
+            "/api/tickets",
             new { description = ValidDescription, newProduct = false });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -105,8 +105,8 @@ public sealed class TicketLifecycleTests
         var admin = await ApiClient.AdminAsync(_factory);
         var ticket = await CreateTicketAsync(user);
 
-        Assert.Equal(HttpStatusCode.OK, (await user.GetAsync($"/api/Ticket/listById/{ticket.Id}")).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync($"/api/Ticket/listById/{ticket.Id}")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await user.GetAsync($"/api/tickets/{ticket.Id}")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await admin.GetAsync($"/api/tickets/{ticket.Id}")).StatusCode);
 
         await CleanUpAsync(user, admin, ticket.Id);
     }
@@ -117,7 +117,7 @@ public sealed class TicketLifecycleTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var response = await admin.PutAsJsonAsync(
-            "/api/Ticket/updateTicket/999999",
+            "/api/tickets/999999",
             new { status = "inProgress", answer = "x" });
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -126,7 +126,7 @@ public sealed class TicketLifecycleTests
     private static async Task<ApiClient.TicketRow> CreateTicketAsync(HttpClient user)
     {
         var response = await user.PostAsJsonAsync(
-            "/api/Ticket/createTicket",
+            "/api/tickets",
             new { description = ValidDescription, newProduct = true });
         response.EnsureSuccessStatusCode();
 
@@ -137,7 +137,7 @@ public sealed class TicketLifecycleTests
 
     private static async Task CleanUpAsync(HttpClient user, HttpClient admin, int ticketId)
     {
-        await admin.PutAsJsonAsync($"/api/Ticket/updateStatus/{ticketId}", new { status = "pending" });
-        await user.DeleteAsync($"/api/Ticket/deleteTicket/{ticketId}");
+        await admin.PutAsJsonAsync($"/api/tickets/{ticketId}/status", new { status = "pending" });
+        await user.DeleteAsync($"/api/tickets/{ticketId}");
     }
 }

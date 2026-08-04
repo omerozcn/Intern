@@ -97,7 +97,7 @@ const {
   error,
   load,
   goToPage,
-} = usePagedList("/api/Firm/listFirm", {
+} = usePagedList("/api/firms", {
   map: (rows) => rows.map((item) => ({
     id: Number(item.id),
     name: item.name ?? "",
@@ -121,7 +121,7 @@ async function createFirm() {
   if (createError.value || creating.value) return;
   creating.value = true;
   try {
-    await api.post("/api/Firm/createFirm", { name: newFirmName.value });
+    await api.post("/api/firms", { name: newFirmName.value });
     newFirmName.value = "";
     await load();
     toast.success(t("firms.created"));
@@ -135,7 +135,7 @@ async function saveEdit(firm) {
   if (editName.value.length < 2 || saving.value) { toast.warning(t("validation.nameLength")); return; }
   saving.value = true;
   try {
-    await api.put(`/api/Firm/updateFirm/${firm.id}`, { name: editName.value });
+    await api.put(`/api/firms/${firm.id}`, { name: editName.value });
     cancelEdit();
     await load();
     toast.success(t("firms.updated"));
@@ -148,7 +148,7 @@ async function deleteFirm() {
   if (!selectedFirm.value || deleting.value) return;
   deleting.value = true;
   try {
-    await api.delete(`/api/Firm/deleteFirm/${selectedFirm.value.id}`);
+    await api.delete(`/api/firms/${selectedFirm.value.id}`);
     confirmOpen.value = false;
     selectedFirm.value = null;
     await load();

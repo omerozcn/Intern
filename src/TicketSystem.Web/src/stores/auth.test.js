@@ -50,7 +50,7 @@ describe('auth store', () => {
 
     expect(first).toEqual(second)
     expect(apiMock.get).toHaveBeenCalledOnce()
-    expect(apiMock.get).toHaveBeenCalledWith('/account/me', { skipAuthHandling: true })
+    expect(apiMock.get).toHaveBeenCalledWith('/api/auth/me', { skipAuthHandling: true })
     expect(auth.status).toBe('authenticated')
     expect(auth.role).toBe('User')
   })

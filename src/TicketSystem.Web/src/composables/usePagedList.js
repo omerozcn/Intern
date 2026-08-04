@@ -8,7 +8,7 @@ const SEARCH_DEBOUNCE_MS = 300
  * Drives a paginated list endpoint: keeps page state, debounces the search box and
  * exposes the envelope the API returns ({ items, page, pageSize, totalCount, ... }).
  *
- * @param {string} path      list endpoint, e.g. "/api/Product/listProduct"
+ * @param {string} path      list endpoint, e.g. "/api/products"
  * @param {object} [options]
  * @param {number} [options.pageSize]
  * @param {(rows: any[]) => any[]} [options.map] shape each row before it reaches the view

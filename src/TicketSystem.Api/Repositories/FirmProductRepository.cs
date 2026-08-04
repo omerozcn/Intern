@@ -90,16 +90,6 @@ public sealed class FirmProductRepository : IFirmProductRepository
             .ToPagedResultAsync(request, cancellationToken);
     }
 
-    public async Task<IReadOnlyList<FirmProductDto>> GetFirmProductAsync(
-        string firmName,
-        CancellationToken cancellationToken = default)
-    {
-        return await AssignmentRows()
-            .Where(link => link.FirmName == firmName)
-            .OrderBy(link => link.ProductName)
-            .ToListAsync(cancellationToken);
-    }
-
     public async Task<IReadOnlyList<CurrentUserProductDto>> GetProductsByFirmIdAsync(
         int firmId,
         CancellationToken cancellationToken = default)

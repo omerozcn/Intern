@@ -16,7 +16,7 @@ test.describe('ticket flow', () => {
     // Navigating before the POST settles would abort it, so wait for the response.
     const [response] = await Promise.all([
       page.waitForResponse(
-        (res) => res.url().includes('/api/Ticket/createTicket') && res.request().method() === 'POST',
+        (res) => res.url().includes('/api/tickets') && res.request().method() === 'POST',
       ),
       page.getByRole('button', { name: 'Talebi gönder' }).click(),
     ])
@@ -30,7 +30,7 @@ test.describe('ticket flow', () => {
     const token = await page.evaluate(
       () => JSON.parse(sessionStorage.getItem('turkuvaz.auth.session')).accessToken,
     )
-    await request.delete(`${API_BASE}/api/Ticket/deleteTicket/${created.id}`, {
+    await request.delete(`${API_BASE}/api/tickets/${created.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
   })

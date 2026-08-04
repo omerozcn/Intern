@@ -12,22 +12,22 @@ namespace TicketSystem.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("api/Ticket")]
-public sealed class TicketController : ControllerBase
+[Route("api/tickets")]
+public sealed class TicketsController : ControllerBase
 {
     private readonly ITicketRepository _ticketRepository;
-    private readonly ILogger<TicketController> _logger;
+    private readonly ILogger<TicketsController> _logger;
 
-    public TicketController(
+    public TicketsController(
         ITicketRepository ticketRepository,
-        ILogger<TicketController> logger)
+        ILogger<TicketsController> logger)
     {
         _ticketRepository = ticketRepository;
         _logger = logger;
     }
 
     [Authorize(Roles = AppRoles.Admin)]
-    [HttpGet("listTicket")]
+    [HttpGet]
     [ProducesResponseType<PagedResult<TicketDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<TicketDto>>> GetAll(
         [FromQuery] TicketListRequest request,
@@ -37,7 +37,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.AdminOrUser)]
-    [HttpGet("listById/{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType<TicketDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -69,7 +69,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.User)]
-    [HttpGet("listByUserId")]
+    [HttpGet("mine")]
     [ProducesResponseType<PagedResult<TicketDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<PagedResult<TicketDto>>> GetByUserId(
@@ -86,7 +86,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.User)]
-    [HttpPost("createTicket")]
+    [HttpPost]
     [ProducesResponseType<TicketDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
@@ -139,7 +139,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.User)]
-    [HttpPut("updateDescription/{id:int}")]
+    [HttpPut("{id:int}/description")]
     [ProducesResponseType<TicketDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
@@ -187,7 +187,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.Admin)]
-    [HttpPut("updateTicket/{id:int}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType<TicketDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -221,7 +221,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.User)]
-    [HttpDelete("deleteTicket/{id:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status403Forbidden)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -262,7 +262,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.Admin)]
-    [HttpPut("updateStatus/{id:int}")]
+    [HttpPut("{id:int}/status")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -298,7 +298,7 @@ public sealed class TicketController : ControllerBase
     }
 
     [Authorize(Roles = AppRoles.AdminOrUser)]
-    [HttpGet("ticketstatuscount")]
+    [HttpGet("status-counts")]
     [ProducesResponseType<IReadOnlyList<TicketStatusCountDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IReadOnlyList<TicketStatusCountDto>>> GetTicketStatusSummary(

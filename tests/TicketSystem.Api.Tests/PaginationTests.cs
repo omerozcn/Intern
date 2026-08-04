@@ -19,7 +19,7 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var page = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm",
+            "/api/firms",
             ApiClient.Json);
 
         Assert.NotNull(page);
@@ -35,7 +35,7 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var page = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?pageSize=100000",
+            "/api/firms?pageSize=100000",
             ApiClient.Json);
 
         Assert.Equal(100, page!.PageSize);
@@ -47,7 +47,7 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var page = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?page=-5&pageSize=0",
+            "/api/firms?page=-5&pageSize=0",
             ApiClient.Json);
 
         Assert.Equal(1, page!.Page);
@@ -60,10 +60,10 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var first = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?page=1&pageSize=1",
+            "/api/firms?page=1&pageSize=1",
             ApiClient.Json);
         var second = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?page=2&pageSize=1",
+            "/api/firms?page=2&pageSize=1",
             ApiClient.Json);
 
         Assert.Single(first!.Items);
@@ -79,10 +79,10 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var matches = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?search=TURKUVAZ",
+            "/api/firms?search=TURKUVAZ",
             ApiClient.Json);
         var noMatches = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?search=bulunmayan-firma-adi",
+            "/api/firms?search=bulunmayan-firma-adi",
             ApiClient.Json);
 
         Assert.Single(matches!.Items);
@@ -96,7 +96,7 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var completed = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.TicketRow>>(
-            "/api/Ticket/listTicket?status=completed",
+            "/api/tickets?status=completed",
             ApiClient.Json);
 
         Assert.NotNull(completed);
@@ -109,7 +109,7 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
 
         var admins = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ProfileRow>>(
-            "/api/account/listUsers?role=Admin",
+            "/api/users?role=Admin",
             ApiClient.Json);
 
         Assert.NotNull(admins);
@@ -123,14 +123,14 @@ public sealed class PaginationTests
         var admin = await ApiClient.AdminAsync(_factory);
         var name = $"Benzersiz Firma {Guid.NewGuid():N}";
 
-        var created = await admin.PostAsJsonAsync("/api/Firm/createFirm", new { name });
+        var created = await admin.PostAsJsonAsync("/api/firms", new { name });
         Assert.Equal(HttpStatusCode.Created, created.StatusCode);
 
-        var duplicate = await admin.PostAsJsonAsync("/api/Firm/createFirm", new { name });
+        var duplicate = await admin.PostAsJsonAsync("/api/firms", new { name });
         Assert.Equal(HttpStatusCode.Conflict, duplicate.StatusCode);
 
         var firm = await created.Content.ReadFromJsonAsync<ApiClient.FirmRow>(ApiClient.Json);
-        await admin.DeleteAsync($"/api/Firm/deleteFirm/{firm!.Id}");
+        await admin.DeleteAsync($"/api/firms/{firm!.Id}");
     }
 
     [Fact]
@@ -138,15 +138,15 @@ public sealed class PaginationTests
     {
         var admin = await ApiClient.AdminAsync(_factory);
 
-        var create = await admin.PostAsJsonAsync("/api/Firm/createFirm", new { name = "turkuvaz" });
+        var create = await admin.PostAsJsonAsync("/api/firms", new { name = "turkuvaz" });
         Assert.Equal(HttpStatusCode.Conflict, create.StatusCode);
 
         var firms = await admin.GetFromJsonAsync<ApiClient.PagedResponse<ApiClient.FirmRow>>(
-            "/api/Firm/listFirm?search=TURKUVAZ",
+            "/api/firms?search=TURKUVAZ",
             ApiClient.Json);
         var protectedFirm = firms!.Items.Single();
 
-        var delete = await admin.DeleteAsync($"/api/Firm/deleteFirm/{protectedFirm.Id}");
+        var delete = await admin.DeleteAsync($"/api/firms/{protectedFirm.Id}");
         Assert.Equal(HttpStatusCode.Conflict, delete.StatusCode);
     }
 

@@ -84,7 +84,7 @@ async function fetchFirms() {
   if (term.value) params.set('search', term.value)
 
   try {
-    const result = await api.get(`/api/Firm/listFirm?${params.toString()}`)
+    const result = await api.get(`/api/firms?${params.toString()}`)
     if (currentRequest !== requestId) return
     rows.value = (result?.items ?? []).map((item) => ({
       id: Number(item.id),

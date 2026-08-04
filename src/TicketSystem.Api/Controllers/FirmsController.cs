@@ -11,17 +11,17 @@ namespace TicketSystem.Controllers;
 
 [ApiController]
 [Authorize(Roles = AppRoles.Admin)]
-[Route("api/Firm")]
-public sealed class FirmController : ControllerBase
+[Route("api/firms")]
+public sealed class FirmsController : ControllerBase
 {
     private readonly IFirmRepository _firmRepository;
 
-    public FirmController(IFirmRepository firmRepository)
+    public FirmsController(IFirmRepository firmRepository)
     {
         _firmRepository = firmRepository;
     }
 
-    [HttpGet("listFirm")]
+    [HttpGet]
     [ProducesResponseType<PagedResult<FirmDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<FirmDto>>> GetAll(
         [FromQuery] PageRequest request,
@@ -30,7 +30,7 @@ public sealed class FirmController : ControllerBase
         return Ok(await _firmRepository.GetAllAsync(request, cancellationToken));
     }
 
-    [HttpGet("listById/{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType<FirmDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<FirmDto>> GetById(
@@ -41,7 +41,7 @@ public sealed class FirmController : ControllerBase
         return firm is null ? FirmNotFound() : Ok(firm.ToFirmDto());
     }
 
-    [HttpPost("createFirm")]
+    [HttpPost]
     [ProducesResponseType<FirmDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
@@ -66,7 +66,7 @@ public sealed class FirmController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = firm.Id }, firm.ToFirmDto());
     }
 
-    [HttpPut("updateFirm/{id:int}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType<FirmDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
@@ -96,7 +96,7 @@ public sealed class FirmController : ControllerBase
         return firm is null ? FirmNotFound() : Ok(firm.ToFirmDto());
     }
 
-    [HttpDelete("deleteFirm/{id:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
