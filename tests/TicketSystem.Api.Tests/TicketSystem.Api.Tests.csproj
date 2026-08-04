@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <!-- Test types stay in TicketSystem.Tests so they mirror the namespaces they exercise. -->
+    <RootNamespace>TicketSystem.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\deneme2\TicketSystem.csproj" />
+    <ProjectReference Include="..\..\src\TicketSystem.Api\TicketSystem.Api.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: 'dotnet run --project ../../TicketSystem/deneme2 --no-launch-profile --urls http://localhost:5005',
+      command: 'dotnet run --project ../../src/TicketSystem.Api --no-launch-profile --urls http://localhost:5005',
       url: `${API_URL}/swagger/index.html`,
       reuseExistingServer: reuseExisting,
       timeout: 180_000,

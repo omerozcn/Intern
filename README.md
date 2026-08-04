@@ -14,7 +14,7 @@ Vue 3 istemcisi ve .NET 8 API'sinden oluşan rol tabanlı talep yönetim sistemi
 Bağlantı dizesi, JWT imzalama anahtarı ve SMTP kimlik bilgileri izlenen ayar dosyalarına yazılmaz. Backend klasöründe User Secrets kullanın:
 
 ```powershell
-cd TicketSystem/deneme2
+cd src/TicketSystem.Api
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<connection-string>"
 dotnet user-secrets set "Jwt:SigningKey" "<en-az-32-byte-rastgele-anahtar>"
 dotnet user-secrets set "Smtp:Host" "<smtp-host>"
@@ -56,7 +56,7 @@ Durdurmak için `docker compose down`, veriyi de silmek için `docker compose do
 API:
 
 ```powershell
-cd TicketSystem/deneme2
+cd src/TicketSystem.Api
 dotnet restore
 dotnet run --launch-profile http
 ```
@@ -64,7 +64,7 @@ dotnet run --launch-profile http
 Frontend başka bir terminalde:
 
 ```powershell
-cd TicketVUeProject-main/TicketVUeProject-main
+cd src/TicketSystem.Web
 npm ci
 npm run dev
 ```
@@ -85,11 +85,10 @@ Bu hesaplar yalnızca `Development` ortamında oluşturulur.
 ## Doğrulama
 
 ```powershell
-cd TicketSystem
-dotnet build TickettSystem.sln
-dotnet test TickettSystem.sln
+dotnet build TicketSystem.sln
+dotnet test TicketSystem.sln
 
-cd ../TicketVUeProject-main/TicketVUeProject-main
+cd src/TicketSystem.Web
 npm run lint
 npm test
 npm run build

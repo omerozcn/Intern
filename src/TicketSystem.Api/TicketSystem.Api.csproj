@@ -5,6 +5,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Exe</OutputType>
+    <!-- The assembly carries the .Api suffix; namespaces stay TicketSystem.* across the project. -->
+    <RootNamespace>TicketSystem</RootNamespace>
+    <!--
+      Opaque identifier, not a path. It keys the secret store under
+      %APPDATA%\Microsoft\UserSecrets\, so changing it orphans every secret
+      already stored with `dotnet user-secrets set`. Left as-is deliberately.
+    -->
     <UserSecretsId>TicketSystem-deneme2-54d4e20c-7f8d-49a5-8e87-1d4cf8eb0842</UserSecretsId>
   </PropertyGroup>
 

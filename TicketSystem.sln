@@ -3,11 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketSystem", "deneme2\TicketSystem.csproj", "{635A2B8D-3E76-4034-9847-BD975CF5FACA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketSystem.Api", "src\TicketSystem.Api\TicketSystem.Api.csproj", "{635A2B8D-3E76-4034-9847-BD975CF5FACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketSystem.Tests", "TicketSystem.Tests\TicketSystem.Tests.csproj", "{7129749D-D750-4216-B78F-CFAFBE324938}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deneme2", "deneme2", "{D2C54767-C52E-85D1-AA48-072A44BC09C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketSystem.Api.Tests", "tests\TicketSystem.Api.Tests\TicketSystem.Api.Tests.csproj", "{7129749D-D750-4216-B78F-CFAFBE324938}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
