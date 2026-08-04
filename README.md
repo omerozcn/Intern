@@ -68,16 +68,29 @@ Bağlantı hiçbir kaynaktan gelmezse uygulama açılışta `ConnectionStrings__
 
 ## Çalıştırma
 
-### Docker ile (LocalDB gerektirmez)
+### Docker ile — tek komut (.NET SDK ve Node gerektirmez)
 
-```powershell
+```bash
 cp .env.example .env   # MSSQL_SA_PASSWORD ve JWT_SIGNING_KEY doldurun
+```
+
+```bash
 docker compose up -d --build
 ```
 
-SQL Server konteyneri sağlıklı duruma gelene kadar API başlatılmaz. API `http://localhost:5005` adresinde açılır ve migration'ları uygulayıp geliştirme hesaplarını oluşturur. Veri `mssql-data` adlı volume'de kalıcıdır.
+Üç konteyner sırayla ayağa kalkar ve her biri bir sonrakini bekler:
 
-Durdurmak için `docker compose down`, veriyi de silmek için `docker compose down -v`.
+| Servis | Adres | Rolü |
+| --- | --- | --- |
+| `web` | **http://localhost:5173** | nginx; derlenmiş SPA'yı sunar ve `/api` isteklerini API'ye yönlendirir |
+| `api` | http://localhost:5005 · [Swagger](http://localhost:5005/swagger) | .NET 8 API; `/health` veritabanı bağlantısını da doğrular |
+| `db` | localhost:14330 | SQL Server 2022; veri `mssql-data` volume'ünde kalıcı |
+
+**Uygulamayı açmak için tek adres: http://localhost:5173** — SPA ve API aynı origin üzerinden konuştuğu için CORS devreye girmez. Veritabanı portu yalnızca SSMS/sqlcmd bağlamak için yayınlanır ve makinede kurulu bir SQL Server ile çakışmasın diye 1433 yerine 14330'dadır.
+
+Durum: `docker compose ps` · Günlükler: `docker compose logs -f api` · Durdurmak: `docker compose down` · Veriyi de silmek: `docker compose down -v`
+
+> **Tohumlama açık gelir.** `Seed__DevelopmentAccounts` bu yığında `true`'dur: migration'ları uygular ve aşağıdaki iki hesabı oluşturur. Erişilebilir bir ortama koyacaksanız `.env` içinde `SEED_DEVELOPMENT_ACCOUNTS=false` yapın (ve migration'ları ayrıca uygulayın) ya da en azından `SEED_ADMIN_PASSWORD` / `SEED_USER_PASSWORD` değerlerini değiştirin.
 
 ### Yerel olarak
 
@@ -173,6 +186,8 @@ npm run test:e2e
 ```
 
 API'yi Swagger üzerinden denemek için `dotnet run --launch-profile http` çalıştırıp `http://localhost:5005/swagger` adresini açın.
+
+> **Uçtan uca testler kendi sunucularını başlatır.** Playwright, 5173 ve 5005 portlarında çalışan bir şey bulursa onu yeniden kullanır — Docker yığını ayaktayken `npm run test:e2e` çalıştırırsanız testler o konteynerlere bağlanır ve giriş hız sınırına (dakikada 5) takılıp `429` alır; test paketi sekizden fazla kez giriş yapar. Uçtan uca testleri çalıştırmadan önce `docker compose down` deyin.
 
 ### Testler
 

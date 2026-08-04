@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+.vscode
+e2e
+*.local
+.env
+.env.*
+!.env.example
+Dockerfile
+.dockerignore

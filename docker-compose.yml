@@ -7,7 +7,10 @@ services:
       MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?MSSQL_SA_PASSWORD .env dosyasinda tanimlanmali}
       MSSQL_PID: Developer
     ports:
-      - "${DB_PORT:-1433}:1433"
+      # Only needed to attach SSMS or sqlcmd from the host; the API reaches the
+      # database over the compose network. Defaults off 1433 so it does not clash
+      # with a SQL Server already installed on the machine.
+      - "${DB_PORT:-14330}:1433"
     restart: unless-stopped
     volumes:
       - mssql-data:/var/opt/mssql
@@ -47,16 +50,37 @@ services:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY .env dosyasinda tanimlanmali}
       Frontend__BaseUrl: ${FRONTEND_BASE_URL:-http://localhost:5173}
       Cors__AllowedOrigins__0: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      # The web container proxies /api, so requests reach the API with the nginx
+      # address. Trusting the compose network keeps rate limiting per real client.
+      ForwardedHeaders__KnownNetworks__0: ${TRUSTED_PROXY_NETWORK:-172.16.0.0/12}
     ports:
       - "${API_PORT:-5005}:8080"
     restart: unless-stopped
     healthcheck:
       # /health also verifies the database connection, so a web container can wait on it.
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 6
       start_period: 30s
+
+  web:
+    build:
+      context: ./src/TicketSystem.Web
+      dockerfile: Dockerfile
+    container_name: ticketsystem-web
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "${WEB_PORT:-5173}:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   mssql-data:
