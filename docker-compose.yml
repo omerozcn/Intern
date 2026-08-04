@@ -24,7 +24,7 @@ services:
 
   api:
     build:
-      context: ./TicketSystem/deneme2
+      context: ./src/TicketSystem.Api
       dockerfile: Dockerfile
     container_name: ticketsystem-api
     depends_on:
