@@ -1,17 +1,45 @@
 # Turkuvaz Talep Sistemi
 
-Vue 3 istemcisi ve .NET 8 API'sinden oluşan rol tabanlı talep yönetim sistemi.
+Vue 3 istemcisi ve .NET 8 API'sinden oluşan rol tabanlı talep yönetim sistemi. Kullanıcılar hizmet talebi açar ve kendi taleplerini takip eder; yöneticiler talepleri yanıtlar, firma/hizmet tanımlarını ve hesapları yönetir.
+
+## Proje yapısı
+
+```
+TicketSystem.sln
+├── src/
+│   ├── TicketSystem.Api/          .NET 8 Web API (EF Core, ASP.NET Identity, JWT)
+│   └── TicketSystem.Web/          Vue 3 SPA (Vite, Pinia, vue-router, vue-i18n)
+├── tests/
+│   └── TicketSystem.Api.Tests/    xUnit entegrasyon testleri (WebApplicationFactory)
+├── .github/workflows/ci.yml       Backend, frontend ve uçtan uca işler
+└── docker-compose.yml             SQL Server + API konteynerleri
+```
+
+API projesinin ad alanları `TicketSystem.*` olarak kalır; `.Api` soneki yalnızca derlemeyi çözümden ayırt eder ve `RootNamespace` ile açıkça sabitlenmiştir.
+
+| API klasörü | İçerik |
+| --- | --- |
+| `Controllers/` | HTTP uçları |
+| `Data/` | `ApplicationDbContext` ve geliştirme verisi tohumlama |
+| `Dtos/` | İstek/yanıt tipleri |
+| `Models/` | EF Core varlıkları |
+| `Interfaces/` + `Repositories/` | Veri erişim sözleşmeleri ve uygulamaları |
+| `Services/` | Token üretimi, e-posta, güvenlik damgası doğrulama |
+| `Mappers/` | Varlık ↔ DTO dönüşümleri |
+| `Configuration/` | Seçenek sınıfları (JWT, SMTP, CORS, hız sınırı) |
+| `Security/` | Rol ve talep sabitleri |
+| `Migrations/` | EF Core migration'ları |
 
 ## Gereksinimler
 
 - .NET 8 SDK
 - Node.js 22.12 veya üzeri
-- SQL Server / LocalDB
+- SQL Server / LocalDB (ya da Docker)
 - Parola sıfırlama e-postaları için bir SMTP hesabı
 
 ## Güvenli yerel yapılandırma
 
-Bağlantı dizesi, JWT imzalama anahtarı ve SMTP kimlik bilgileri izlenen ayar dosyalarına yazılmaz. Backend klasöründe User Secrets kullanın:
+Bağlantı dizesi, JWT imzalama anahtarı ve SMTP kimlik bilgileri izlenen ayar dosyalarına yazılmaz. API klasöründe User Secrets kullanın:
 
 ```powershell
 cd src/TicketSystem.Api
@@ -82,6 +110,55 @@ Vite, `/api` isteklerini varsayılan olarak `http://localhost:5005` adresine yö
 
 Bu hesaplar yalnızca `Development` ortamında oluşturulur.
 
+## API sözleşmesi
+
+Kaynak adları çoğul ve küçük harflidir; işlem HTTP fiiliyle ifade edilir. Tüm liste uçları `page`, `pageSize` (en fazla 100) ve `search` sorgu parametrelerini kabul eder ve `{ items, page, pageSize, totalCount, totalPages }` döner.
+
+### Kimlik doğrulama — `/api/auth`
+
+| Uç | Erişim | Açıklama |
+| --- | --- | --- |
+| `POST /api/auth/login` | Herkes | Oturum açar, JWT döner (dakikada 5 deneme sınırı) |
+| `POST /api/auth/logout` | Oturum | Güvenlik damgasını tazeleyip mevcut tokenları geçersizler |
+| `GET /api/auth/me` | Oturum | Oturum açan hesabın profili |
+| `POST /api/auth/forgot-password` | Herkes | Sıfırlama bağlantısı gönderir; hesap yoksa da aynı yanıtı verir |
+| `POST /api/auth/reset-password` | Herkes | Token ile yeni parola belirler |
+| `POST /api/auth/change-password` | Oturum | Mevcut parolayla değiştirir |
+
+### Hesap yönetimi — `/api/users`
+
+| Uç | Erişim |
+| --- | --- |
+| `GET /api/users` · `GET /api/users/{id}` | Admin |
+| `POST /api/users` · `PUT /api/users/{id}` · `DELETE /api/users/{id}` | Admin |
+
+### Talepler — `/api/tickets`
+
+| Uç | Erişim | Açıklama |
+| --- | --- | --- |
+| `GET /api/tickets` | Admin | Tüm talepler |
+| `GET /api/tickets/mine` | User | Kendi talepleri |
+| `GET /api/tickets/{id}` | Admin, User | Yönetici hepsini, kullanıcı yalnızca kendi talebini görür |
+| `POST /api/tickets` | User | Yeni talep |
+| `PUT /api/tickets/{id}` | Admin | Yanıt ve durumu birlikte günceller |
+| `PUT /api/tickets/{id}/status` | Admin | Yalnızca durum; tamamlamak için önceden yanıt yazılmış olmalı |
+| `PUT /api/tickets/{id}/description` | User | Yalnızca `pending` durumundayken |
+| `DELETE /api/tickets/{id}` | User | Yalnızca `pending` durumundayken |
+| `GET /api/tickets/status-counts` | Admin, User | Duruma göre sayım; kullanıcı için kendi talepleri |
+
+### Firmalar, hizmetler ve atamalar
+
+| Uç | Erişim | Açıklama |
+| --- | --- | --- |
+| `GET/POST /api/firms`, `GET/PUT/DELETE /api/firms/{id}` | Admin | `TURKUVAZ` korumalı sistem firmasıdır |
+| `GET/POST /api/products`, `PUT/DELETE /api/products/{id}` | Admin | Talep geçmişi olan hizmet silinemez |
+| `GET /api/products/mine` | User | Kullanıcının firmasına atanmış hizmetler |
+| `GET/POST /api/firm-products`, `DELETE /api/firm-products/{id}` | Admin | Firma–hizmet atamaları |
+| `GET /api/feedback` | Admin | Geri bildirim kutusu |
+| `POST /api/feedback` | User | Geri bildirim gönder |
+
+Hata yanıtları `application/problem+json` biçimindedir. Benzersizlik ihlalleri 409, doğrulama hataları 400 döner.
+
 ## Doğrulama
 
 ```powershell
@@ -114,3 +191,15 @@ $env:TEST_DB_CONNECTION = "Server=localhost,1433;Database={DATABASE};User Id=sa;
 ### Sürekli entegrasyon
 
 `.github/workflows/ci.yml` her push ve pull request'te backend, frontend ve uçtan uca testleri çalıştırır. SQL Server, GitHub Actions servis konteyneri olarak sağlanır. SA parolasını `CI_SQL_PASSWORD` deposu gizli değeriyle geçersiz kılabilirsiniz.
+
+## Migration geçmişi notu
+
+İlk migration'ın adı `deneme` iken `InitialCreate` olarak değiştirildi. Migration kimliği veritabanındaki `__EFMigrationsHistory` tablosunda saklandığı için, elinde bu değişiklikten **önce** oluşturulmuş bir veritabanı olanların şu güncellemeyi bir kez çalıştırması gerekir:
+
+```sql
+UPDATE __EFMigrationsHistory
+   SET MigrationId = '20250511121219_InitialCreate'
+ WHERE MigrationId = '20250511121219_deneme';
+```
+
+Çalıştırılmazsa EF ilk migration'ı uygulanmamış sayar ve dolu veritabanına yeniden uygulamaya çalışır. Sıfırdan oluşturulan veritabanları etkilenmez.
