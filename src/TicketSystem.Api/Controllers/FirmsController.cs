@@ -10,7 +10,7 @@ using TicketSystem.Security;
 namespace TicketSystem.Controllers;
 
 [ApiController]
-[Authorize(Roles = AppRoles.Admin)]
+[Authorize(Policy = AppPolicies.SuperAdmin)]
 [Route("api/firms")]
 public sealed class FirmsController : ControllerBase
 {

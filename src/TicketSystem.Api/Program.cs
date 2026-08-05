@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TicketSystem.Configuration;
 using TicketSystem.Data;
+using TicketSystem.Extensions;
 using TicketSystem.Infrastructure;
 using TicketSystem.Interfaces;
 using TicketSystem.Models;
@@ -343,7 +344,14 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    // Evaluated from the token's role and firm claims, so it costs no database round
+    // trip. Revoking it is the same as moving the account out of the owning firm, and
+    // the security stamp already forces a fresh token when that happens.
+    options.AddPolicy(AppPolicies.SuperAdmin, policy =>
+        policy.RequireAssertion(context => context.User.IsSuperAdmin()));
+});
 
 builder.Services.AddRateLimiter(options =>
 {

@@ -22,5 +22,6 @@ public interface ITicketRepository
     Task<Ticket?> UpdateDescriptionAsync(int id, string appUserId, string description, CancellationToken cancellationToken = default);
     Task<Ticket?> UpdateTicketStatusAsync(int id, int status, CancellationToken cancellationToken = default);
     Task<Ticket?> DeleteAsync(int id, string appUserId, CancellationToken cancellationToken = default);
-    Task<IReadOnlyList<TicketStatusCountDto>> GetStatusCountsAsync(string? appUserId, CancellationToken cancellationToken = default);
+    Task<int?> GetFirmIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<TicketStatusCountDto>> GetStatusCountsAsync(string? appUserId, int? firmId = null, CancellationToken cancellationToken = default);
 }

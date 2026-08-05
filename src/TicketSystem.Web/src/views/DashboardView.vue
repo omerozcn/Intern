@@ -101,7 +101,10 @@
         <TicketQueue :tickets="oldest" :empty-message="t('dashboard.queueEmpty')" show-age />
       </div>
 
-      <template v-if="isAdmin">
+      <!-- The firm and service catalogues belong to the platform owner, so these counts
+           only exist for a super administrator; for anyone else the endpoints answer
+           403 and the strip would just show zeroes. -->
+      <template v-if="isSuperAdmin">
         <h2 v-reveal class="section-title">{{ t('dashboard.scaleTitle') }}</h2>
         <div class="kpi-grid">
           <StatCard
@@ -117,7 +120,7 @@
         </div>
       </template>
 
-      <template v-else>
+      <template v-else-if="!isAdmin">
         <h2 v-reveal class="section-title">{{ t('dashboard.quickActions') }}</h2>
         <div class="kpi-grid">
           <StatCard
@@ -183,6 +186,7 @@ const myServiceCount = ref(0);
 const scaleCounts = ref({ firms: 0, services: 0, accounts: 0, feedback: 0 });
 
 const isAdmin = computed(() => auth.user?.role === "Admin");
+const isSuperAdmin = computed(() => auth.isSuperAdmin);
 const dashboardDescription = computed(() =>
   isAdmin.value ? t("dashboard.descriptionAdmin") : t("dashboard.descriptionUser"),
 );
@@ -313,7 +317,7 @@ async function loadCounts() {
 }
 
 function totalOf(result) {
-  return result.status === "fulfilled" ? (result.value?.totalCount ?? 0) : 0;
+  return result?.status === "fulfilled" ? (result.value?.totalCount ?? 0) : 0;
 }
 
 /* Everything below the KPI row is supplementary. Promise.allSettled keeps one
@@ -326,12 +330,20 @@ async function loadSecondary() {
 
   try {
     if (isAdmin.value) {
+      // The catalogue counts are only requested when they can actually be read, so a
+      // normal administrator's dashboard does not fire four requests that 403.
+      const scaleQueries = isSuperAdmin.value
+        ? [
+            api.get("/api/firms?page=1&pageSize=1"),
+            api.get("/api/products?page=1&pageSize=1"),
+            api.get("/api/users?page=1&pageSize=1"),
+            api.get("/api/feedback?page=1&pageSize=1"),
+          ]
+        : [];
+
       const [pending, firms, services, accounts, feedback] = await Promise.allSettled([
         api.get(pendingQuery),
-        api.get("/api/firms?page=1&pageSize=1"),
-        api.get("/api/products?page=1&pageSize=1"),
-        api.get("/api/users?page=1&pageSize=1"),
-        api.get("/api/feedback?page=1&pageSize=1"),
+        ...scaleQueries,
       ]);
 
       queue.value = pending.status === "fulfilled" ? (pending.value?.items ?? []) : [];

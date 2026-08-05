@@ -320,12 +320,12 @@
     "add": "Hesap ekle",
     "create": "Hesabı oluştur",
     "createDescription": "Kimlik bilgilerini, rolü ve firma atamasını belirleyin.",
-    "adminFirmAutomatic": "TURKUVAZ otomatik atanır",
-    "adminFirmHint": "Yönetici hesapları TURKUVAZ firmasına sunucu tarafından atanır.",
+    "adminFirmHint": "Firması TURKUVAZ olan yöneticiler tüm sistemi yönetir; diğer firmaların yöneticileri yalnızca kendi firmalarını yönetir.",
     "searchPlaceholder": "Ad, kullanıcı adı veya e-posta ara…",
     "person": "Kullanıcı",
     "emptyTitle": "Hesap bulunamadı",
-    "emptyDescription": "Arama veya filtre ölçütlerini değiştirin."
+    "emptyDescription": "Arama veya filtre ölçütlerini değiştirin.",
+    "userOnlyHint": "Yalnızca TURKUVAZ yöneticileri yeni yönetici ekleyebilir."
   },
   "roles": {
     "admin": "Yönetici",

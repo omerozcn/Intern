@@ -30,6 +30,23 @@ public static class AuthRateLimitPolicies
 }
 
 /// <summary>
+/// Authorization policies layered on top of the two roles.
+///
+/// There is no third Identity role: a super administrator is simply an administrator
+/// whose firm is <see cref="ProtectedFirm.Name"/>, which is the firm that owns the
+/// platform. Deriving it keeps the role table at two entries and needs no migration,
+/// and the firm is already carried in the token as a claim.
+/// </summary>
+public static class AppPolicies
+{
+    /// <summary>
+    /// Administrators of the platform owner. They may create and remove administrator
+    /// accounts and manage the firm and service catalogues.
+    /// </summary>
+    public const string SuperAdmin = "super-admin";
+}
+
+/// <summary>
 /// The firm that owns the platform. It is seeded by the initial migration and must never be
 /// renamed, deleted, or assigned to a non-admin account.
 /// </summary>
