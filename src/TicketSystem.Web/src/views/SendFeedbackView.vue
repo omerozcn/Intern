@@ -92,18 +92,18 @@ function reset() { submitted.value = false; contentError.value = ""; }
 .feedback-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); align-items: start; gap: 1.5rem; }
 .feedback-card, .privacy-card { padding: clamp(1.25rem, 3vw, 2rem); }
 .label-row { display: flex; justify-content: space-between; gap: 1rem; }
-.label-row span { color: var(--color-text-muted); font-size: .8rem; }
+.label-row span { color: var(--tv-text-muted); font-size: .8rem; }
 .label-row span.invalid { color: var(--bs-danger); }
 .form-actions { display: flex; justify-content: flex-end; margin-top: 1.25rem; }
-.privacy-icon, .success-state > span { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 15px; color: var(--color-primary); background: var(--color-primary-soft); font-size: 1.35rem; }
+.privacy-icon, .success-state > span { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 15px; color: var(--tv-accent); background: var(--tv-accent-soft); font-size: 1.35rem; }
 .privacy-card h2 { margin: 1rem 0 .5rem; font-size: 1.1rem; }
-.privacy-card p { color: var(--color-text-muted); }
+.privacy-card p { color: var(--tv-text-muted); }
 .privacy-card ul { display: grid; gap: .75rem; margin: 1.25rem 0 0; padding: 0; list-style: none; }
-.privacy-card li { display: flex; gap: .6rem; color: var(--color-text-muted); }
-.privacy-card li i { color: var(--color-primary); }
+.privacy-card li { display: flex; gap: .6rem; color: var(--tv-text-muted); }
+.privacy-card li i { color: var(--tv-accent); }
 .success-state { display: grid; justify-items: center; min-height: 350px; align-content: center; text-align: center; }
-.success-state > span { color: #166534; background: #dcfce7; }
+.success-state > span { color: var(--tv-success-on-soft); background: var(--tv-success-soft); }
 .success-state h2 { margin: 1rem 0 .5rem; }
-.success-state p { max-width: 460px; margin: 0 0 1.25rem; color: var(--color-text-muted); }
+.success-state p { max-width: 460px; margin: 0 0 1.25rem; color: var(--tv-text-muted); }
 @media (max-width: 767px) { .feedback-layout { grid-template-columns: 1fr; } .form-actions .btn { width: 100%; } }
 </style>

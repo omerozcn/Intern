@@ -122,14 +122,14 @@ async function submit() {
 <style scoped>
 /* See SignInView: the layout wrapper owns the centring and the background. */
 .auth-page { display: grid; place-items: center; width: 100%; }
-.auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--color-border); border-radius: 20px; background: white; box-shadow: 0 24px 60px rgba(15, 42, 51, .11); }
-.brand-link { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--color-text); font-weight: 800; text-decoration: none; }
+.auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--tv-border); border-radius: 20px; background: var(--tv-auth-card-bg); box-shadow: var(--tv-shadow-lg); }
+.brand-link { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--tv-text); font-weight: 800; text-decoration: none; }
 .brand-link img { width: 46px; height: 46px; object-fit: contain; }
 h1 { margin-bottom: .5rem; }
-.intro { margin-bottom: 1.75rem; color: var(--color-text-muted); }
+.intro { margin-bottom: 1.75rem; color: var(--tv-text-muted); }
 .form-field { margin-bottom: 1.25rem; }
 .password-field { position: relative; }
 .password-field .form-control { padding-right: 3.25rem; }
-.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--color-text-muted); background: transparent; }
-.notice { display: flex; gap: .75rem; margin-bottom: 1rem; padding: 1rem; border-radius: 12px; color: #166534; background: #dcfce7; }
+.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--tv-text-muted); background: transparent; }
+.notice { display: flex; gap: .75rem; margin-bottom: 1rem; padding: 1rem; border-radius: 12px; color: var(--tv-success-on-soft); background: var(--tv-success-soft); }
 </style>

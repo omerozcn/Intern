@@ -1,36 +1,55 @@
 <template>
-  <div class="app-shell">
+  <div class="app-shell" :data-rail="isRail">
     <a class="skip-link" href="#main-content">{{ t('common.skipToContent') }}</a>
 
     <aside class="sidebar d-none d-lg-flex" :aria-label="t('nav.primary')">
       <RouterLink class="brand" :to="{ name: 'dashboard' }" :aria-label="t('nav.home')">
         <img class="brand__logo" :src="logoUrl" alt="Turkuvaz" />
+        <!-- The asset is a ~4:1 wordmark and cannot shrink into an 84px rail
+             without becoming unreadable, so the rail gets a monogram instead. -->
+        <span class="brand__mark" aria-hidden="true">{{ brandInitial }}</span>
         <span class="brand__copy">
           <strong>{{ t('app.shortName') }}</strong>
           <small>{{ t('app.tagline') }}</small>
         </span>
       </RouterLink>
 
-      <nav class="sidebar__nav" :aria-label="t('nav.primary')">
+      <nav id="primary-navigation" class="sidebar__nav" :aria-label="t('nav.primary')">
         <RouterLink
           v-for="link in visibleLinks"
           :key="link.name"
           class="sidebar-link"
           :to="{ name: link.name }"
+          :data-label="t(link.labelKey)"
         >
           <i :class="['bi', link.icon]" aria-hidden="true"></i>
-          <span>{{ t(link.labelKey) }}</span>
+          <!-- visually-hidden rather than display:none in rail mode: the link
+               keeps its accessible name either way. -->
+          <span :class="{ 'visually-hidden': isRail }">{{ t(link.labelKey) }}</span>
         </RouterLink>
       </nav>
 
       <div class="sidebar__footer">
-        <RouterLink class="user-card" :to="{ name: 'profile' }">
+        <button
+          class="rail-toggle"
+          type="button"
+          :aria-expanded="!isRail"
+          aria-controls="primary-navigation"
+          :aria-label="isRail ? t('nav.expandSidebar') : t('nav.collapseSidebar')"
+          :title="isRail ? t('nav.expandSidebar') : t('nav.collapseSidebar')"
+          @click="toggleSidebar"
+        >
+          <i :class="['bi', isRail ? 'bi-chevron-double-right' : 'bi-chevron-double-left']" aria-hidden="true"></i>
+          <span :class="{ 'visually-hidden': isRail }">{{ t('nav.collapseSidebar') }}</span>
+        </button>
+
+        <RouterLink class="user-card" :to="{ name: 'profile' }" :title="displayName">
           <span class="avatar" aria-hidden="true">{{ initials }}</span>
-          <span class="user-card__copy">
+          <span class="user-card__copy" :class="{ 'visually-hidden': isRail }">
             <strong>{{ displayName }}</strong>
             <small>{{ roleLabel }}</small>
           </span>
-          <i class="bi bi-chevron-right" aria-hidden="true"></i>
+          <i v-if="!isRail" class="bi bi-chevron-right" aria-hidden="true"></i>
         </RouterLink>
       </div>
     </aside>
@@ -50,11 +69,23 @@
         </button>
 
         <div class="topbar__title">
+          <!-- The router is flat: twelve sibling routes, no hierarchy. A
+               breadcrumb trail would be invented structure, so this shows the
+               real grouping the navigation already uses. -->
+          <small v-if="currentGroup" class="topbar__group">{{ t(`nav.groups.${currentGroup}`) }}</small>
           <span>{{ currentPageTitle }}</span>
           <small class="d-none d-md-block">{{ formattedToday }}</small>
         </div>
 
         <div class="topbar__actions">
+          <button class="palette-trigger d-none d-md-flex" type="button" @click="paletteOpen = true">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <span>{{ t('palette.open') }}</span>
+            <kbd>{{ shortcutHint }}</kbd>
+          </button>
+
+          <ThemeToggle />
+
           <label class="visually-hidden" for="app-locale">{{ t('common.language') }}</label>
           <select
             id="app-locale"
@@ -88,6 +119,8 @@
         <slot />
       </main>
     </div>
+
+    <CommandPalette v-model:open="paletteOpen" />
 
     <Teleport to="body">
       <Transition name="drawer">
@@ -139,6 +172,13 @@
             </nav>
 
             <div class="mobile-drawer__footer">
+              <!-- The topbar hides its non-danger icon buttons below 768px, so the
+                   theme control needs a home that survives on a phone. -->
+              <div class="drawer-preferences">
+                <span class="drawer-preferences__label">{{ t('theme.label') }}</span>
+                <ThemeToggle variant="segmented" />
+              </div>
+
               <RouterLink class="user-card" :to="{ name: 'profile' }" @click="closeDrawer">
                 <span class="avatar" aria-hidden="true">{{ initials }}</span>
                 <span class="user-card__copy">
@@ -159,11 +199,15 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import logoUrl from '@/assets/turkuvaz-logo.webp'
+import CommandPalette from '@/components/CommandPalette.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
+import { sidebarMode, toggleSidebar } from '@/composables/useSidebar'
+import { navLinks, visibleNavLinks } from '@/config/navigation'
 import { setLocale, supportedLocales } from '@/i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
@@ -178,22 +222,14 @@ const drawerOpen = ref(false)
 const drawerPanel = ref(null)
 const drawerTrigger = ref(null)
 const loggingOut = ref(false)
+const paletteOpen = ref(false)
 
-const links = [
-  { name: 'dashboard', labelKey: 'nav.dashboard', icon: 'bi-grid-1x2' },
-  { name: 'create-ticket', labelKey: 'nav.createTicket', icon: 'bi-plus-square', roles: ['User'] },
-  { name: 'my-tickets', labelKey: 'nav.myTickets', icon: 'bi-inbox', roles: ['User'] },
-  { name: 'send-feedback', labelKey: 'nav.sendFeedback', icon: 'bi-chat-square-text', roles: ['User'] },
-  { name: 'admin-tickets', labelKey: 'nav.tickets', icon: 'bi-kanban', roles: ['Admin'] },
-  { name: 'services', labelKey: 'nav.services', icon: 'bi-box-seam', roles: ['Admin'] },
-  { name: 'firms', labelKey: 'nav.firms', icon: 'bi-buildings', roles: ['Admin'] },
-  { name: 'accounts', labelKey: 'nav.accounts', icon: 'bi-people', roles: ['Admin'] },
-  { name: 'admin-feedback', labelKey: 'nav.feedback', icon: 'bi-chat-left-dots', roles: ['Admin'] },
-]
-
-const visibleLinks = computed(() =>
-  links.filter((link) => !link.roles || link.roles.includes(auth.role)),
+const isRail = computed(() => sidebarMode.value === 'rail')
+const visibleLinks = computed(() => visibleNavLinks(auth.role))
+const currentGroup = computed(
+  () => navLinks.find((link) => link.name === route.name)?.group ?? '',
 )
+const brandInitial = computed(() => t('app.shortName').charAt(0).toLocaleUpperCase(locale.value))
 const displayName = computed(() => {
   const fullName = [auth.user?.firstName, auth.user?.lastName].filter(Boolean).join(' ')
   return fullName || auth.user?.userName || auth.user?.email || t('profile.unknownUser')
@@ -213,6 +249,9 @@ const formattedToday = computed(() =>
     day: 'numeric',
     month: 'long',
   }).format(new Date()),
+)
+const shortcutHint = computed(() =>
+  /Mac|iPhone|iPad/.test(globalThis.navigator?.platform ?? '') ? '⌘K' : 'Ctrl K',
 )
 
 watch(drawerOpen, async (open) => {
@@ -263,6 +302,13 @@ function trapDrawerFocus(event) {
   }
 }
 
+function onGlobalKeydown(event) {
+  if (event.key !== 'k' && event.key !== 'K') return
+  if (!event.metaKey && !event.ctrlKey) return
+  event.preventDefault()
+  paletteOpen.value = !paletteOpen.value
+}
+
 async function handleLogout() {
   if (loggingOut.value) return
   loggingOut.value = true
@@ -276,5 +322,10 @@ async function handleLogout() {
   }
 }
 
-onBeforeUnmount(() => document.body.classList.remove('drawer-is-open'))
+onMounted(() => window.addEventListener('keydown', onGlobalKeydown))
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onGlobalKeydown)
+  document.body.classList.remove('drawer-is-open')
+})
 </script>

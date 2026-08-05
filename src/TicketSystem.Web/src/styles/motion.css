@@ -1,0 +1,398 @@
+/* ===========================================================================
+   Motion
+
+   The easing and duration tokens live in tokens.css; this file is the movement
+   itself. Every rule below is disabled by the single reduced-motion block at
+   the bottom.
+
+   That block is the reason this file exists as one file: it is the only place
+   in the codebase where animation is turned off, so a reader can verify the
+   whole reduced-motion story without grepping. Anything animated elsewhere —
+   including JavaScript-driven animation — must add its escape here or check
+   the media query itself.
+   =========================================================================== */
+
+@keyframes tv-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes tv-shimmer {
+  from { background-position: -200% 0; }
+  to { background-position: 200% 0; }
+}
+
+@keyframes tv-pulse-ring {
+  0% { box-shadow: 0 0 0 0 currentColor; opacity: 0.55; }
+  70% { box-shadow: 0 0 0 6px transparent; opacity: 0; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 0; }
+}
+
+@keyframes tv-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes tv-sheen {
+  from { transform: translateX(-120%); }
+  to { transform: translateX(220%); }
+}
+
+@keyframes tv-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+/* --- Route transition, driven by <Transition name="page"> in App.vue -------- */
+
+.page-enter-active {
+  transition: opacity var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease);
+}
+
+.page-leave-active {
+  transition: opacity var(--tv-duration-fast) var(--tv-ease-exit), transform var(--tv-duration-fast) var(--tv-ease-exit);
+}
+
+.page-enter-from { opacity: 0; transform: translateY(8px); }
+.page-leave-to { opacity: 0; transform: translateY(-4px); }
+
+/* --- Entrances ------------------------------------------------------------- */
+
+/* Delay steps are capped at eight because past that the last item arrives late
+   enough to feel like lag rather than sequence. */
+.tv-stagger > * { animation: tv-rise var(--tv-duration-slow) var(--tv-ease) both; }
+.tv-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.tv-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.tv-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.tv-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.tv-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.tv-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.tv-stagger > *:nth-child(7) { animation-delay: 240ms; }
+.tv-stagger > *:nth-child(n + 8) { animation-delay: 280ms; }
+
+/* Reordering lists, driven by <TransitionGroup name="tv-list">.
+
+   Used where a filter or a search changes which rows survive: Vue gives FLIP
+   movement for free, so the cards that stay glide to their new position instead
+   of the whole grid cutting. .tv-stagger stays for grids that only ever mount
+   once — running both on one element is worse than either. */
+.tv-list-enter-active {
+  transition: opacity var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease);
+}
+
+.tv-list-leave-active {
+  /* Taken out of flow so the survivors can start moving immediately rather than
+     waiting for the leaver to finish collapsing. */
+  position: absolute;
+  transition: opacity var(--tv-duration-fast) var(--tv-ease-exit), transform var(--tv-duration-fast) var(--tv-ease-exit);
+}
+
+.tv-list-enter-from,
+.tv-list-leave-to {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+.tv-list-move {
+  transition: transform var(--tv-duration-slow) var(--tv-ease);
+}
+
+/* Scroll reveal, driven by the v-reveal directive in composables/useScrollReveal.js.
+
+   Not applied to anything already using .tv-stagger — two entrance systems on
+   one element read as a stutter, not as emphasis. Under reduced motion the
+   directive adds .tv-reveal--in immediately and never constructs an observer,
+   so nothing is left stranded at opacity 0. */
+.tv-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--tv-duration-slow) var(--tv-ease-emphasized),
+    transform var(--tv-duration-slow) var(--tv-ease-emphasized);
+  transition-delay: var(--tv-reveal-delay, 0ms);
+}
+
+.tv-reveal--in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Skeleton placeholder: shows the shape of the content that is loading, which
+   reads as faster than a spinner because the layout stops jumping. */
+.tv-skeleton {
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--tv-skeleton-base) 25%,
+    var(--tv-skeleton-sheen) 37%,
+    var(--tv-skeleton-base) 63%
+  );
+  background-size: 200% 100%;
+  animation: tv-shimmer 1.4s ease-in-out infinite;
+}
+
+/* --- Micro-interactions ---------------------------------------------------- */
+
+.surface-card {
+  transition: transform var(--tv-duration) var(--tv-ease), box-shadow var(--tv-duration) var(--tv-ease),
+    border-color var(--tv-duration) ease;
+}
+
+.surface-card--interactive { cursor: default; }
+
+.surface-card--interactive:hover {
+  transform: translateY(-3px);
+  border-color: var(--tv-accent-soft-strong);
+  box-shadow: var(--tv-shadow-lg);
+}
+
+/* A light sweeps across the primary button on hover. Purely decorative, so it is
+   clipped to the button and never intercepts pointer events. */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.28), transparent);
+  content: "";
+  pointer-events: none;
+  transform: translateX(-120%);
+}
+
+.btn-primary:hover:not(:disabled)::after { animation: tv-sheen 620ms var(--tv-ease); }
+
+.form-control,
+.form-select {
+  transition: border-color var(--tv-duration-fast) ease, box-shadow var(--tv-duration-fast) ease,
+    background-color var(--tv-duration-fast) ease;
+}
+
+/* The in-progress badge emits a slow ring so an at-a-glance scan of a list finds
+   the live items without reading them. */
+.status-badge--inProgress .status-badge__dot { position: relative; }
+
+.status-badge--inProgress .status-badge__dot::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  content: "";
+  animation: tv-pulse-ring 2.4s ease-out infinite;
+}
+
+.state-panel .state-panel__icon,
+.state-panel > .bi {
+  animation: tv-float 4.5s ease-in-out infinite;
+}
+
+.btn {
+  transition: transform var(--tv-duration-fast) var(--tv-ease), box-shadow var(--tv-duration-fast) var(--tv-ease),
+    background-color var(--tv-duration-fast) ease, border-color var(--tv-duration-fast) ease, color var(--tv-duration-fast) ease;
+}
+
+.btn:active:not(:disabled) { transform: translateY(1px); }
+
+.icon-button {
+  transition: transform var(--tv-duration-fast) var(--tv-ease), background-color var(--tv-duration-fast) ease,
+    color var(--tv-duration-fast) ease, border-color var(--tv-duration-fast) ease;
+}
+
+.icon-button:active:not(:disabled) { transform: scale(0.94); }
+
+/* The white pill behind the active item scales in from the left rather than
+   snapping on, and the icon leads the label by a few pixels on hover so the
+   whole row feels like one object rather than two. */
+.sidebar-link { position: relative; isolation: isolate; }
+
+.sidebar-link::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: 12px;
+  background: var(--tv-sidebar-active-bg);
+  box-shadow: var(--tv-shadow-sm);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.6);
+  transform-origin: left center;
+  transition: opacity var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease);
+}
+
+.sidebar-link.router-link-active::before { opacity: 1; transform: none; }
+
+.sidebar-link .bi { transition: transform var(--tv-duration) var(--tv-ease); }
+.sidebar-link:hover .bi { transform: translateX(2px); }
+.sidebar-link.router-link-active .bi { transform: none; }
+
+/* --- Drawer ---------------------------------------------------------------- */
+
+.drawer-enter-active,
+.drawer-leave-active,
+.drawer-enter-active .mobile-drawer,
+.drawer-leave-active .mobile-drawer {
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.drawer-enter-from,
+.drawer-leave-to {
+  opacity: 0;
+}
+
+.drawer-enter-from .mobile-drawer,
+.drawer-leave-to .mobile-drawer {
+  transform: translateX(-100%);
+}
+
+/* --- Toasts ---------------------------------------------------------------- */
+
+.app-toast { position: relative; overflow: hidden; }
+
+/* Shows how long the toast has left before dismissing itself. */
+.app-toast__timer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.3;
+  transform-origin: left center;
+  animation: tv-countdown linear forwards;
+}
+
+.toast-list-enter-active {
+  transition: opacity var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease);
+}
+
+.toast-list-leave-active {
+  position: absolute;
+  right: 0;
+  left: 0;
+  transition: opacity var(--tv-duration-fast) var(--tv-ease-exit), transform var(--tv-duration-fast) var(--tv-ease-exit);
+}
+
+/* Enters from the edge it is docked to, which reads as arriving rather than
+   simply appearing. */
+.toast-list-enter-from,
+.toast-list-leave-to {
+  opacity: 0;
+  transform: translateX(20px) scale(0.96);
+}
+
+/* Reordering after a dismissal should glide rather than jump. */
+.toast-list-move { transition: transform var(--tv-duration) var(--tv-ease); }
+
+/* --- Dialogs --------------------------------------------------------------- */
+
+/* The page behind blurs as the panel rises. The panel is transitioned separately
+   from the overlay so it leads slightly, which reads as the dialog coming
+   forward rather than the whole screen cross-fading. */
+.dialog-layer { backdrop-filter: blur(4px); }
+
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: opacity var(--tv-duration) var(--tv-ease), backdrop-filter var(--tv-duration) var(--tv-ease);
+}
+
+.dialog-fade-enter-active .confirm-dialog,
+.dialog-fade-leave-active .confirm-dialog,
+.dialog-fade-enter-active .app-modal,
+.dialog-fade-leave-active .app-modal {
+  transition: opacity var(--tv-duration) var(--tv-ease), transform var(--tv-duration) var(--tv-ease);
+}
+
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+  opacity: 0;
+  backdrop-filter: blur(0);
+}
+
+.dialog-fade-enter-from .confirm-dialog,
+.dialog-fade-leave-to .confirm-dialog,
+.dialog-fade-enter-from .app-modal,
+.dialog-fade-leave-to .app-modal {
+  opacity: 0;
+  transform: translateY(14px) scale(0.96);
+}
+
+/* --- Theme flip ------------------------------------------------------------ */
+
+/* The browser's default root cross-fade would run underneath the circular wipe
+   in composables/useTheme.js and read as a smear. The old frame simply holds
+   still while the new one is revealed over it. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 0;
+}
+
+::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion
+
+   The single off switch. Keep every escape in this block.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  /* The shimmer is decorative; without motion it should simply be a flat block
+     rather than a one-frame flash. */
+  .tv-skeleton { animation: none !important; background: var(--tv-skeleton-base); }
+
+  /* Ambient loops carry no information, so they stop entirely rather than
+     running once at 0.01ms and leaving an odd final frame. */
+  .status-badge--inProgress .status-badge__dot::after,
+  .state-panel .state-panel__icon,
+  .state-panel > .bi,
+  .btn-primary:hover:not(:disabled)::after {
+    animation: none !important;
+  }
+
+  /* The countdown bar cannot survive the blanket duration override above, and a
+     collapsed sliver reads as a rendering fault. Hidden instead; the toast still
+     dismisses itself on the same JavaScript timer. */
+  .app-toast__timer { display: none !important; }
+
+  .surface-card--interactive:hover,
+  .btn:active:not(:disabled),
+  .icon-button:active:not(:disabled),
+  .sidebar-link:hover .bi {
+    transform: none !important;
+  }
+
+  /* The blanket `*` rule above cannot reach view-transition pseudo-elements —
+     they are not in the document tree. useTheme.js already skips the wipe under
+     reduced motion; this is the belt to that pair of braces. */
+  ::view-transition-group(*),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  /* Revealed content must not be left at opacity 0 if anything ever adds
+     .tv-reveal without the directive's escape running. */
+  .tv-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

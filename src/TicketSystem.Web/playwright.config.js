@@ -19,6 +19,11 @@ export default defineConfig({
     baseURL: BASE_URL,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // Entrance animations and the FLIP list transitions make toBeVisible() race
+    // against a still-moving element. Forcing the reduced-motion branch removes
+    // that flake and, more usefully, means CI exercises the reduced-motion path
+    // continuously — it is the path most likely to rot unnoticed.
+    reducedMotion: 'reduce',
   },
 
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],

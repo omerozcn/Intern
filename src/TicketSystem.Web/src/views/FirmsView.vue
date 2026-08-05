@@ -37,11 +37,13 @@
             <div v-if="editingId === firm.id" class="edit-row">
               <label class="visually-hidden" :for="`edit-firm-${firm.id}`">{{ t('firms.editName') }}</label>
               <input :id="`edit-firm-${firm.id}`" v-model.trim="editName" class="form-control form-control-sm" :disabled="saving" />
-              <button type="button" class="icon-button icon-button--success" :aria-label="t('common.save')" :disabled="saving" @click="saveEdit(firm)"><i class="bi bi-check-lg" aria-hidden="true"></i></button>
-              <button type="button" class="icon-button" :aria-label="t('common.cancel')" :disabled="saving" @click="cancelEdit"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+              <IconButton icon="bi-check-lg" variant="success" :label="t('common.save')" :busy="saving" @click="saveEdit(firm)" />
+              <IconButton icon="bi-x-lg" :label="t('common.cancel')" :disabled="saving" @click="cancelEdit" />
             </div>
             <template v-else>
-              <div class="name-row"><h2>{{ firm.name }}</h2><span v-if="firm.isProtected" class="protected-badge"><i class="bi bi-shield-lock" aria-hidden="true"></i> {{ t('firms.protected') }}</span></div>
+                  <!-- The badge explains why edit and delete are disabled; without it
+                   the two greyed-out buttons look like a fault. -->
+              <div class="name-row"><h2>{{ firm.name }}</h2><span v-if="firm.isProtected" class="protected-badge" :title="t('firms.protectedHint')"><i class="bi bi-shield-lock" aria-hidden="true"></i> {{ t('firms.protected') }}</span></div>
               <p>{{ t('firms.servicesAssigned', { count: firm.productCount }) }}</p>
             </template>
           </div>
@@ -75,6 +77,7 @@ import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import IconButton from "@/components/IconButton.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
 import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
@@ -164,29 +167,27 @@ onMounted(load);
 .create-bar { display: flex; align-items: end; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; }
 .create-field { flex: 1; }
 .list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
-.list-toolbar > span { color: var(--color-text-muted); white-space: nowrap; }
+.list-toolbar > span { color: var(--tv-text-muted); white-space: nowrap; }
 .search-field { position: relative; width: min(100%, 420px); }
-.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--color-text-muted); }
+.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--tv-text-muted); }
 .search-field input { padding-left: 2.6rem; }
 .firm-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .firm-card { display: flex; align-items: center; justify-content: space-between; min-width: 0; gap: 1rem; padding: 1.25rem; }
 .firm-main { display: flex; align-items: center; min-width: 0; gap: .75rem; }
-.firm-icon { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; color: var(--color-primary); background: var(--color-primary-soft); }
+.firm-icon { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; color: var(--tv-accent); background: var(--tv-accent-soft); }
 .firm-content { min-width: 0; }
-.firm-id { color: var(--color-text-muted); font-size: .7rem; }
+.firm-id { color: var(--tv-text-muted); font-size: .7rem; }
 /* Wraps the badge onto its own line instead of squeezing the heading: with a
    nowrap badge beside it, `overflow-wrap: anywhere` used to break a single-word
    name mid-word ("TUR / KUV / AZ"). */
 .name-row, .edit-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 .name-row h2 { margin: .1rem 0 0; overflow-wrap: break-word; font-size: 1rem; }
-.firm-content p { margin: .25rem 0 0; color: var(--color-text-muted); font-size: .8rem; }
-.protected-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .25rem .5rem; border-radius: 999px; color: #03696b; background: var(--color-primary-soft); font-size: .7rem; font-weight: 700; white-space: nowrap; }
+.firm-content p { margin: .25rem 0 0; color: var(--tv-text-muted); font-size: .8rem; }
+.protected-badge { display: inline-flex; align-items: center; gap: .25rem; padding: .25rem .5rem; border-radius: 999px; color: var(--tv-accent-on-soft); background: var(--tv-accent-soft); font-size: .7rem; font-weight: 700; white-space: nowrap; }
 /* nowrap + no shrink: with the protected badge widening the content column, the
    buttons used to wrap onto two lines in one card and stay inline in the next,
    so two cards in the same grid disagreed about their layout. */
 .firm-actions { display: flex; flex-shrink: 0; flex-wrap: nowrap; justify-content: flex-end; gap: .4rem; }
-.icon-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--color-border); border-radius: 10px; color: var(--color-text-muted); background: white; }
-.icon-button--success { color: #15803d; }
 @media (max-width: 899px) { .firm-grid { grid-template-columns: 1fr; } }
 @media (max-width: 575px) { .create-bar, .list-toolbar, .firm-card { align-items: stretch; flex-direction: column; } .create-bar .btn, .search-field { width: 100%; } .firm-actions { justify-content: stretch; } .firm-actions .btn { flex: 1; } .name-row { align-items: flex-start; flex-direction: column; } }
 </style>
