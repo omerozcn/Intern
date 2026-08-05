@@ -11,4 +11,10 @@ public sealed class ProfileDto
     public string Email { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
     public FirmDto? Firm { get; set; }
+
+    /// <summary>
+    /// An administrator of the firm that owns the platform. Derived rather than stored,
+    /// and sent explicitly so the client never has to infer privilege from a firm name.
+    /// </summary>
+    public bool IsSuperAdmin { get; set; }
 }

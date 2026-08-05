@@ -101,6 +101,11 @@ public sealed class TicketRepository : ITicketRepository
         TicketListRequest request,
         CancellationToken cancellationToken)
     {
+        if (request.FirmId is { } firmId)
+        {
+            rows = rows.Where(row => row.FirmId == firmId);
+        }
+
         if (TicketStatuses.TryParseApiValue(request.Status, out var status))
         {
             rows = rows.Where(row => row.Status == status);
@@ -250,8 +255,24 @@ public sealed class TicketRepository : ITicketRepository
         return ticket;
     }
 
+    /// <summary>
+    /// The firm the ticket belongs to, inherited from whoever raised it. Used to keep an
+    /// administrator from answering another firm's ticket by guessing its id.
+    /// </summary>
+    public Task<int?> GetFirmIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return _context.Tickets
+            .AsNoTracking()
+            .Where(ticket => ticket.Id == id)
+            .SelectMany(ticket => ticket.AppUserTickets)
+            .SelectMany(link => link.AppUser.FirmUsers)
+            .Select(firmUser => (int?)firmUser.FirmId)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<TicketStatusCountDto>> GetStatusCountsAsync(
         string? appUserId,
+        int? firmId = null,
         CancellationToken cancellationToken = default)
     {
         var tickets = _context.Tickets.AsNoTracking().AsQueryable();
@@ -259,6 +280,15 @@ public sealed class TicketRepository : ITicketRepository
         {
             tickets = tickets.Where(ticket =>
                 ticket.AppUserTickets.Any(link => link.AppUserId == appUserId));
+        }
+
+        // Keeps the dashboard totals consistent with the list an administrator can
+        // actually open; global counts beside a firm-scoped list would just look broken.
+        if (firmId is { } scopedFirmId)
+        {
+            tickets = tickets.Where(ticket =>
+                ticket.AppUserTickets.Any(link =>
+                    link.AppUser.FirmUsers.Any(firmUser => firmUser.FirmId == scopedFirmId)));
         }
 
         var counts = await tickets
@@ -302,6 +332,13 @@ public sealed class TicketRepository : ITicketRepository
                 Answer = ticket.Answer,
                 Updated = ticket.Updated,
                 CreatedBy = ticket.CreatedBy,
+                // A ticket has no firm of its own; it inherits the requester's. Both the
+                // id and the name come from the same row so the scope filter and the
+                // label can never disagree.
+                FirmId = ticket.AppUserTickets
+                    .SelectMany(link => link.AppUser.FirmUsers)
+                    .Select(firmUser => (int?)firmUser.FirmId)
+                    .FirstOrDefault(),
                 FirmName = ticket.AppUserTickets
                     .SelectMany(link => link.AppUser.FirmUsers)
                     .Select(firmUser => firmUser.Firm.Name)
@@ -346,6 +383,7 @@ public sealed class TicketRepository : ITicketRepository
         public string? Answer { get; set; }
         public DateTime? Updated { get; set; }
         public string? CreatedBy { get; set; }
+        public int? FirmId { get; set; }
         public string? FirmName { get; set; }
         public string? ProductName { get; set; }
     }

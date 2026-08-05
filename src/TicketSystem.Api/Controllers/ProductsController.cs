@@ -60,7 +60,7 @@ public sealed class ProductsController : ControllerBase
         return Ok(await _firmProductRepository.GetProductsByFirmIdAsync(firmId.Value, cancellationToken));
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpGet]
     [ProducesResponseType<PagedResult<ProductDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<ProductDto>>> GetAll(
@@ -70,7 +70,7 @@ public sealed class ProductsController : ControllerBase
         return Ok(await _productRepository.GetAllAsync(request, cancellationToken));
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpPost]
     [ProducesResponseType<ProductDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -90,7 +90,7 @@ public sealed class ProductsController : ControllerBase
         return StatusCode(StatusCodes.Status201Created, product.ToProductDto());
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpPut("{id:int}")]
     [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -117,7 +117,7 @@ public sealed class ProductsController : ControllerBase
         return product is null ? ProductNotFound() : Ok(product.ToProductDto());
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]

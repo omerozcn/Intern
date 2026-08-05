@@ -34,22 +34,32 @@
         </div>
         <div class="form-field">
           <label for="account-role" class="form-label">{{ t('fields.role') }}</label>
-          <select id="account-role" v-model="createForm.role" class="form-select" :disabled="creating">
+          <select id="account-role" v-model="createForm.role" class="form-select" :disabled="creating || !isSuperAdmin">
             <option value="User">{{ t('roles.user') }}</option>
-            <option value="Admin">{{ t('roles.admin') }}</option>
+            <!-- Only the platform owner creates administrators. The API enforces the
+                 same rule, so hiding the option is convenience, not the control. -->
+            <option v-if="isSuperAdmin" value="Admin">{{ t('roles.admin') }}</option>
           </select>
+          <div v-if="!isSuperAdmin" class="form-text">{{ t('accounts.userOnlyHint') }}</div>
         </div>
-        <div class="form-field">
+
+        <div v-if="isSuperAdmin" class="form-field">
           <label for="account-firm" class="form-label">{{ t('fields.firm') }}</label>
           <FirmSelect
             v-model="createForm.firmId"
             input-id="account-firm"
-            exclude-protected
-            :disabled="creating || createForm.role === 'Admin'"
-            :placeholder="createForm.role === 'Admin' ? t('accounts.adminFirmAutomatic') : t('accounts.selectFirm')"
+            :exclude-protected="createForm.role !== 'Admin'"
+            :disabled="creating"
+            :placeholder="t('accounts.selectFirm')"
           />
           <div v-if="createErrors.firmId" class="invalid-feedback d-block">{{ createErrors.firmId }}</div>
+          <!-- The firm is what makes an administrator a super administrator, so it has
+               to be chosen deliberately rather than assigned behind the scenes. -->
           <div v-if="createForm.role === 'Admin'" class="form-text">{{ t('accounts.adminFirmHint') }}</div>
+        </div>
+        <div v-else class="form-field">
+          <span class="form-label d-block">{{ t('fields.firm') }}</span>
+          <p class="form-text mb-0">{{ ownFirmName }}</p>
         </div>
       </div>
       <div class="form-actions">
@@ -88,7 +98,7 @@
               <td>{{ user.email }}</td>
               <td><span class="role-badge" :class="{ admin: user.role === 'Admin' }">{{ t(user.role === 'Admin' ? 'roles.admin' : 'roles.user') }}</span></td>
               <td>{{ user.firmName || t('common.notAvailable') }}</td>
-              <td class="text-end"><div class="row-actions"><button type="button" class="btn btn-sm btn-outline-secondary" @click="openEdit(user)"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">{{ t('common.edit') }}</span></button><button type="button" class="btn btn-sm btn-outline-danger" @click="askDelete(user)"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">{{ t('common.delete') }}</span></button></div></td>
+              <td class="text-end"><div class="row-actions"><button v-if="canManage(user)" type="button" class="btn btn-sm btn-outline-secondary" @click="openEdit(user)"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">{{ t('common.edit') }}</span></button><button v-if="canManage(user)" type="button" class="btn btn-sm btn-outline-danger" @click="askDelete(user)"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">{{ t('common.delete') }}</span></button></div></td>
             </tr>
           </tbody>
         </table>
@@ -98,7 +108,7 @@
         <article v-for="user in users" :key="user.id" class="surface-card user-card">
           <div class="person-cell"><span>{{ initials(user) }}</span><div><strong>{{ user.firstName }} {{ user.lastName }}</strong><small>{{ user.email }}</small></div></div>
           <dl><div><dt>{{ t('fields.role') }}</dt><dd><span class="role-badge" :class="{ admin: user.role === 'Admin' }">{{ t(user.role === 'Admin' ? 'roles.admin' : 'roles.user') }}</span></dd></div><div><dt>{{ t('fields.firm') }}</dt><dd>{{ user.firmName || t('common.notAvailable') }}</dd></div></dl>
-          <div class="card-actions"><button type="button" class="btn btn-outline-secondary" @click="openEdit(user)"><i class="bi bi-pencil" aria-hidden="true"></i> {{ t('common.edit') }}</button><button type="button" class="btn btn-outline-danger" @click="askDelete(user)"><i class="bi bi-trash" aria-hidden="true"></i> {{ t('common.delete') }}</button></div>
+          <div class="card-actions"><button v-if="canManage(user)" type="button" class="btn btn-outline-secondary" @click="openEdit(user)"><i class="bi bi-pencil" aria-hidden="true"></i> {{ t('common.edit') }}</button><button v-if="canManage(user)" type="button" class="btn btn-outline-danger" @click="askDelete(user)"><i class="bi bi-trash" aria-hidden="true"></i> {{ t('common.delete') }}</button></div>
         </article>
       </div>
     </template>
@@ -117,8 +127,9 @@
           <div class="form-field"><label for="edit-first-name" class="form-label">{{ t('fields.firstName') }}</label><input id="edit-first-name" v-model.trim="editForm.firstName" class="form-control" :disabled="saving" /></div>
           <div class="form-field"><label for="edit-last-name" class="form-label">{{ t('fields.lastName') }}</label><input id="edit-last-name" v-model.trim="editForm.lastName" class="form-control" :disabled="saving" /></div>
           <div class="form-field dialog-span"><label for="edit-email" class="form-label">{{ t('fields.email') }}</label><input id="edit-email" v-model.trim="editForm.email" class="form-control" type="email" :disabled="saving" /></div>
-          <div class="form-field"><label for="edit-role" class="form-label">{{ t('fields.role') }}</label><select id="edit-role" v-model="editForm.role" class="form-select" :disabled="saving"><option value="User">{{ t('roles.user') }}</option><option value="Admin">{{ t('roles.admin') }}</option></select></div>
-          <div class="form-field"><label for="edit-firm" class="form-label">{{ t('fields.firm') }}</label><FirmSelect v-model="editForm.firmId" input-id="edit-firm" exclude-protected :disabled="saving || editForm.role === 'Admin'" :placeholder="t('accounts.selectFirm')" /></div>
+          <div class="form-field"><label for="edit-role" class="form-label">{{ t('fields.role') }}</label><select id="edit-role" v-model="editForm.role" class="form-select" :disabled="saving || !isSuperAdmin"><option value="User">{{ t('roles.user') }}</option><option v-if="isSuperAdmin" value="Admin">{{ t('roles.admin') }}</option></select></div>
+          <div v-if="isSuperAdmin" class="form-field"><label for="edit-firm" class="form-label">{{ t('fields.firm') }}</label><FirmSelect v-model="editForm.firmId" input-id="edit-firm" :exclude-protected="editForm.role !== 'Admin'" :disabled="saving" :placeholder="t('accounts.selectFirm')" /></div>
+          <div v-else class="form-field"><span class="form-label d-block">{{ t('fields.firm') }}</span><p class="form-text mb-0">{{ ownFirmName }}</p></div>
         </div>
         <p v-if="editError" class="form-error" role="alert">{{ editError }}</p>
       </form>
@@ -159,10 +170,14 @@ import PaginationBar from "@/components/PaginationBar.vue";
 import FirmSelect from "@/components/FirmSelect.vue";
 import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
+import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
 import { meetsPasswordPolicy } from "@/utils/password";
 
 const { t, locale } = useI18n();
+const auth = useAuthStore();
+const isSuperAdmin = computed(() => auth.isSuperAdmin);
+const ownFirmName = computed(() => auth.user?.firm?.name || t("common.notAvailable"));
 const toast = useToastStore();
 
 const roleFilter = ref("all");
@@ -181,8 +196,10 @@ const confirmOpen = ref(false);
 const deleting = ref(false);
 
 
-watch(() => createForm.role, (role) => { if (role === "Admin") createForm.firmId = ""; createErrors.firmId = ""; });
-watch(() => editForm.role, (role) => { if (role === "Admin") editForm.firmId = ""; });
+/* The firm stays selectable for both roles now: an administrator's firm is what decides
+   whether they are a super administrator, so clearing it on role change would hide the
+   single most consequential field on the form. Only the protected-firm filter changes. */
+watch(() => createForm.role, () => { createErrors.firmId = ""; });
 
 function normalizeUser(item) {
   return { id: item.id ?? item.Id, userName: item.userName ?? item.name ?? "", firstName: item.firstName ?? "", lastName: item.lastName ?? "", email: item.email ?? "", role: item.role ?? "User", firmId: Number(item.firm?.id ?? item.firmId) || null, firmName: item.firm?.name ?? item.firmName ?? "" };
@@ -213,13 +230,28 @@ const {
 function initials(user) { return `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toLocaleUpperCase(locale.value === "tr" ? "tr-TR" : "en-US"); }
 function validEmail(value) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value); }
 
+/* Administrator accounts belong to the platform owner. A non-super administrator gets
+   no edit or delete control on one at all, which is clearer than offering a button that
+   the API answers with 403. */
+function canManage(user) {
+  return isSuperAdmin.value || user.role !== "Admin";
+}
+
+/* A non-super administrator has no firm field: the server pins new accounts to the
+   caller's own firm regardless, and sending it here just keeps the request honest. */
+function effectiveFirmId() {
+  return isSuperAdmin.value ? Number(createForm.firmId) : Number(auth.user?.firm?.id) || 0;
+}
+
 
 function validateCreate() {
   createErrors.firstName = createForm.firstName.length >= 2 ? "" : t("validation.required");
   createErrors.lastName = createForm.lastName.length >= 2 ? "" : t("validation.required");
   createErrors.email = validEmail(createForm.email) ? "" : t("validation.email");
   createErrors.password = meetsPasswordPolicy(createForm.password) ? "" : t("validation.minLength", { min: 12 });
-  createErrors.firmId = createForm.role === "User" && !createForm.firmId ? t("validation.selectFirm") : "";
+  // Required for every role now. The API has always demanded a real firm id — sending
+  // null for administrators is why creating one from this screen used to fail outright.
+  createErrors.firmId = isSuperAdmin.value && !createForm.firmId ? t("validation.selectFirm") : "";
   return Object.values(createErrors).every((value) => !value);
 }
 function resetCreate() { Object.assign(createForm, { firstName: "", lastName: "", email: "", password: "", role: "User", firmId: "" }); Object.keys(createErrors).forEach((key) => { createErrors[key] = ""; }); showCreate.value = false; }
@@ -227,7 +259,7 @@ async function createAccount() {
   if (!validateCreate() || creating.value) return;
   creating.value = true;
   try {
-    await api.post("/api/users", { firstName: createForm.firstName, lastName: createForm.lastName, email: createForm.email, password: createForm.password, role: createForm.role, firmId: createForm.role === "User" ? Number(createForm.firmId) : null });
+    await api.post("/api/users", { firstName: createForm.firstName, lastName: createForm.lastName, email: createForm.email, password: createForm.password, role: createForm.role, firmId: effectiveFirmId() });
     resetCreate(); await load(); toast.success(t("accounts.created"));
   } catch (requestError) { toast.error(requestError.message || t("errors.createAccount")); }
   finally { creating.value = false; }

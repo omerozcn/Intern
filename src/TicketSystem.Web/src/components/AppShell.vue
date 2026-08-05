@@ -225,7 +225,7 @@ const loggingOut = ref(false)
 const paletteOpen = ref(false)
 
 const isRail = computed(() => sidebarMode.value === 'rail')
-const visibleLinks = computed(() => visibleNavLinks(auth.role))
+const visibleLinks = computed(() => visibleNavLinks(auth.role, auth.isSuperAdmin))
 const currentGroup = computed(
   () => navLinks.find((link) => link.name === route.name)?.group ?? '',
 )

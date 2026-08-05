@@ -58,17 +58,54 @@ public sealed class AccountRepository : IAccountRepository
                 (user.Email != null && user.Email.Contains(request.Search)));
         }
 
-        return await Profiles(users)
+        var page = await Profiles(users)
             .OrderBy(user => user.FirstName)
             .ThenBy(user => user.LastName)
             .ToPagedResultAsync(request, cancellationToken);
+
+        foreach (var profile in page.Items)
+        {
+            ApplyDerivedFlags(profile);
+        }
+
+        return page;
     }
 
-    public Task<ProfileDto?> GetByIdAsync(
+    public async Task<ProfileDto?> GetByIdAsync(
         string id,
         CancellationToken cancellationToken = default)
     {
-        return Profiles().SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+        var profile = await Profiles().SingleOrDefaultAsync(user => user.Id == id, cancellationToken);
+        return ApplyDerivedFlags(profile);
+    }
+
+    /// <summary>
+    /// Fills in the fields that cannot be computed inside the EF projection.
+    ///
+    /// The projection builds <see cref="FirmDto"/> by hand instead of going through
+    /// FirmMappers.ToFirmDto, because that call cannot be translated to SQL — which is
+    /// why IsProtected used to come back false even for the protected firm itself.
+    /// Both flags are derived here, once the rows are already in memory, rather than
+    /// relying on the database collation to compare the firm name.
+    /// </summary>
+    private static ProfileDto? ApplyDerivedFlags(ProfileDto? profile)
+    {
+        if (profile is null)
+        {
+            return null;
+        }
+
+        var inProtectedFirm = ProtectedFirm.IsProtectedName(profile.Firm?.Name);
+
+        if (profile.Firm is not null)
+        {
+            profile.Firm.IsProtected = inProtectedFirm;
+        }
+
+        profile.IsSuperAdmin = inProtectedFirm
+            && string.Equals(profile.Role, AppRoles.Admin, StringComparison.Ordinal);
+
+        return profile;
     }
 
     public async Task<ProfileDto?> GetByEmailAsync(

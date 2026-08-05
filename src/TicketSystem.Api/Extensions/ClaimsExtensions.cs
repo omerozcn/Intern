@@ -38,6 +38,18 @@ public static class ClaimsExtensions
         return principal.FindFirstValue(AuthClaimTypes.FirmName);
     }
 
+    /// <summary>
+    /// An administrator belonging to the firm that owns the platform.
+    ///
+    /// Both halves matter: the firm claim alone would promote a plain user who somehow
+    /// ended up in that firm, and the role alone is what every other administrator has.
+    /// </summary>
+    public static bool IsSuperAdmin(this ClaimsPrincipal principal)
+    {
+        return principal.IsInRole(AppRoles.Admin)
+            && ProtectedFirm.IsProtectedName(principal.GetFirmName());
+    }
+
     public static string GetDisplayName(this ClaimsPrincipal principal)
     {
         return principal.FindFirstValue(AuthClaimTypes.Name)

@@ -33,6 +33,16 @@ public sealed class TicketsController : ControllerBase
         [FromQuery] TicketListRequest request,
         CancellationToken cancellationToken)
     {
+        if (!User.IsSuperAdmin())
+        {
+            if (User.GetFirmId() is not { } firmId)
+            {
+                return NoFirmScope();
+            }
+
+            request.FirmId = firmId;
+        }
+
         return Ok(await _ticketRepository.GetAllAsync(request, cancellationToken));
     }
 
@@ -51,7 +61,16 @@ public sealed class TicketsController : ControllerBase
             return TicketNotFound();
         }
 
-        if (!User.IsInRole(AppRoles.Admin))
+        if (User.IsInRole(AppRoles.Admin))
+        {
+            // Administrators outside the owning firm are held to the same boundary as
+            // the list endpoint.
+            if (await OutOfFirmScopeAsync(id, cancellationToken) is { } scopeRejection)
+            {
+                return scopeRejection;
+            }
+        }
+        else
         {
             var appUserId = User.GetUserId();
             if (appUserId is null)
@@ -209,6 +228,11 @@ public sealed class TicketsController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
+        if (await OutOfFirmScopeAsync(id, cancellationToken) is { } scopeRejection)
+        {
+            return scopeRejection;
+        }
+
         var updatedTicket = await _ticketRepository.UpdateAsync(
             id,
             updateDto.Answer,
@@ -278,6 +302,11 @@ public sealed class TicketsController : ControllerBase
             return InvalidStatus(nameof(updateDto.Status));
         }
 
+        if (await OutOfFirmScopeAsync(id, cancellationToken) is { } scopeRejection)
+        {
+            return scopeRejection;
+        }
+
         if (status == TicketStatuses.Completed)
         {
             var existingTicket = await _ticketRepository.GetByIdAsync(id, cancellationToken);
@@ -307,7 +336,23 @@ public sealed class TicketsController : ControllerBase
         CancellationToken cancellationToken)
     {
         string? appUserId = null;
-        if (!User.IsInRole(AppRoles.Admin))
+        int? firmId = null;
+
+        if (User.IsInRole(AppRoles.Admin))
+        {
+            // Scoped to the same firm the list is scoped to, so the totals on the
+            // dashboard match the rows the administrator can actually open.
+            if (!User.IsSuperAdmin())
+            {
+                if (User.GetFirmId() is not { } callerFirmId)
+                {
+                    return NoFirmScope();
+                }
+
+                firmId = callerFirmId;
+            }
+        }
+        else
         {
             appUserId = User.GetUserId();
             if (appUserId is null)
@@ -316,7 +361,38 @@ public sealed class TicketsController : ControllerBase
             }
         }
 
-        return Ok(await _ticketRepository.GetStatusCountsAsync(appUserId, cancellationToken));
+        return Ok(await _ticketRepository.GetStatusCountsAsync(appUserId, firmId, cancellationToken));
+    }
+
+    /// <summary>
+    /// Returns a rejection when a non-super administrator targets a ticket outside their
+    /// own firm, or null when the request may proceed.
+    ///
+    /// 404 rather than 403: the caller should not be able to probe which ticket ids exist
+    /// in other firms.
+    /// </summary>
+    private async Task<ObjectResult?> OutOfFirmScopeAsync(int ticketId, CancellationToken cancellationToken)
+    {
+        if (User.IsSuperAdmin())
+        {
+            return null;
+        }
+
+        if (User.GetFirmId() is not { } firmId)
+        {
+            return NoFirmScope();
+        }
+
+        var ticketFirmId = await _ticketRepository.GetFirmIdAsync(ticketId, cancellationToken);
+        return ticketFirmId == firmId ? null : TicketNotFound();
+    }
+
+    private ObjectResult NoFirmScope()
+    {
+        return Problem(
+            statusCode: StatusCodes.Status403Forbidden,
+            title: "Account has no firm",
+            detail: "This administrator account is not linked to a firm and cannot manage tickets.");
     }
 
     private ObjectResult TicketNotFound()

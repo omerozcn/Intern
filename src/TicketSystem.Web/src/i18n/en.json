@@ -320,12 +320,12 @@
     "add": "Add account",
     "create": "Create account",
     "createDescription": "Set identity details, role and company assignment.",
-    "adminFirmAutomatic": "TURKUVAZ is assigned automatically",
-    "adminFirmHint": "Administrator accounts are assigned to TURKUVAZ by the server.",
+    "adminFirmHint": "Administrators in the TURKUVAZ firm manage the whole system; administrators in other firms manage only their own firm.",
     "searchPlaceholder": "Search name, username or email…",
     "person": "User",
     "emptyTitle": "No accounts found",
-    "emptyDescription": "Change your search or filter criteria."
+    "emptyDescription": "Change your search or filter criteria.",
+    "userOnlyHint": "Only TURKUVAZ administrators can add new administrators."
   },
   "roles": {
     "admin": "Administrator",

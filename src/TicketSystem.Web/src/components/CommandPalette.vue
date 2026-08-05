@@ -97,7 +97,7 @@ let returnFocusTo = null
 const optionId = (index) => `${listId}-option-${index}`
 
 const pages = computed(() =>
-  visibleNavLinks(auth.role).map((link) => ({
+  visibleNavLinks(auth.role, auth.isSuperAdmin).map((link) => ({
     id: `page-${link.name}`,
     label: t(link.labelKey),
     hint: t(`nav.groups.${link.group}`),

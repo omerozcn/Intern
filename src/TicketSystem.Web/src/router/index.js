@@ -50,13 +50,13 @@ const routes = [
     path: '/services',
     name: 'services',
     component: () => import('@/views/ServicesView.vue'),
-    meta: { requiresAuth: true, roles: ['Admin'], titleKey: 'pageTitles.services' },
+    meta: { requiresAuth: true, roles: ['Admin'], titleKey: 'pageTitles.services', superAdmin: true },
   },
   {
     path: '/firms',
     name: 'firms',
     component: () => import('@/views/FirmsView.vue'),
-    meta: { requiresAuth: true, roles: ['Admin'], titleKey: 'pageTitles.firms' },
+    meta: { requiresAuth: true, roles: ['Admin'], titleKey: 'pageTitles.firms', superAdmin: true },
   },
   {
     path: '/accounts',
@@ -107,6 +107,12 @@ router.beforeEach(async (to) => {
     return auth.isAuthenticated ? { name: 'dashboard' } : { name: 'sign-in' }
   }
 
+  // Platform-wide screens. The API rejects these calls independently; this only keeps
+  // an administrator from landing on a page that would fail every request.
+  if (to.meta.superAdmin && !auth.isSuperAdmin) {
+    return auth.isAuthenticated ? { name: 'dashboard' } : { name: 'sign-in' }
+  }
+
   return true
 })
 
@@ -114,6 +120,8 @@ export function resolvePostLoginRoute(role, requestedPath) {
   if (isSafeReturnUrl(requestedPath)) {
     const resolved = router.resolve(requestedPath)
     if (resolved.matched.length && resolved.name !== 'sign-in') {
+      // Only the role is checked here: this runs before the session exists, so the
+      // super-admin flag is not known yet. The guard above re-checks on arrival.
       const roles = resolved.meta.roles
       if (!roles?.length || roles.includes(role)) return requestedPath
     }

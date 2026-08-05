@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TicketSystem.Dtos.Common;
 
 namespace TicketSystem.Dtos.Ticket;
@@ -18,4 +19,14 @@ public sealed class TicketListRequest : PageRequest
         get => _status;
         set => _status = string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
+
+    /// <summary>
+    /// Restricts the list to one firm's tickets.
+    ///
+    /// [BindNever] on purpose: this is set by the controller from the caller's claims and
+    /// must never be supplied by the client. Leaving it bindable would let an
+    /// administrator widen or redirect their own scope through the query string.
+    /// </summary>
+    [BindNever]
+    public int? FirmId { get; set; }
 }

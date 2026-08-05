@@ -19,7 +19,7 @@ public sealed class FirmProductsController : ControllerBase
         _firmProductRepository = firmProductRepository;
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpGet]
     [ProducesResponseType<PagedResult<FirmProductDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResult<FirmProductDto>>> GetAll(
@@ -29,7 +29,7 @@ public sealed class FirmProductsController : ControllerBase
         return Ok(await _firmProductRepository.GetAllAsync(request, cancellationToken));
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpPost]
     [ProducesResponseType<FirmProductDto>(StatusCodes.Status201Created)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -55,7 +55,7 @@ public sealed class FirmProductsController : ControllerBase
         };
     }
 
-    [Authorize(Roles = AppRoles.Admin)]
+    [Authorize(Policy = AppPolicies.SuperAdmin)]
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]

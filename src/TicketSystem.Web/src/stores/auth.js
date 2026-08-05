@@ -16,6 +16,10 @@ export const useAuthStore = defineStore('auth', () => {
   const expiresAt = computed(() => session.value?.expiresAt ?? null)
   const role = computed(() => user.value?.role ?? null)
   const userRole = computed(() => role.value)
+  /* Sent by the server rather than inferred from the firm name here. Hiding a control
+     is a courtesy; the API enforces the same rule on every request, so a stale or
+     tampered session cannot turn into privilege. */
+  const isSuperAdmin = computed(() => user.value?.isSuperAdmin === true)
   const isAuthenticated = computed(() => status.value === 'authenticated')
 
   function restoreStoredSession() {
@@ -128,6 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
     expiresAt,
     role,
     userRole,
+    isSuperAdmin,
     isAuthenticated,
     login,
     hydrate,

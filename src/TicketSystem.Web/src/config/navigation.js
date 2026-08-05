@@ -23,8 +23,10 @@ export const navLinks = Object.freeze([
     roles: ['User'],
   },
   { name: 'admin-tickets', labelKey: 'nav.tickets', icon: 'bi-kanban', group: 'requests', roles: ['Admin'] },
-  { name: 'services', labelKey: 'nav.services', icon: 'bi-box-seam', group: 'catalog', roles: ['Admin'] },
-  { name: 'firms', labelKey: 'nav.firms', icon: 'bi-buildings', group: 'catalog', roles: ['Admin'] },
+  // The service and firm catalogues are platform-wide, so they belong to the firm that
+  // owns the platform rather than to every administrator.
+  { name: 'services', labelKey: 'nav.services', icon: 'bi-box-seam', group: 'catalog', roles: ['Admin'], superAdmin: true },
+  { name: 'firms', labelKey: 'nav.firms', icon: 'bi-buildings', group: 'catalog', roles: ['Admin'], superAdmin: true },
   { name: 'accounts', labelKey: 'nav.accounts', icon: 'bi-people', group: 'admin', roles: ['Admin'] },
   {
     name: 'admin-feedback',
@@ -35,8 +37,11 @@ export const navLinks = Object.freeze([
   },
 ])
 
-export function visibleNavLinks(role) {
-  return navLinks.filter((link) => !link.roles || link.roles.includes(role))
+export function visibleNavLinks(role, isSuperAdmin = false) {
+  return navLinks.filter(
+    (link) =>
+      (!link.roles || link.roles.includes(role)) && (!link.superAdmin || isSuperAdmin),
+  )
 }
 
 /* Shortcuts that are not routes. Kept here so the palette and any future
