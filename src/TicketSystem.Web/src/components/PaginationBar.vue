@@ -55,7 +55,7 @@ function go(target) {
 
 <style scoped>
 .pagination-bar { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
-.pagination-status { color: var(--color-text-muted); font-size: .875rem; }
+.pagination-status { color: var(--tv-text-muted); font-size: .875rem; }
 .pagination-bar .btn { display: inline-flex; align-items: center; gap: .35rem; }
 @media (max-width: 575px) { .label-text { display: none; } }
 </style>

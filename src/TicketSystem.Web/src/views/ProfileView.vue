@@ -83,22 +83,22 @@ async function changePassword() {
 <style scoped>
 .profile-layout { display: grid; grid-template-columns: minmax(280px, 1fr) minmax(0, 1.5fr); align-items: start; gap: 1.5rem; }
 .profile-card, .password-card { padding: clamp(1.25rem, 3vw, 2rem); }
-.profile-summary { display: flex; align-items: center; gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); }
-.avatar { display: grid; place-items: center; width: 72px; height: 72px; flex: 0 0 72px; border-radius: 20px; color: white; background: linear-gradient(135deg, var(--color-primary), #155e75); font-size: 1.25rem; font-weight: 800; }
+.profile-summary { display: flex; align-items: center; gap: 1rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--tv-border); }
+.avatar { display: grid; place-items: center; width: 72px; height: 72px; flex: 0 0 72px; border-radius: 20px; color: var(--tv-white); background: linear-gradient(135deg, var(--tv-teal-700), var(--tv-teal-800)); font-size: 1.25rem; font-weight: 800; }
 .profile-summary h2 { margin: 0; font-size: 1.25rem; }
-.profile-summary p { margin: .2rem 0 .5rem; color: var(--color-text-muted); }
-.role-badge { display: inline-flex; padding: .3rem .6rem; border-radius: 999px; color: #334155; background: #e2e8f0; font-size: .75rem; font-weight: 700; }
-.role-badge.admin { color: #03696b; background: var(--color-primary-soft); }
+.profile-summary p { margin: .2rem 0 .5rem; color: var(--tv-text-muted); }
+.role-badge { display: inline-flex; padding: .3rem .6rem; border-radius: 999px; color: var(--tv-text-muted); background: var(--tv-surface-muted); font-size: .75rem; font-weight: 700; }
+.role-badge.admin { color: var(--tv-accent-on-soft); background: var(--tv-accent-soft); }
 .profile-details { display: grid; gap: 1.25rem; margin: 1.5rem 0 0; }
-.profile-details dt { display: flex; align-items: center; gap: .5rem; color: var(--color-text-muted); font-size: .75rem; }
+.profile-details dt { display: flex; align-items: center; gap: .5rem; color: var(--tv-text-muted); font-size: .75rem; }
 .profile-details dd { margin: .25rem 0 0 1.5rem; overflow-wrap: anywhere; font-weight: 700; }
 .section-heading { display: flex; gap: .75rem; margin-bottom: 1.5rem; }
-.section-heading > span { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; color: var(--color-primary); background: var(--color-primary-soft); }
+.section-heading > span { display: grid; place-items: center; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 13px; color: var(--tv-accent); background: var(--tv-accent-soft); }
 .section-heading h2 { margin: 0 0 .25rem; font-size: 1.1rem; }
-.section-heading p { margin: 0; color: var(--color-text-muted); }
+.section-heading p { margin: 0; color: var(--tv-text-muted); }
 .form-field { margin-bottom: 1.25rem; }
 .password-field { position: relative; }
 .password-field input { padding-right: 3.25rem; }
-.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--color-text-muted); background: transparent; }
+.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--tv-text-muted); background: transparent; }
 @media (max-width: 767px) { .profile-layout { grid-template-columns: 1fr; } .password-card .btn { width: 100%; } }
 </style>

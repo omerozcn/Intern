@@ -1,5 +1,27 @@
 <template>
   <div class="auth-page">
+    <!--
+      Brand canvas, desktop only. aria-hidden because every word in it is
+      marketing copy that repeats nothing the form needs; a screen reader user
+      lands straight on the heading and the fields.
+    -->
+    <aside class="auth-aside d-none d-lg-flex" aria-hidden="true">
+      <span class="auth-aside__blob auth-aside__blob--one"></span>
+      <span class="auth-aside__blob auth-aside__blob--two"></span>
+
+      <div class="auth-aside__content">
+        <img :src="logo" alt="" class="auth-aside__logo" />
+        <h2>{{ t('auth.brand.title') }}</h2>
+        <p>{{ t('auth.brand.subtitle') }}</p>
+        <ul>
+          <li v-for="point in brandPoints" :key="point">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            {{ point }}
+          </li>
+        </ul>
+      </div>
+    </aside>
+
     <section class="auth-card" aria-labelledby="login-title">
       <div class="auth-brand">
         <img :src="logo" alt="Turkuvaz" />
@@ -110,7 +132,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import logo from "@/assets/turkuvaz-logo.webp";
@@ -132,6 +154,12 @@ const forgotMode = ref(false);
 const forgotEmail = ref("");
 const forgotError = ref("");
 const forgotSent = ref(false);
+
+const brandPoints = computed(() => [
+  t("auth.brand.pointOne"),
+  t("auth.brand.pointTwo"),
+  t("auth.brand.pointThree"),
+]);
 
 function validEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -191,21 +219,92 @@ async function submitForgotPassword() {
    an opaque background here painted a white column over that gradient, because
    this element is only as wide as the centred grid track. */
 .auth-page { display: grid; place-items: center; width: 100%; }
-.auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--color-border); border-radius: 20px; background: #fff; box-shadow: 0 24px 60px rgba(15, 42, 51, .11); }
-.auth-brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--color-text); font-weight: 800; }
+
+/* Below 992px this collapses back to exactly the previous centred card — the
+   split is a desktop affordance and mobile behaviour is unchanged. */
+@media (min-width: 992px) {
+  .auth-page {
+    width: min(100%, 1040px);
+    align-items: stretch;
+    gap: 2.5rem;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 460px);
+  }
+}
+
+.auth-aside {
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: clamp(2rem, 4vw, 3rem);
+  border-radius: 24px;
+  background:
+    radial-gradient(120% 80% at 0 0, var(--tv-sidebar-glow), transparent 60%),
+    linear-gradient(160deg, var(--tv-sidebar-from), var(--tv-sidebar-to));
+  color: var(--tv-white);
+}
+
+/* Slow ambient drift. Decorative only, and stopped entirely under
+   prefers-reduced-motion at the bottom of this block. */
+.auth-aside__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: .5;
+  pointer-events: none;
+}
+
+.auth-aside__blob--one {
+  top: -60px;
+  right: -40px;
+  width: 260px;
+  height: 260px;
+  background: var(--tv-teal-400);
+  animation: tv-float 9s ease-in-out infinite;
+}
+
+.auth-aside__blob--two {
+  bottom: -80px;
+  left: -50px;
+  width: 300px;
+  height: 300px;
+  background: var(--tv-teal-700);
+  animation: tv-float 12s ease-in-out infinite reverse;
+}
+
+.auth-aside__content { position: relative; z-index: 1; }
+.auth-aside__logo { width: auto; height: 34px; margin-bottom: 2rem; padding: 5px 10px; border-radius: 10px; background: var(--tv-white); }
+.auth-aside h2 { margin: 0 0 .75rem; font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 800; letter-spacing: -.02em; }
+.auth-aside > .auth-aside__content > p { margin: 0 0 2rem; color: var(--tv-teal-100); }
+.auth-aside ul { display: grid; margin: 0; padding: 0; gap: .85rem; list-style: none; }
+.auth-aside li { display: flex; align-items: flex-start; gap: .6rem; color: var(--tv-teal-100); font-weight: 600; }
+.auth-aside li .bi { color: var(--tv-teal-300); }
+
+.auth-card { width: min(100%, 460px); padding: clamp(1.5rem, 5vw, 2.5rem); border: 1px solid var(--tv-border); border-radius: 20px; background: var(--tv-auth-card-bg); box-shadow: var(--tv-shadow-lg); }
+/* Redundant beside the brand canvas on desktop, so it only shows where the
+   canvas does not. */
+.auth-brand { display: flex; align-items: center; gap: .75rem; margin-bottom: 2rem; color: var(--tv-text); font-weight: 800; }
 /* Wordmark, not an icon: a fixed square rendered it about 11px tall. */
 .auth-brand img { width: auto; height: 32px; }
 .auth-heading { margin-bottom: 1.75rem; }
-.auth-heading h1 { margin: .2rem 0 .5rem; font-size: clamp(1.75rem, 7vw, 2.25rem); }
-.auth-heading p:not(.eyebrow) { margin: 0; color: var(--color-text-muted); }
-.eyebrow { margin: 0; color: var(--color-primary); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.auth-heading h1 { margin: .2rem 0 .5rem; color: var(--tv-text-strong); font-size: clamp(1.75rem, 7vw, 2.25rem); }
+.auth-heading p:not(.eyebrow) { margin: 0; color: var(--tv-text-muted); }
+.eyebrow { margin: 0; color: var(--tv-accent); font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .form-field { margin-bottom: 1.25rem; }
 .password-field { position: relative; }
 .password-field .form-control { padding-right: 3.25rem; }
-.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--color-text-muted); background: transparent; }
+.password-toggle { position: absolute; inset: 0 .25rem 0 auto; width: 44px; border: 0; border-radius: 10px; color: var(--tv-text-muted); background: transparent; }
 .auth-row { display: flex; justify-content: flex-end; margin: -.25rem 0 1.25rem; }
-.link-button { min-height: 44px; padding: .5rem 0; border: 0; color: var(--color-primary); background: none; font-weight: 700; }
+.link-button { min-height: 44px; padding: .5rem 0; border: 0; color: var(--tv-accent); background: none; font-weight: 700; }
 .notice { display: flex; gap: .75rem; padding: 1rem; border-radius: 12px; }
-.notice--success { color: #166534; background: #dcfce7; }
+.notice--success { color: var(--tv-success-on-soft); background: var(--tv-success-soft); }
 .auth-back { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; }
+
+@media (min-width: 992px) {
+  .auth-brand { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-aside__blob { animation: none !important; }
+}
 </style>

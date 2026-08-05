@@ -1,0 +1,888 @@
+/* ===========================================================================
+   Components
+
+   Shared, named pieces of the interface. Per-view <style scoped> blocks may
+   compose these but must never redefine one — four competing .icon-button
+   definitions is how this file got a 38px touch target.
+   =========================================================================== */
+
+.icon-button {
+  display: inline-grid;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid var(--tv-border);
+  border-radius: 12px;
+  background: var(--tv-surface-1);
+  color: var(--tv-text);
+  text-decoration: none;
+}
+
+.icon-button:hover:not(:disabled) {
+  border-color: var(--tv-accent);
+  background: var(--tv-accent-soft);
+  color: var(--tv-accent-on-soft);
+}
+
+.icon-button:disabled {
+  color: var(--tv-text-subtle);
+  opacity: 0.65;
+}
+
+/* Permitted only inside a row that is already at least 44px tall, where the
+   control is not itself the touch target. */
+.icon-button--sm {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+}
+
+.icon-button--danger:hover:not(:disabled) {
+  border-color: var(--tv-danger-border);
+  background: var(--tv-danger-soft);
+  color: var(--tv-danger-on-soft);
+}
+
+.icon-button--primary {
+  border-color: var(--tv-accent);
+  color: var(--tv-accent-on-soft);
+}
+
+.icon-button--primary:hover:not(:disabled) {
+  background: var(--tv-accent);
+  color: var(--tv-text-on-accent);
+}
+
+.icon-button--success:hover:not(:disabled) {
+  border-color: var(--tv-success);
+  background: var(--tv-success-soft);
+  color: var(--tv-success-on-soft);
+}
+
+/* --- Shell ----------------------------------------------------------------- */
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 30;
+  width: var(--tv-sidebar-width);
+  min-height: 100vh;
+  flex-direction: column;
+  padding: 24px 16px;
+  border-right: 1px solid var(--tv-sidebar-border);
+  /* A teal glow behind the brand keeps the top of a tall, flat panel from
+     looking like a dead rectangle. */
+  background:
+    radial-gradient(120% 60% at 0 0, var(--tv-sidebar-glow), transparent 60%),
+    linear-gradient(180deg, var(--tv-sidebar-from), var(--tv-sidebar-to));
+  color: var(--tv-white);
+}
+
+.brand {
+  display: grid;
+  min-height: 56px;
+  gap: 10px;
+  justify-items: start;
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The asset is a ~4:1 wordmark. Boxing it into a square left it rendering about
+   12px tall and unreadable, so the plate follows the artwork instead. */
+.brand__logo {
+  width: auto;
+  height: 34px;
+  padding: 5px 10px;
+  border-radius: 10px;
+  background: var(--tv-white);
+}
+
+.brand__copy {
+  display: grid;
+  min-width: 0;
+}
+
+.brand__copy strong {
+  overflow: hidden;
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand__copy small {
+  color: var(--tv-sidebar-muted);
+  font-size: 0.75rem;
+}
+
+.brand__mark {
+  display: none;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--tv-white);
+  color: var(--tv-teal-900);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+/* --- Rail --------------------------------------------------------------------
+   Redeclaring the width on the shell means .sidebar and .app-shell__main keep
+   reading one variable and neither rule needs a rail-specific version. */
+
+.app-shell[data-rail="true"] {
+  --tv-sidebar-width: var(--tv-sidebar-width-rail);
+}
+
+.app-shell[data-rail="true"] .sidebar {
+  padding-inline: 16px;
+  align-items: center;
+}
+
+.app-shell[data-rail="true"] .brand {
+  justify-items: center;
+}
+
+.app-shell[data-rail="true"] .brand__logo,
+/* The wordmark and the name both have to go, or the name truncates to "Tale…"
+   in an 84px column. The monogram carries the brand at this width. */
+.app-shell[data-rail="true"] .brand__copy {
+  display: none;
+}
+
+.app-shell[data-rail="true"] .brand__mark {
+  display: grid;
+}
+
+.app-shell[data-rail="true"] .sidebar-link,
+.app-shell[data-rail="true"] .rail-toggle,
+.app-shell[data-rail="true"] .user-card {
+  justify-content: center;
+  padding-inline: 10px;
+}
+
+.app-shell[data-rail="true"] .sidebar__nav {
+  width: 100%;
+}
+
+/* The label is visually-hidden in rail mode, so hovering has to say what the
+   icon means. */
+.app-shell[data-rail="true"] .sidebar-link::after {
+  position: absolute;
+  z-index: 40;
+  left: calc(100% + 14px);
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--tv-slate-950);
+  color: var(--tv-white);
+  content: attr(data-label);
+  font-size: 0.8rem;
+  font-weight: 650;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity var(--tv-duration-fast) ease;
+}
+
+.app-shell[data-rail="true"] .sidebar-link:hover::after,
+.app-shell[data-rail="true"] .sidebar-link:focus-visible::after {
+  opacity: 1;
+}
+
+.rail-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--tv-sidebar-link);
+  font-size: 0.85rem;
+  font-weight: 650;
+  transition: background-color var(--tv-duration-fast) ease, color var(--tv-duration-fast) ease;
+}
+
+.rail-toggle:hover {
+  background: var(--tv-sidebar-hover);
+  color: var(--tv-white);
+}
+
+.rail-toggle .bi {
+  width: 24px;
+  text-align: center;
+}
+
+.sidebar__nav,
+.mobile-drawer__nav {
+  display: grid;
+  gap: 6px;
+  margin-top: 32px;
+}
+
+.sidebar-link {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: var(--tv-sidebar-link);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.sidebar-link .bi {
+  width: 24px;
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+.sidebar-link:hover {
+  background: var(--tv-sidebar-hover);
+  color: var(--tv-white);
+}
+
+.sidebar-link.router-link-active {
+  background: var(--tv-sidebar-active-bg);
+  color: var(--tv-sidebar-active-text);
+  box-shadow: var(--tv-shadow-sm);
+}
+
+.sidebar__footer {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+.user-card {
+  display: flex;
+  min-width: 0;
+  min-height: 64px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--tv-radius-sm);
+  background: var(--tv-sidebar-hover);
+  color: inherit;
+  text-decoration: none;
+}
+
+.user-card:hover {
+  background: rgb(255 255 255 / 0.14);
+  color: inherit;
+}
+
+.avatar {
+  display: grid;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--tv-teal-100);
+  color: var(--tv-teal-900);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.user-card__copy {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-card__copy strong,
+.user-card__copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-card__copy strong {
+  font-size: 0.9rem;
+}
+
+.user-card__copy small {
+  color: var(--tv-sidebar-muted);
+  font-size: 0.75rem;
+}
+
+.app-shell__main {
+  min-width: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  min-height: var(--tv-topbar-height);
+  align-items: center;
+  gap: 12px;
+  padding: 12px clamp(16px, 3vw, 40px);
+  border-bottom: 1px solid var(--tv-topbar-border);
+  background: var(--tv-topbar-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+
+.topbar__title {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  color: var(--tv-text-strong);
+  font-weight: 750;
+}
+
+.topbar__title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar__title small {
+  color: var(--tv-text-subtle);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.topbar__title .topbar__group {
+  color: var(--tv-accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Reads as a search field but is a button: the palette owns its own input, and a
+   second real input here would just be a focus trap on the way to it. */
+.palette-trigger {
+  display: flex;
+  min-width: 220px;
+  min-height: 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 0 14px;
+  border: 1px solid var(--tv-border);
+  border-radius: 12px;
+  background: var(--tv-surface-sunken);
+  color: var(--tv-text-subtle);
+  font-size: 0.9rem;
+  transition: border-color var(--tv-duration-fast) ease, color var(--tv-duration-fast) ease;
+}
+
+.palette-trigger:hover {
+  border-color: var(--tv-accent);
+  color: var(--tv-text);
+}
+
+.palette-trigger span {
+  flex: 1;
+  text-align: left;
+}
+
+.palette-trigger kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--tv-border);
+  border-radius: 6px;
+  background: var(--tv-surface-1);
+  color: var(--tv-text-subtle);
+  font-size: 0.7rem;
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.locale-select {
+  width: 68px;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.page-content {
+  width: 100%;
+  max-width: 1600px;
+  min-height: calc(100vh - var(--tv-topbar-height));
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 3vw, 40px) 64px;
+}
+
+/* --- Page header ----------------------------------------------------------- */
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.page-header__copy {
+  min-width: 0;
+}
+
+.page-header__copy h1 {
+  margin: 0;
+  color: var(--tv-text-strong);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.page-header__copy > p:not(.page-header__eyebrow) {
+  max-width: 720px;
+  margin: 10px 0 0;
+  color: var(--tv-text-muted);
+  font-size: 1rem;
+}
+
+.page-header__eyebrow {
+  margin: 0 0 6px;
+  color: var(--tv-accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-header__actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --- Surfaces -------------------------------------------------------------- */
+
+.surface-card {
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-surface-card);
+  box-shadow: var(--tv-shadow-sm);
+}
+
+/* Live name collision: AdminTicketsView and MyTicketsView both use .filter-bar
+   for a bare chip row and only override display/gap in scoped CSS, so the card
+   treatment below is what actually renders there. Retired when those views move
+   to <FilterChips>. */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding: 16px;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-surface-1);
+}
+
+/* --- Status badge ---------------------------------------------------------- */
+
+.status-badge {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.status-badge__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-badge--pending {
+  background: var(--tv-warning-soft);
+  color: var(--tv-warning-on-soft);
+}
+
+.status-badge--inProgress {
+  background: var(--tv-info-soft);
+  color: var(--tv-info-on-soft);
+}
+
+.status-badge--completed {
+  background: var(--tv-success-soft);
+  color: var(--tv-success-on-soft);
+}
+
+/* --- State panels ---------------------------------------------------------- */
+
+.state-panel {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  padding: 32px 20px;
+  border: 1px dashed var(--tv-border-strong);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-surface-1);
+  color: var(--tv-text-muted);
+  text-align: center;
+}
+
+.state-panel h2,
+.state-panel p {
+  margin: 0;
+}
+
+.state-panel--compact {
+  min-height: 160px;
+  padding-block: 24px;
+}
+
+.state-panel h2 {
+  color: var(--tv-text-strong);
+  font-size: 1.1rem;
+}
+
+.state-panel p {
+  max-width: 520px;
+}
+
+.state-panel__icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--tv-surface-muted);
+  color: var(--tv-text-muted);
+  font-size: 1.35rem;
+}
+
+.state-panel--error .state-panel__icon {
+  background: var(--tv-danger-soft);
+  color: var(--tv-danger-on-soft);
+}
+
+/* --- Drawer ---------------------------------------------------------------- */
+
+.drawer-layer,
+.dialog-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  display: flex;
+}
+
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border: 0;
+  background: var(--tv-overlay-soft);
+}
+
+.mobile-drawer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(88vw, 360px);
+  height: 100%;
+  flex-direction: column;
+  padding: 20px 16px;
+  overflow-y: auto;
+  background: linear-gradient(180deg, var(--tv-sidebar-from), var(--tv-sidebar-to));
+  color: var(--tv-white);
+  box-shadow: var(--tv-shadow-md);
+}
+
+.mobile-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobile-drawer__header .brand {
+  min-width: 0;
+  flex: 1;
+}
+
+.mobile-drawer__footer {
+  display: grid;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 32px;
+}
+
+.drawer-preferences {
+  display: grid;
+  gap: 8px;
+}
+
+.drawer-preferences__label {
+  color: var(--tv-sidebar-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* --- Toasts ---------------------------------------------------------------- */
+
+.toast-host {
+  position: fixed;
+  z-index: 1100;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  width: min(400px, calc(100vw - 32px));
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* The urgent region stacks under the polite one. Both are empty most of the time
+   and collapse to nothing, so the offset only matters when both hold a toast. */
+.toast-host--assertive {
+  top: auto;
+  bottom: 16px;
+}
+
+.app-toast {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--tv-border);
+  border-left: 4px solid currentColor;
+  border-radius: var(--tv-radius-sm);
+  background: var(--tv-surface-2);
+  color: var(--tv-info-on-soft);
+  box-shadow: var(--tv-shadow-md);
+  pointer-events: auto;
+}
+
+.app-toast--success {
+  color: var(--tv-success-on-soft);
+}
+
+.app-toast--error {
+  color: var(--tv-danger-on-soft);
+}
+
+.app-toast--warning {
+  color: var(--tv-warning-on-soft);
+}
+
+.app-toast p {
+  margin: 0;
+  color: var(--tv-text);
+  overflow-wrap: anywhere;
+}
+
+.app-toast__close {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tv-text-muted);
+}
+
+/* --- Dialogs --------------------------------------------------------------- */
+
+.dialog-layer {
+  z-index: 1080;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--tv-overlay);
+}
+
+.confirm-dialog {
+  display: grid;
+  width: min(100%, 480px);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  background: var(--tv-surface-2);
+  box-shadow: var(--tv-shadow-md);
+}
+
+.confirm-dialog__icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--tv-danger-soft);
+  color: var(--tv-danger-on-soft);
+  font-size: 1.2rem;
+}
+
+.confirm-dialog__content h2 {
+  margin: 0;
+  color: var(--tv-text-strong);
+  font-size: 1.2rem;
+}
+
+.confirm-dialog__content p {
+  margin: 8px 0 0;
+  color: var(--tv-text-muted);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* --- Auth layout ----------------------------------------------------------- */
+
+.auth-layout {
+  position: relative;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 0 0, var(--tv-auth-glow), transparent 34rem),
+    linear-gradient(145deg, var(--tv-auth-from), var(--tv-auth-via) 46%, var(--tv-auth-to));
+}
+
+.auth-layout__bar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-layout__content {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px 16px;
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid var(--tv-border);
+  border-radius: var(--tv-radius-lg);
+  background: var(--tv-auth-card-bg);
+  box-shadow: var(--tv-shadow-md);
+  animation: tv-rise 420ms var(--tv-ease) both;
+}
+
+/* Same reason as .brand__logo: the wordmark needs its own aspect ratio, not a square. */
+.auth-card__logo {
+  display: block;
+  width: auto;
+  height: 40px;
+  margin: 0 auto 24px;
+}
+
+.auth-card h1 {
+  margin: 0;
+  color: var(--tv-text-strong);
+  font-size: clamp(1.65rem, 6vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.auth-card__intro {
+  margin: 8px auto 24px;
+  color: var(--tv-text-muted);
+  text-align: center;
+}
+
+/* --- Responsive ------------------------------------------------------------ */
+
+@media (min-width: 992px) {
+  .app-shell__main {
+    margin-left: var(--tv-sidebar-width);
+  }
+}
+
+@media (max-width: 767.98px) {
+  .page-header {
+    align-items: stretch;
+    flex-direction: column;
+    margin-bottom: 24px;
+  }
+
+  .page-header__actions,
+  .page-header__actions > * {
+    width: 100%;
+  }
+
+  .topbar {
+    padding-inline: 12px;
+  }
+
+  .topbar__actions {
+    gap: 6px;
+  }
+
+  .topbar__actions > .icon-button:not(.icon-button--danger) {
+    display: none;
+  }
+
+  .locale-select {
+    width: 64px;
+  }
+
+  .filter-bar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .confirm-dialog {
+    grid-template-columns: 1fr;
+  }
+
+  .confirm-dialog__actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .confirm-dialog__actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 374.98px) {
+  .topbar__title {
+    display: none;
+  }
+
+  .topbar__actions {
+    margin-left: auto;
+  }
+
+  .page-content {
+    padding-inline: 12px;
+  }
+}

@@ -20,7 +20,28 @@
     "sendFeedback": "Send Feedback",
     "feedback": "Feedback",
     "profile": "Profile",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "collapseSidebar": "Collapse menu",
+    "expandSidebar": "Expand menu",
+    "groups": {
+      "overview": "Overview",
+      "requests": "Requests",
+      "catalog": "Catalogue",
+      "admin": "Administration"
+    }
+  },
+  "palette": {
+    "title": "Command palette",
+    "open": "Search or run a command",
+    "placeholder": "Search pages or run a command…",
+    "empty": "Nothing matched.",
+    "newTicket": "Create a new request",
+    "pendingQueue": "Open pending requests",
+    "switchLanguage": "Switch language: {language}",
+    "sections": {
+      "pages": "Pages",
+      "actions": "Actions"
+    }
   },
   "common": {
     "skipToContent": "Skip to main content",
@@ -86,7 +107,14 @@
       "invalidLink": "The reset link is invalid or has expired.",
       "passwordHint": "Use at least 12 characters with uppercase, lowercase, a number and a symbol."
     },
-    "signedOut": "You have been signed out securely."
+    "signedOut": "You have been signed out securely.",
+    "brand": {
+      "title": "Every request in one place",
+      "subtitle": "Manage firms, services and the request flow from a single screen.",
+      "pointOne": "Follow each request's status as it changes",
+      "pointTwo": "Responses sit directly under the request",
+      "pointThree": "An interface that narrows to your role"
+    }
   },
   "fields": {
     "firstName": "First name",
@@ -116,7 +144,25 @@
     "requests": "Requests",
     "viewAll": "View all requests",
     "createTicket": "Create request",
-    "details": "View details"
+    "details": "View details",
+    "completionRate": "completed",
+    "shareOfTotal": "{percent}% of total",
+    "queueTitle": "Up next",
+    "queueDescriptionAdmin": "The most recent pending requests.",
+    "queueDescriptionUser": "Your requests awaiting a response.",
+    "queueEmpty": "No pending requests.",
+    "oldestTitle": "Waiting longest",
+    "oldestDescription": "The oldest pending requests.",
+    "scaleTitle": "Across the system",
+    "firms": "Firms",
+    "services": "Services",
+    "accounts": "Accounts",
+    "feedback": "Feedback",
+    "quickActions": "Quick actions",
+    "myServices": "Services available to you",
+    "openTicket": "Open request",
+    "unknownProduct": "New product request",
+    "waitingDays": "waiting {count} days"
   },
   "ticket": {
     "createTitle": "Create a new request",
@@ -249,7 +295,8 @@
     "editName": "Edit company name",
     "servicesAssigned": "{count} services assigned",
     "emptyTitle": "No companies found",
-    "emptyDescription": "Change your search or add a new company."
+    "emptyDescription": "Change your search or add a new company.",
+    "protectedHint": "System firm; it cannot be renamed or deleted."
   },
   "accounts": {
     "title": "Accounts",
@@ -284,6 +331,14 @@
   "roles": {
     "admin": "Administrator",
     "user": "User"
+  },
+  "theme": {
+    "label": "Appearance",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "toggle": "Change appearance",
+    "current": "Appearance: {mode}"
   },
   "feedback": {
     "sendTitle": "Send feedback",

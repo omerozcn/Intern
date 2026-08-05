@@ -20,7 +20,28 @@
     "sendFeedback": "Geri Bildirim Gönder",
     "feedback": "Geri Bildirimler",
     "profile": "Profil",
-    "signOut": "Çıkış yap"
+    "signOut": "Çıkış yap",
+    "collapseSidebar": "Menüyü daralt",
+    "expandSidebar": "Menüyü genişlet",
+    "groups": {
+      "overview": "Genel",
+      "requests": "Talepler",
+      "catalog": "Katalog",
+      "admin": "Yönetim"
+    }
+  },
+  "palette": {
+    "title": "Komut paleti",
+    "open": "Ara veya komut çalıştır",
+    "placeholder": "Sayfa ara veya komut çalıştır…",
+    "empty": "Eşleşen bir şey bulunamadı.",
+    "newTicket": "Yeni talep oluştur",
+    "pendingQueue": "Bekleyen talepleri aç",
+    "switchLanguage": "Dili değiştir: {language}",
+    "sections": {
+      "pages": "Sayfalar",
+      "actions": "Eylemler"
+    }
   },
   "common": {
     "skipToContent": "Ana içeriğe geç",
@@ -86,7 +107,14 @@
       "invalidLink": "Sıfırlama bağlantısı geçersiz veya süresi dolmuş.",
       "passwordHint": "En az 12 karakter; büyük harf, küçük harf, rakam ve sembol içermelidir."
     },
-    "signedOut": "Oturumunuz güvenle kapatıldı."
+    "signedOut": "Oturumunuz güvenle kapatıldı.",
+    "brand": {
+      "title": "Talepleriniz tek yerde",
+      "subtitle": "Firma, hizmet ve talep akışını tek ekrandan yönetin.",
+      "pointOne": "Talebin durumunu anlık takip edin",
+      "pointTwo": "Yanıtlar doğrudan talebin altında",
+      "pointThree": "Rolünüze göre sadeleşen arayüz"
+    }
   },
   "fields": {
     "firstName": "Ad",
@@ -116,7 +144,25 @@
     "requests": "Talepler",
     "viewAll": "Tüm talepleri görüntüle",
     "createTicket": "Yeni talep oluştur",
-    "details": "Ayrıntıları görüntüle"
+    "details": "Ayrıntıları görüntüle",
+    "completionRate": "tamamlandı",
+    "shareOfTotal": "toplamın %{percent}'i",
+    "queueTitle": "Sıradaki işler",
+    "queueDescriptionAdmin": "En son gelen bekleyen talepler.",
+    "queueDescriptionUser": "Yanıt bekleyen talepleriniz.",
+    "queueEmpty": "Bekleyen talep yok.",
+    "oldestTitle": "En uzun bekleyenler",
+    "oldestDescription": "En eski tarihli bekleyen talepler.",
+    "scaleTitle": "Sistem genelinde",
+    "firms": "Firma",
+    "services": "Hizmet",
+    "accounts": "Hesap",
+    "feedback": "Geri bildirim",
+    "quickActions": "Hızlı işlemler",
+    "myServices": "Kullanımınıza açık hizmet",
+    "openTicket": "Talebi aç",
+    "unknownProduct": "Yeni ürün talebi",
+    "waitingDays": "{count} gündür bekliyor"
   },
   "ticket": {
     "createTitle": "Yeni talep oluştur",
@@ -249,7 +295,8 @@
     "editName": "Firma adını düzenle",
     "servicesAssigned": "{count} hizmet atanmış",
     "emptyTitle": "Firma bulunamadı",
-    "emptyDescription": "Aramanızı değiştirin veya yeni bir firma ekleyin."
+    "emptyDescription": "Aramanızı değiştirin veya yeni bir firma ekleyin.",
+    "protectedHint": "Sistem firması; yeniden adlandırılamaz veya silinemez."
   },
   "accounts": {
     "title": "Hesaplar",
@@ -284,6 +331,14 @@
   "roles": {
     "admin": "Yönetici",
     "user": "Kullanıcı"
+  },
+  "theme": {
+    "label": "Görünüm",
+    "light": "Açık",
+    "dark": "Koyu",
+    "system": "Sistem",
+    "toggle": "Görünümü değiştir",
+    "current": "Görünüm: {mode}"
   },
   "feedback": {
     "sendTitle": "Geri bildirim gönder",

@@ -82,7 +82,7 @@
       <div class="surface-card table-card desktop-table">
         <table class="table align-middle mb-0">
           <thead><tr><th scope="col">{{ t('accounts.person') }}</th><th scope="col">{{ t('fields.email') }}</th><th scope="col">{{ t('fields.role') }}</th><th scope="col">{{ t('fields.firm') }}</th><th scope="col" class="text-end">{{ t('common.actions') }}</th></tr></thead>
-          <tbody>
+          <tbody class="tv-stagger">
             <tr v-for="user in users" :key="user.id">
               <td><div class="person-cell"><span>{{ initials(user) }}</span><div><strong>{{ user.firstName }} {{ user.lastName }}</strong><small>@{{ user.userName }}</small></div></div></td>
               <td>{{ user.email }}</td>
@@ -103,9 +103,16 @@
       </div>
     </template>
 
-    <dialog ref="editDialog" class="app-dialog" @close="closeEdit">
-      <form v-if="selectedUser" class="dialog-card" method="dialog" novalidate @submit.prevent="saveAccount">
-        <div class="dialog-header"><div><span class="eyebrow">{{ selectedUser.email }}</span><h2>{{ t('accounts.editTitle') }}</h2></div><button type="button" class="icon-button" :aria-label="t('common.close')" @click="editDialog?.close()"><i class="bi bi-x-lg" aria-hidden="true"></i></button></div>
+    <AppModal
+      v-model:open="editOpen"
+      :title="t('accounts.editTitle')"
+      :description="selectedUser?.email ?? ''"
+      size="lg"
+      :busy="saving"
+      initial-focus="#edit-first-name"
+      @close="closeEdit"
+    >
+      <form v-if="selectedUser" id="edit-account-form" novalidate @submit.prevent="saveAccount">
         <div class="form-grid dialog-grid">
           <div class="form-field"><label for="edit-first-name" class="form-label">{{ t('fields.firstName') }}</label><input id="edit-first-name" v-model.trim="editForm.firstName" class="form-control" :disabled="saving" /></div>
           <div class="form-field"><label for="edit-last-name" class="form-label">{{ t('fields.lastName') }}</label><input id="edit-last-name" v-model.trim="editForm.lastName" class="form-control" :disabled="saving" /></div>
@@ -114,9 +121,16 @@
           <div class="form-field"><label for="edit-firm" class="form-label">{{ t('fields.firm') }}</label><FirmSelect v-model="editForm.firmId" input-id="edit-firm" exclude-protected :disabled="saving || editForm.role === 'Admin'" :placeholder="t('accounts.selectFirm')" /></div>
         </div>
         <p v-if="editError" class="form-error" role="alert">{{ editError }}</p>
-        <div class="form-actions"><button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="editDialog?.close()">{{ t('common.cancel') }}</button><button type="submit" class="btn btn-primary" :disabled="saving"><span v-if="saving" class="spinner-border spinner-border-sm" aria-hidden="true"></span>{{ t('common.saveChanges') }}</button></div>
       </form>
-    </dialog>
+
+      <template #footer>
+        <button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="editOpen = false">{{ t('common.cancel') }}</button>
+        <button type="submit" form="edit-account-form" class="btn btn-primary" :disabled="saving">
+          <span v-if="saving" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          {{ t('common.saveChanges') }}
+        </button>
+      </template>
+    </AppModal>
 
     <PaginationBar
       :page="page"
@@ -133,12 +147,13 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import PageHeader from "@/components/PageHeader.vue";
 import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
+import AppModal from "@/components/AppModal.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
 import FirmSelect from "@/components/FirmSelect.vue";
@@ -156,7 +171,7 @@ const showCreate = ref(false);
 const creating = ref(false);
 const createForm = reactive({ firstName: "", lastName: "", email: "", password: "", role: "User", firmId: "" });
 const createErrors = reactive({ firstName: "", lastName: "", email: "", password: "", firmId: "" });
-const editDialog = ref(null);
+const editOpen = ref(false);
 const selectedUser = ref(null);
 const editForm = reactive({ firstName: "", lastName: "", email: "", role: "User", firmId: "" });
 const editError = ref("");
@@ -218,8 +233,8 @@ async function createAccount() {
   finally { creating.value = false; }
 }
 
-async function openEdit(user) {
-  selectedUser.value = user; Object.assign(editForm, { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role, firmId: user.firmId ?? "" }); editError.value = ""; await nextTick(); editDialog.value?.showModal();
+function openEdit(user) {
+  selectedUser.value = user; Object.assign(editForm, { firstName: user.firstName, lastName: user.lastName, email: user.email, role: user.role, firmId: user.firmId ?? "" }); editError.value = ""; editOpen.value = true;
 }
 function closeEdit() { selectedUser.value = null; editError.value = ""; }
 async function saveAccount() {
@@ -228,7 +243,7 @@ async function saveAccount() {
   saving.value = true;
   try {
     await api.put(`/api/users/${selectedUser.value.id}`, { id: selectedUser.value.id, firstName: editForm.firstName, lastName: editForm.lastName, email: editForm.email, role: editForm.role, firmId: editForm.role === "User" ? Number(editForm.firmId) : null });
-    editDialog.value?.close(); await load(); toast.success(t("accounts.updated"));
+    editOpen.value = false; await load(); toast.success(t("accounts.updated"));
   } catch (requestError) { toast.error(requestError.message || t("errors.updateAccount")); }
   finally { saving.value = false; }
 }
@@ -248,7 +263,7 @@ onMounted(load);
 <style scoped>
 .account-form { margin-bottom: 1rem; padding: 1.5rem; }
 .form-heading h2 { margin: 0 0 .25rem; font-size: 1.15rem; }
-.form-heading p { margin: 0 0 1.25rem; color: var(--color-text-muted); }
+.form-heading p { margin: 0 0 1.25rem; color: var(--tv-text-muted); }
 .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 .form-actions { display: flex; justify-content: flex-end; gap: .75rem; margin-top: 1.25rem; }
 /* align-items: start keeps each control at its natural height. Stretching made the
@@ -256,34 +271,34 @@ onMounted(load);
    magnifier icon down to the vertical centre of that tall box. */
 .toolbar { display: grid; grid-template-columns: minmax(240px, 1fr) 180px 220px; align-items: start; gap: .75rem; margin-bottom: 1rem; padding: .75rem; }
 .search-field { position: relative; }
-.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--color-text-muted); }
+.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--tv-text-muted); }
 .search-field input { padding-left: 2.6rem; }
 .filter-field { display: flex; align-items: center; gap: .5rem; margin: 0; }
-.filter-field span { color: var(--color-text-muted); font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.filter-field span { color: var(--tv-text-muted); font-size: .75rem; font-weight: 700; white-space: nowrap; }
 .table-card { overflow: hidden; }
-.table th { padding: 1rem; color: var(--color-text-muted); background: #f8fafc; font-size: .75rem; text-transform: uppercase; }
+.table th { padding: 1rem; color: var(--tv-text-muted); background: var(--tv-surface-sunken); font-size: .75rem; text-transform: uppercase; }
 .table td { padding: .9rem 1rem; }
 .person-cell { display: flex; align-items: center; gap: .75rem; min-width: 0; }
-.person-cell > span { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; color: var(--color-primary); background: var(--color-primary-soft); font-size: .75rem; font-weight: 800; }
+.person-cell > span { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%; color: var(--tv-accent); background: var(--tv-accent-soft); font-size: .75rem; font-weight: 800; }
 .person-cell strong, .person-cell small { display: block; overflow-wrap: anywhere; }
-.person-cell small { color: var(--color-text-muted); font-size: .75rem; }
-.role-badge { display: inline-flex; padding: .3rem .6rem; border-radius: 999px; color: #334155; background: #e2e8f0; font-size: .75rem; font-weight: 700; }
-.role-badge.admin { color: #03696b; background: var(--color-primary-soft); }
+.person-cell small { color: var(--tv-text-muted); font-size: .75rem; }
+.role-badge { display: inline-flex; padding: .3rem .6rem; border-radius: 999px; color: var(--tv-text-muted); background: var(--tv-surface-muted); font-size: .75rem; font-weight: 700; }
+.role-badge.admin { color: var(--tv-accent-on-soft); background: var(--tv-accent-soft); }
 .row-actions { display: flex; justify-content: flex-end; gap: .4rem; }
 .mobile-cards { display: none; gap: 1rem; }
 .user-card { padding: 1rem; }
 .user-card dl { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 1rem 0; }
-.user-card dt { color: var(--color-text-muted); font-size: .7rem; }
+.user-card dt { color: var(--tv-text-muted); font-size: .7rem; }
 .user-card dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
 .card-actions { display: flex; gap: .5rem; }
 .card-actions .btn { flex: 1; }
 .app-dialog { width: min(calc(100% - 2rem), 700px); max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: 18px; background: transparent; }
-.app-dialog::backdrop { background: rgba(15, 23, 42, .55); }
-.dialog-card { padding: 1.5rem; border-radius: 18px; background: white; }
+.app-dialog::backdrop { background: var(--tv-overlay); }
+.dialog-card { padding: 1.5rem; border-radius: 18px; background: var(--tv-surface-2); }
 .dialog-header { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
 .dialog-header h2 { margin: .2rem 0 0; font-size: 1.25rem; }
-.eyebrow { color: var(--color-text-muted); font-size: .75rem; }
-.icon-button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; color: var(--color-text-muted); background: var(--color-page); }
+.eyebrow { color: var(--tv-text-muted); font-size: .75rem; }
+.icon-button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; color: var(--tv-text-muted); background: var(--tv-bg-page); }
 .dialog-grid { grid-template-columns: 1fr 1fr; }
 .dialog-span { grid-column: 1 / -1; }
 .form-error { color: var(--bs-danger); }

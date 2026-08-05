@@ -2,28 +2,32 @@
   <section>
     <PageHeader :title="t('adminTickets.title')" :description="t('adminTickets.description')" />
 
-    <div class="toolbar surface-card">
-      <div class="search-field">
-        <i class="bi bi-search" aria-hidden="true"></i>
-        <label class="visually-hidden" for="ticket-search">{{ t('common.search') }}</label>
-        <input id="ticket-search" v-model.trim="search" class="form-control" type="search" :placeholder="t('adminTickets.searchPlaceholder')" />
-      </div>
-      <div class="filter-bar" role="group" :aria-label="t('tickets.filterLabel')">
-        <button
-          v-for="filter in filters"
-          :key="filter.value"
-          type="button"
-          class="filter-chip"
-          :class="{ active: activeFilter === filter.value }"
-          :aria-pressed="activeFilter === filter.value"
-          @click="activeFilter = filter.value"
-        >{{ filter.label }} <span>{{ filter.count }}</span></button>
-      </div>
-    </div>
+    <DataToolbar>
+      <template #search>
+        <SearchField
+          id="ticket-search"
+          v-model="search"
+          :placeholder="t('adminTickets.searchPlaceholder')"
+          :loading="loading"
+        />
+      </template>
+
+      <FilterChips
+        v-model="activeFilter"
+        :options="filters"
+        :aria-label="t('tickets.filterLabel')"
+        size="sm"
+      />
+    </DataToolbar>
 
     <SkeletonList v-if="loading" :rows="4" />
     <ErrorState v-else-if="error" :message="error" @retry="load" />
-    <EmptyState v-else-if="!tickets.length" icon="bi-inbox" :title="t('adminTickets.emptyTitle')" :message="t('adminTickets.emptyMessage')" />
+    <EmptyState
+      v-else-if="!tickets.length"
+      icon="bi-inbox"
+      :title="t('adminTickets.emptyTitle')"
+      :message="t('adminTickets.emptyMessage')"
+    />
 
     <template v-else>
       <div class="surface-card table-card desktop-table">
@@ -38,18 +42,30 @@
               <th scope="col" class="text-end">{{ t('common.actions') }}</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="ticket in tickets" :key="ticket.id">
+          <tbody class="tv-stagger">
+            <!-- The status stripe makes the queue scannable without reading any
+                 cell; the badge in the status column carries the same fact in
+                 text for anyone who cannot see the colour. -->
+            <tr v-for="ticket in tickets" :key="ticket.id" :class="`row--${ticket.status}`">
               <td>
-                <span class="ticket-id">#{{ ticket.id }} · {{ ticket.createdBy }}</span>
+                <span class="ticket-id tv-tabular">#{{ ticket.id }} · {{ ticket.createdBy }}</span>
                 <p class="description-cell">{{ ticket.description }}</p>
               </td>
               <td>{{ ticket.firmName || t('common.notAvailable') }}</td>
               <td>{{ ticket.productName || t('tickets.newProductRequest') }}</td>
-              <td>{{ formatDate(ticket.created) }}</td>
+              <td class="tv-tabular">
+                <time :datetime="ticket.created || undefined" :title="formatDate(ticket.created)">
+                  {{ relativeTime(ticket.created, locale) || t('common.notAvailable') }}
+                </time>
+              </td>
               <td><StatusBadge :status="ticket.status" /></td>
               <td class="text-end">
-                <button type="button" class="btn btn-sm btn-outline-primary" :aria-label="t('adminTickets.manageAria', { id: ticket.id })" @click="openManage(ticket)">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  :aria-label="t('adminTickets.manageAria', { id: ticket.id })"
+                  @click="openManage(ticket)"
+                >
                   <i class="bi bi-sliders" aria-hidden="true"></i>
                   {{ t('adminTickets.manage') }}
                 </button>
@@ -60,22 +76,43 @@
       </div>
 
       <div class="mobile-cards">
-        <article v-for="ticket in tickets" :key="ticket.id" class="surface-card mobile-ticket">
-          <div class="mobile-ticket__head"><span>#{{ ticket.id }}</span><StatusBadge :status="ticket.status" /></div>
+        <AppCard
+          v-for="ticket in tickets"
+          :key="ticket.id"
+          :class="`edge--${ticket.status}`"
+          class="mobile-ticket"
+        >
+          <template #header>
+            <span class="ticket-id tv-tabular">#{{ ticket.id }}</span>
+            <StatusBadge :status="ticket.status" />
+          </template>
+
           <h2>{{ ticket.productName || t('tickets.newProductRequest') }}</h2>
-          <p>{{ ticket.description }}</p>
+          <p class="mobile-ticket__body">{{ ticket.description }}</p>
+
           <dl>
-            <div><dt>{{ t('fields.firm') }}</dt><dd>{{ ticket.firmName || t('common.notAvailable') }}</dd></div>
-            <div><dt>{{ t('adminTickets.requester') }}</dt><dd>{{ ticket.createdBy }}</dd></div>
-            <div><dt>{{ t('tickets.created') }}</dt><dd>{{ formatDate(ticket.created) }}</dd></div>
+            <div>
+              <dt>{{ t('fields.firm') }}</dt>
+              <dd>{{ ticket.firmName || t('common.notAvailable') }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('adminTickets.requester') }}</dt>
+              <dd>{{ ticket.createdBy }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('tickets.created') }}</dt>
+              <dd>{{ formatDate(ticket.created) }}</dd>
+            </div>
           </dl>
-          <button type="button" class="btn btn-outline-primary w-100" @click="openManage(ticket)">
-            <i class="bi bi-sliders" aria-hidden="true"></i> {{ t('adminTickets.manage') }}
-          </button>
-        </article>
+
+          <template #footer>
+            <button type="button" class="btn btn-outline-primary w-100" @click="openManage(ticket)">
+              <i class="bi bi-sliders" aria-hidden="true"></i> {{ t('adminTickets.manage') }}
+            </button>
+          </template>
+        </AppCard>
       </div>
     </template>
-
 
     <PaginationBar
       :page="page"
@@ -87,33 +124,37 @@
       @change="goToPage"
     />
 
-    <dialog ref="manageDialog" class="app-dialog" @close="resetDialog">
-      <form v-if="selectedTicket" class="dialog-card" method="dialog" @submit.prevent="saveTicket">
-        <div class="dialog-header">
-          <div>
-            <span class="ticket-id">#{{ selectedTicket.id }}</span>
-            <h2>{{ t('adminTickets.dialogTitle') }}</h2>
-          </div>
-          <button type="button" class="icon-button" :aria-label="t('common.close')" @click="closeManage">
-            <i class="bi bi-x-lg" aria-hidden="true"></i>
-          </button>
-        </div>
+    <AppModal
+      v-model:open="manageOpen"
+      :title="t('adminTickets.dialogTitle')"
+      size="lg"
+      :busy="saving"
+      initial-focus="[data-status-chips] button"
+      @close="resetDialog"
+    >
+      <form v-if="selectedTicket" id="manage-ticket-form" @submit.prevent="saveTicket">
         <div class="dialog-context">
+          <span class="ticket-id tv-tabular">#{{ selectedTicket.id }}</span>
           <strong>{{ selectedTicket.productName || t('tickets.newProductRequest') }}</strong>
           <p>{{ selectedTicket.description }}</p>
         </div>
+
         <div class="form-field">
-          <label for="admin-status" class="form-label">{{ t('fields.status') }}</label>
-          <select id="admin-status" v-model="manageForm.status" class="form-select" :disabled="saving">
-            <option :value="TICKET_STATUS.PENDING">{{ t('status.pending') }}</option>
-            <option :value="TICKET_STATUS.IN_PROGRESS">{{ t('status.inProgress') }}</option>
-            <option :value="TICKET_STATUS.COMPLETED">{{ t('status.completed') }}</option>
-          </select>
+          <span class="form-label d-block">{{ t('fields.status') }}</span>
+          <div data-status-chips>
+            <FilterChips
+              v-model="manageForm.status"
+              :options="statusOptions"
+              :aria-label="t('fields.status')"
+              size="sm"
+            />
+          </div>
         </div>
+
         <div class="form-field">
           <div class="label-row">
             <label for="admin-answer" class="form-label">{{ t('adminTickets.answer') }}</label>
-            <span>{{ manageForm.answer.length }}/1000</span>
+            <span :class="['counter tv-tabular', counterTone]">{{ manageForm.answer.length }}/1000</span>
           </div>
           <textarea
             id="admin-answer"
@@ -123,34 +164,57 @@
             rows="6"
             maxlength="1000"
             :disabled="saving"
+            :aria-describedby="answerError ? 'admin-answer-error' : 'admin-answer-hint'"
           ></textarea>
-          <div v-if="answerError" class="invalid-feedback">{{ answerError }}</div>
-          <div v-else class="form-text">{{ t('adminTickets.answerHint') }}</div>
-        </div>
-        <div class="dialog-actions">
-          <button type="button" class="btn btn-outline-secondary" :disabled="saving" @click="closeManage">{{ t('common.cancel') }}</button>
-          <button type="submit" class="btn btn-primary" :disabled="saving">
-            <span v-if="saving" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-            {{ t('common.saveChanges') }}
-          </button>
+          <div v-if="answerError" id="admin-answer-error" class="invalid-feedback d-block">
+            {{ answerError }}
+          </div>
+          <div v-else id="admin-answer-hint" class="form-text">{{ t('adminTickets.answerHint') }}</div>
         </div>
       </form>
-    </dialog>
+
+      <template #footer>
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          :disabled="saving"
+          @click="manageOpen = false"
+        >
+          {{ t('common.cancel') }}
+        </button>
+        <button
+          type="submit"
+          form="manage-ticket-form"
+          class="btn btn-primary"
+          :disabled="saving || blocksCompletion"
+        >
+          <span v-if="saving" class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          {{ t('common.saveChanges') }}
+        </button>
+      </template>
+    </AppModal>
   </section>
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import PageHeader from "@/components/PageHeader.vue";
-import StatusBadge from "@/components/StatusBadge.vue";
-import SkeletonList from "@/components/SkeletonList.vue";
+
+import AppCard from "@/components/AppCard.vue";
+import AppModal from "@/components/AppModal.vue";
+import DataToolbar from "@/components/DataToolbar.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
+import FilterChips from "@/components/FilterChips.vue";
+import PageHeader from "@/components/PageHeader.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
+import SearchField from "@/components/SearchField.vue";
+import SkeletonList from "@/components/SkeletonList.vue";
+import StatusBadge from "@/components/StatusBadge.vue";
 import { usePagedList } from "@/composables/usePagedList";
 import { api } from "@/services/api";
 import { useToastStore } from "@/stores/toast";
+import { parseApiDate, relativeTime } from "@/utils/datetime";
 import { normalizeTicket, TICKET_STATUS } from "@/utils/tickets";
 
 const { t, locale } = useI18n();
@@ -158,7 +222,7 @@ const toast = useToastStore();
 
 const activeFilter = ref("all");
 const selectedTicket = ref(null);
-const manageDialog = ref(null);
+const manageOpen = ref(false);
 const manageForm = reactive({ status: TICKET_STATUS.PENDING, answer: "" });
 const answerError = ref("");
 const saving = ref(false);
@@ -194,8 +258,40 @@ const filters = computed(() => [
   { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), count: statusCounts.completed },
 ]);
 
+const statusOptions = computed(() => [
+  { value: TICKET_STATUS.PENDING, label: t("status.pending"), icon: "bi-clock" },
+  { value: TICKET_STATUS.IN_PROGRESS, label: t("status.inProgress"), icon: "bi-arrow-repeat" },
+  { value: TICKET_STATUS.COMPLETED, label: t("status.completed"), icon: "bi-check2-circle" },
+]);
+
+/* The API rejects completing a ticket with a blank answer. Surfacing that as a
+   disabled button and an inline message means the rule is visible while it can
+   still be acted on, instead of arriving as a 400 after submit. */
+const blocksCompletion = computed(
+  () => manageForm.status === TICKET_STATUS.COMPLETED && !manageForm.answer.trim(),
+);
+
+const counterTone = computed(() => {
+  if (manageForm.answer.length >= 1000) return "counter--danger";
+  if (manageForm.answer.length >= 900) return "counter--warning";
+  return "";
+});
+
+watch(
+  () => [manageForm.status, manageForm.answer],
+  () => {
+    if (!blocksCompletion.value) answerError.value = "";
+  },
+);
+
 function formatDate(value) {
-  return value ? new Intl.DateTimeFormat(locale.value === "tr" ? "tr-TR" : "en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : t("common.notAvailable");
+  const date = parseApiDate(value);
+  return date
+    ? new Intl.DateTimeFormat(locale.value === "tr" ? "tr-TR" : "en-US", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date)
+    : t("common.notAvailable");
 }
 
 /** Tab counts cover every page, so they come from the dedicated summary endpoint. */
@@ -216,16 +312,14 @@ async function load() {
   await Promise.all([loadPage(), loadStatusCounts()]);
 }
 
-async function openManage(ticket) {
+function openManage(ticket) {
   selectedTicket.value = ticket;
   manageForm.status = ticket.status;
-  manageForm.answer = ticket.answer;
+  manageForm.answer = ticket.answer ?? "";
   answerError.value = "";
-  await nextTick();
-  manageDialog.value?.showModal();
+  manageOpen.value = true;
 }
 
-function closeManage() { manageDialog.value?.close(); }
 function resetDialog() {
   selectedTicket.value = null;
   manageForm.status = TICKET_STATUS.PENDING;
@@ -234,17 +328,19 @@ function resetDialog() {
 }
 
 async function saveTicket() {
-  answerError.value = manageForm.status === TICKET_STATUS.COMPLETED && !manageForm.answer.trim()
-    ? t("validation.answerRequired")
-    : "";
-  if (answerError.value || saving.value || !selectedTicket.value) return;
+  if (blocksCompletion.value) {
+    answerError.value = t("validation.answerRequired");
+    return;
+  }
+  if (saving.value || !selectedTicket.value) return;
+
   saving.value = true;
   try {
     await api.put(`/api/tickets/${selectedTicket.value.id}`, {
       status: manageForm.status,
       answer: manageForm.answer.trim() || null,
     });
-    closeManage();
+    manageOpen.value = false;
     await load();
     toast.success(t("adminTickets.updated"));
   } catch (requestError) {
@@ -258,40 +354,80 @@ onMounted(load);
 </script>
 
 <style scoped>
-.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; padding: .75rem; }
-.search-field { position: relative; flex: 1 1 280px; max-width: 420px; }
-.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--color-text-muted); }
-.search-field .form-control { padding-left: 2.6rem; }
-.filter-bar { display: flex; flex-wrap: wrap; gap: .4rem; }
-.filter-chip { min-height: 40px; padding: .45rem .7rem; border: 1px solid transparent; border-radius: 999px; color: var(--color-text-muted); background: transparent; font-weight: 700; }
-.filter-chip span { margin-left: .25rem; }
-.filter-chip.active { border-color: var(--color-primary); color: var(--color-primary); background: var(--color-primary-soft); }
-.table-card { overflow: hidden; }
-.table th { padding: 1rem; color: var(--color-text-muted); background: #f8fafc; font-size: .75rem; letter-spacing: .03em; text-transform: uppercase; }
+/* `clip`, not `hidden`. Both round off the table corners, but `hidden` creates a
+   scroll container, which confines the sticky header to this card instead of the
+   page — it ended up parked 72px down, on top of the first row. `clip` does not
+   create one, so the header sticks against the viewport as intended. */
+.table-card { overflow: clip; }
+
+.table thead th {
+  position: sticky;
+  top: var(--tv-topbar-height);
+  z-index: 2;
+  padding: 1rem;
+}
+
 .table td { padding: 1rem; }
-.ticket-id { color: var(--color-text-muted); font-size: .75rem; }
-.description-cell { max-width: 430px; margin: .3rem 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.table tbody tr {
+  transition: background-color var(--tv-duration-fast) ease;
+}
+
+.table tbody tr:hover { background: var(--tv-surface-sunken); }
+
+.table tbody tr td:first-child { box-shadow: inset 3px 0 0 var(--tv-border); }
+.row--pending td:first-child { box-shadow: inset 3px 0 0 var(--tv-chart-pending); }
+.row--inProgress td:first-child { box-shadow: inset 3px 0 0 var(--tv-chart-inProgress); }
+.row--completed td:first-child { box-shadow: inset 3px 0 0 var(--tv-chart-completed); }
+
+.ticket-id { color: var(--tv-text-subtle); font-size: .75rem; font-weight: 700; }
+
+/* Two lines rather than a single ellipsised one: the first line of a request is
+   almost never enough to tell two apart. */
+.description-cell {
+  display: -webkit-box;
+  max-width: 430px;
+  margin: .3rem 0 0;
+  overflow: hidden;
+  color: var(--tv-text);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
 .mobile-cards { display: none; gap: 1rem; }
-.mobile-ticket { padding: 1.1rem; }
-.mobile-ticket__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.mobile-ticket h2 { margin: 1rem 0 .5rem; font-size: 1rem; }
-.mobile-ticket > p { color: var(--color-text-muted); overflow-wrap: anywhere; }
-.mobile-ticket dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
-.mobile-ticket dt { color: var(--color-text-muted); font-size: .7rem; }
+.mobile-ticket h2 { margin: 0; color: var(--tv-text-strong); font-size: 1rem; }
+.mobile-ticket__body { margin: 0; color: var(--tv-text-muted); overflow-wrap: anywhere; }
+.mobile-ticket dl { display: grid; margin: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.mobile-ticket dt { color: var(--tv-text-subtle); font-size: .7rem; }
 .mobile-ticket dd { margin: .15rem 0 0; font-size: .85rem; overflow-wrap: anywhere; }
-.app-dialog { width: min(calc(100% - 2rem), 620px); max-height: calc(100dvh - 2rem); padding: 0; border: 0; border-radius: 18px; background: transparent; box-shadow: 0 24px 70px rgba(15, 23, 42, .25); }
-.app-dialog::backdrop { background: rgba(15, 23, 42, .55); backdrop-filter: blur(2px); }
-.dialog-card { padding: 1.5rem; border-radius: 18px; background: white; }
-.dialog-header { display: flex; justify-content: space-between; gap: 1rem; }
-.dialog-header h2 { margin: .2rem 0 0; font-size: 1.25rem; }
-.icon-button { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; color: var(--color-text-muted); background: var(--color-page); }
-.dialog-context { margin: 1.25rem 0; padding: 1rem; border-radius: 12px; background: var(--color-page); }
-.dialog-context p { margin: .35rem 0 0; color: var(--color-text-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.edge--pending { border-left: 3px solid var(--tv-chart-pending); }
+.edge--inProgress { border-left: 3px solid var(--tv-chart-inProgress); }
+.edge--completed { border-left: 3px solid var(--tv-chart-completed); }
+
+.dialog-context {
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--tv-surface-sunken);
+}
+
+.dialog-context strong { display: block; margin-top: .2rem; color: var(--tv-text-strong); }
+.dialog-context p { margin: .35rem 0 0; color: var(--tv-text-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+
 .form-field { margin-bottom: 1.25rem; }
 .label-row { display: flex; justify-content: space-between; gap: 1rem; }
-.label-row span { color: var(--color-text-muted); font-size: .8rem; }
-.dialog-actions { display: flex; justify-content: flex-end; gap: .75rem; }
-@media (max-width: 900px) { .toolbar { align-items: stretch; flex-direction: column; } .search-field { max-width: none; } }
-@media (max-width: 767px) { .desktop-table { display: none; } .mobile-cards { display: grid; } }
-@media (max-width: 480px) { .mobile-ticket dl { grid-template-columns: 1fr; } .dialog-actions { flex-direction: column-reverse; } .dialog-actions .btn { width: 100%; } }
+.counter { color: var(--tv-text-subtle); font-size: .8rem; }
+.counter--warning { color: var(--tv-warning-on-soft); font-weight: 700; }
+.counter--danger { color: var(--tv-danger-on-soft); font-weight: 700; }
+
+@media (max-width: 767px) {
+  .desktop-table { display: none; }
+  .mobile-cards { display: grid; }
+}
+
+@media (max-width: 480px) {
+  .mobile-ticket dl { grid-template-columns: 1fr; }
+}
 </style>

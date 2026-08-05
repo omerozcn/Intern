@@ -1,0 +1,329 @@
+/* ===========================================================================
+   Tokens
+
+   Three layers, and the rule that keeps them honest:
+
+   0. Primitives  — raw ramps. Theme-independent. A .vue file must never name
+                    one of these directly.
+   1. Semantic    — the only layer views may use. Declared once per theme, so a
+                    single rule like `color: var(--tv-text-muted)` is correct in
+                    both light and dark without a second selector.
+   2. Bridges     — Bootstrap's --bs-* variables and the legacy --color-* alias
+                    set. These live INSIDE each theme block, never in a bare
+                    :root. A bridge left at the root survives the theme flip and
+                    repaints the app in the wrong theme.
+
+   The dark block is `:root[data-theme='dark']` (specificity 0,2,0), which beats
+   Bootstrap's own `[data-bs-theme=dark]` (0,1,0) no matter what order the
+   stylesheets end up in.
+
+   There is deliberately no `@media (prefers-color-scheme: dark)` block here.
+   The theme attribute is always written explicitly — by the inline script in
+   index.html on first paint, then by useTheme.js — so the attribute is the one
+   source of truth and cannot disagree with a media query.
+   =========================================================================== */
+
+/* --- Layer 0: primitives --------------------------------------------------- */
+
+:root {
+  --tv-teal-950: #042f2e;
+  --tv-teal-900: #134e4a;
+  --tv-teal-800: #115e59;
+  --tv-teal-700: #0f766e;
+  --tv-teal-600: #0d9488;
+  --tv-teal-400: #2dd4bf;
+  --tv-teal-300: #5eead4;
+  --tv-teal-200: #99f6e4;
+  --tv-teal-100: #ccfbf1;
+  --tv-teal-50: #f0fdfa;
+
+  /* Historical note: --tv-slate-950 holds Tailwind's slate-900. The name is
+     kept because renaming it would touch ~40 call sites for no visible gain. */
+  --tv-slate-950: #0f172a;
+  --tv-slate-800: #1e293b;
+  --tv-slate-700: #334155;
+  --tv-slate-600: #475569;
+  --tv-slate-500: #64748b;
+  --tv-slate-400: #94a3b8;
+  --tv-slate-300: #cbd5e1;
+  --tv-slate-200: #e2e8f0;
+  --tv-slate-100: #f1f5f9;
+  --tv-slate-50: #f8fafc;
+  --tv-white: #ffffff;
+
+  /* Dark-theme neutrals. Slate inverted reads flat and slightly blue-grey; a
+     ramp with a touch more blue at the bottom keeps depth legible. */
+  --tv-ink-950: #070d18;
+  --tv-ink-900: #0b1220;
+  --tv-ink-800: #121c2e;
+  --tv-ink-700: #18243a;
+  --tv-ink-600: #1f2d46;
+  --tv-ink-line: #24334c;
+
+  /* Layout and shape are theme-independent. */
+  --tv-sidebar-width: 272px;
+  --tv-sidebar-width-rail: 84px;
+  --tv-topbar-height: 72px;
+  --tv-radius-sm: 12px;
+  --tv-radius-md: 16px;
+  --tv-radius-lg: 24px;
+
+  --bs-font-sans-serif: Inter, "Inter Fallback", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Motion. One base curve and a small set of durations, so everything moves
+     like part of the same product. Spring overshoots, so it belongs on small
+     elements that snap into place — on anything carrying text at size it reads
+     as a wobble. */
+  --tv-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --tv-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --tv-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --tv-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --tv-duration-fast: 140ms;
+  --tv-duration: 220ms;
+  --tv-duration-slow: 380ms;
+  --tv-duration-slower: 560ms;
+}
+
+/* --- Layer 1 + 2: light ---------------------------------------------------- */
+
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --tv-bg-canvas: var(--tv-slate-50);
+  --tv-bg-page: var(--tv-slate-50);
+  --tv-surface-1: var(--tv-white);
+  --tv-surface-2: var(--tv-white);
+  --tv-surface-3: var(--tv-white);
+  --tv-surface-sunken: var(--tv-slate-50);
+  --tv-surface-muted: var(--tv-slate-100);
+  /* A barely-there vertical wash lifts the top edge of a card away from the
+     page without reading as a coloured card. */
+  --tv-surface-card: linear-gradient(180deg, var(--tv-white), #fcfdfe);
+
+  --tv-text-strong: var(--tv-slate-950);
+  --tv-text: var(--tv-slate-800);
+  --tv-text-muted: var(--tv-slate-600);
+  --tv-text-subtle: var(--tv-slate-500);
+  --tv-text-on-accent: var(--tv-white);
+
+  --tv-border: var(--tv-slate-200);
+  --tv-border-strong: var(--tv-slate-300);
+  --tv-border-subtle: var(--tv-slate-100);
+
+  --tv-accent: var(--tv-teal-700);
+  --tv-accent-hover: var(--tv-teal-800);
+  --tv-accent-active: var(--tv-teal-900);
+  --tv-accent-soft: var(--tv-teal-50);
+  --tv-accent-soft-strong: var(--tv-teal-100);
+  --tv-accent-on-soft: var(--tv-teal-800);
+
+  /* Each status carries three values: the hue, the hue as a tint, and the hue
+     as TEXT ON that tint. The third is what makes one badge rule work in both
+     themes — #9a6700 is readable on #fffaeb and on nothing else. */
+  --tv-danger: #b42318;
+  --tv-danger-soft: #fef3f2;
+  --tv-danger-on-soft: #b42318;
+  --tv-danger-border: #fecdca;
+  --tv-warning: #9a6700;
+  --tv-warning-soft: #fffaeb;
+  --tv-warning-on-soft: #9a6700;
+  --tv-success: #067647;
+  --tv-success-soft: #ecfdf3;
+  --tv-success-on-soft: #166534;
+  --tv-info: #175cd3;
+  --tv-info-soft: #eff8ff;
+  --tv-info-on-soft: #175cd3;
+
+  /* #14b8a6 measured 2.49:1 against white, below the 3:1 that WCAG 1.4.11 asks
+     of a focus indicator. This tone clears it while staying on-brand. */
+  --tv-focus: var(--tv-teal-600);
+  --tv-ring: 0 0 0 4px rgb(13 148 136 / 0.14);
+
+  /* Layered shadows: a tight contact shadow plus a wide soft one reads as real
+     depth, where a single blur reads as a grey halo. */
+  --tv-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05), 0 2px 6px rgb(15 23 42 / 0.05);
+  --tv-shadow-md:
+    0 1px 2px rgb(15 23 42 / 0.05),
+    0 8px 16px -6px rgb(15 23 42 / 0.1),
+    0 18px 40px -12px rgb(15 23 42 / 0.14);
+  --tv-shadow-lg:
+    0 2px 4px rgb(15 23 42 / 0.05),
+    0 16px 32px -12px rgb(15 23 42 / 0.14),
+    0 32px 64px -20px rgb(15 23 42 / 0.2);
+
+  --tv-overlay: rgb(15 23 42 / 0.62);
+  --tv-overlay-soft: rgb(15 23 42 / 0.58);
+
+  --tv-skeleton-base: var(--tv-slate-100);
+  --tv-skeleton-sheen: var(--tv-slate-200);
+
+  /* Fields need their own surface. In dark, an input painted the same tone as
+     the card it sits on disappears; it has to read as a well. */
+  --tv-field-bg: var(--tv-white);
+  --tv-field-border: var(--tv-slate-300);
+
+  /* Chart.js takes plain strings and cannot read CSS. utils/chartTheme.js
+     resolves these through getComputedStyle on every theme change. */
+  --tv-chart-pending: #f59e0b;
+  --tv-chart-inProgress: #0ea5a8;
+  --tv-chart-completed: #15803d;
+  --tv-chart-grid: var(--tv-slate-200);
+  --tv-chart-tick: var(--tv-slate-600);
+  --tv-chart-track: var(--tv-slate-100);
+
+  /* The sidebar is the brand anchor and stays dark teal in BOTH themes.
+     Flipping it would cost the light theme its identity and the dark theme its
+     only chroma. Only the pieces that would glare are themed. */
+  --tv-sidebar-from: var(--tv-teal-950);
+  --tv-sidebar-to: var(--tv-teal-900);
+  --tv-sidebar-glow: rgb(20 184 166 / 0.22);
+  --tv-sidebar-border: #155e5a;
+  --tv-sidebar-link: var(--tv-teal-100);
+  --tv-sidebar-muted: var(--tv-teal-200);
+  --tv-sidebar-hover: rgb(255 255 255 / 0.08);
+  --tv-sidebar-active-bg: var(--tv-white);
+  --tv-sidebar-active-text: var(--tv-teal-900);
+
+  /* Saturating the blur keeps colour that scrolls underneath from going grey. */
+  --tv-topbar-bg: rgb(255 255 255 / 0.72);
+  --tv-topbar-border: rgb(226 232 240 / 0.8);
+
+  --tv-auth-glow: rgb(20 184 166 / 0.16);
+  --tv-auth-from: var(--tv-teal-50);
+  --tv-auth-via: var(--tv-slate-50);
+  --tv-auth-to: var(--tv-white);
+  --tv-auth-card-bg: rgb(255 255 255 / 0.96);
+
+  /* -- Bridges: Bootstrap ------------------------------------------------- */
+  --bs-primary: var(--tv-accent);
+  --bs-primary-rgb: 15, 118, 110;
+  --bs-secondary: var(--tv-text-muted);
+  --bs-secondary-rgb: 71, 85, 105;
+  --bs-danger: var(--tv-danger);
+  --bs-danger-rgb: 180, 35, 24;
+  --bs-body-color: var(--tv-text);
+  --bs-body-bg: var(--tv-bg-page);
+  --bs-border-color: var(--tv-border);
+  --bs-emphasis-color: var(--tv-text-strong);
+  --bs-secondary-bg: var(--tv-surface-muted);
+  --bs-tertiary-bg: var(--tv-surface-sunken);
+}
+
+/* --- Layer 1 + 2: dark ----------------------------------------------------- */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --tv-bg-canvas: var(--tv-ink-950);
+  --tv-bg-page: var(--tv-ink-900);
+  --tv-surface-1: var(--tv-ink-800);
+  --tv-surface-2: var(--tv-ink-700);
+  --tv-surface-3: var(--tv-ink-600);
+  --tv-surface-sunken: #0e1626;
+  --tv-surface-muted: var(--tv-ink-700);
+  /* The card wash is a one-step gradient that reads as a rendering fault on a
+     dark surface. Flat here. */
+  --tv-surface-card: var(--tv-surface-1);
+
+  --tv-text-strong: var(--tv-slate-100);
+  --tv-text: var(--tv-slate-200);
+  --tv-text-muted: var(--tv-slate-400);
+  /* Not slate-500: it measures 3.26–3.93:1 across these surfaces, under the
+     4.5:1 body-text bar, and axe caught it on the topbar date and the palette
+     trigger. This tone measures 5.43:1 on the darkest surface it appears over
+     and still reads a step quieter than --tv-text-muted. */
+  --tv-text-subtle: #8b9ab0;
+  --tv-text-on-accent: var(--tv-ink-950);
+
+  --tv-border: var(--tv-ink-line);
+  --tv-border-strong: #33455f;
+  --tv-border-subtle: #1a2740;
+
+  --tv-accent: var(--tv-teal-400);
+  --tv-accent-hover: var(--tv-teal-300);
+  --tv-accent-active: var(--tv-teal-200);
+  --tv-accent-soft: rgb(45 212 191 / 0.13);
+  --tv-accent-soft-strong: rgb(45 212 191 / 0.22);
+  --tv-accent-on-soft: var(--tv-teal-300);
+
+  --tv-danger: #f87171;
+  --tv-danger-soft: rgb(248 113 113 / 0.14);
+  --tv-danger-on-soft: #fca5a5;
+  --tv-danger-border: rgb(248 113 113 / 0.38);
+  --tv-warning: #fbbf24;
+  --tv-warning-soft: rgb(251 191 36 / 0.14);
+  --tv-warning-on-soft: #fcd34d;
+  --tv-success: #34d399;
+  --tv-success-soft: rgb(52 211 153 / 0.14);
+  --tv-success-on-soft: #6ee7b7;
+  --tv-info: #60a5fa;
+  --tv-info-soft: rgb(96 165 250 / 0.14);
+  --tv-info-on-soft: #93c5fd;
+
+  /* #0d9488 measures ~4.6:1 on --tv-surface-1: it clears the 3:1 a focus ring
+     needs, but has almost no margin left over when the same tone is used as
+     accent text. #2dd4bf measures ~9.3:1 there and clears both bars. */
+  --tv-focus: var(--tv-teal-400);
+  --tv-ring: 0 0 0 4px rgb(45 212 191 / 0.22);
+
+  /* A black blur on a dark page is invisible. The inset top highlight is what
+     actually reads as "raised" here; the drop shadow only anchors it. */
+  --tv-shadow-sm:
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 1px 2px rgb(0 0 0 / 0.4),
+    0 2px 6px rgb(0 0 0 / 0.32);
+  --tv-shadow-md:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 8px 16px -6px rgb(0 0 0 / 0.5),
+    0 18px 40px -12px rgb(0 0 0 / 0.62);
+  --tv-shadow-lg:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 16px 32px -12px rgb(0 0 0 / 0.55),
+    0 32px 64px -20px rgb(0 0 0 / 0.7);
+
+  --tv-overlay: rgb(2 6 16 / 0.72);
+  --tv-overlay-soft: rgb(2 6 16 / 0.66);
+
+  --tv-skeleton-base: var(--tv-ink-700);
+  --tv-skeleton-sheen: var(--tv-ink-600);
+
+  --tv-field-bg: var(--tv-surface-sunken);
+  --tv-field-border: #33455f;
+
+  --tv-chart-pending: #fbbf24;
+  --tv-chart-inProgress: #2dd4bf;
+  --tv-chart-completed: #34d399;
+  --tv-chart-grid: var(--tv-ink-line);
+  --tv-chart-tick: var(--tv-slate-400);
+  --tv-chart-track: var(--tv-ink-700);
+
+  --tv-sidebar-border: #10403d;
+  /* A white pill on a dark page glares. The raised surface tone reads as the
+     same affordance without the flashbulb. */
+  --tv-sidebar-active-bg: var(--tv-surface-2);
+  --tv-sidebar-active-text: var(--tv-teal-300);
+
+  --tv-topbar-bg: rgb(11 18 32 / 0.72);
+  --tv-topbar-border: rgb(36 51 76 / 0.8);
+
+  --tv-auth-glow: rgb(20 184 166 / 0.18);
+  --tv-auth-from: var(--tv-ink-950);
+  --tv-auth-via: var(--tv-ink-900);
+  --tv-auth-to: var(--tv-ink-800);
+  --tv-auth-card-bg: rgb(18 28 46 / 0.94);
+
+  /* -- Bridges: Bootstrap ------------------------------------------------- */
+  --bs-primary: var(--tv-accent);
+  --bs-primary-rgb: 45, 212, 191;
+  --bs-secondary: var(--tv-text-muted);
+  --bs-secondary-rgb: 148, 163, 184;
+  --bs-danger: var(--tv-danger);
+  --bs-danger-rgb: 248, 113, 113;
+  --bs-body-color: var(--tv-text);
+  --bs-body-bg: var(--tv-bg-page);
+  --bs-border-color: var(--tv-border);
+  --bs-emphasis-color: var(--tv-text-strong);
+  --bs-secondary-bg: var(--tv-surface-2);
+  --bs-tertiary-bg: var(--tv-surface-sunken);
+}

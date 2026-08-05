@@ -1,0 +1,300 @@
+/* ===========================================================================
+   Base
+
+   Reset, document-level typography, the focus indicator, and the overrides that
+   pull Bootstrap's controls onto our own tokens. Nothing here is a component;
+   nothing here hardcodes a colour.
+   =========================================================================== */
+
+/* --- Inter ----------------------------------------------------------------- */
+
+/* The stack has named Inter since the beginning but nothing ever loaded it, so
+   every screen has actually been rendering in Segoe UI. Self-hosted rather than
+   pulled from a CDN: the Docker build has no network at runtime, and Vite hashes
+   these into /assets where nginx already serves them immutable.
+
+   Both subsets are required. Turkish splits across them — ı is in latin, while
+   ğ ş İ live in latin-ext. */
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../assets/fonts/inter-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* font-display: swap means the first paint uses a fallback and then reflows.
+   Overriding the fallback's metrics to match Inter's makes the two occupy the
+   same space, so the swap is invisible instead of shifting the KPI row. */
+@font-face {
+  font-family: "Inter Fallback";
+  font-style: normal;
+  font-weight: 100 900;
+  src: local("Arial");
+  ascent-override: 90.2%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+  size-adjust: 107.4%;
+}
+
+/* --- Reset ----------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--tv-bg-page);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--tv-bg-page);
+  color: var(--tv-text);
+  font-family: var(--bs-font-sans-serif);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.drawer-is-open,
+body.dialog-is-open {
+  overflow: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: var(--tv-accent);
+  text-underline-offset: 0.18em;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* Figures that change in place — counters, table dates, KPI values — jitter the
+   column width when the glyphs are proportional. */
+.tv-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 3px solid var(--tv-focus) !important;
+  outline-offset: 3px !important;
+  box-shadow: none !important;
+}
+
+::selection {
+  background: var(--tv-accent-soft-strong);
+  color: var(--tv-text-strong);
+}
+
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 2000;
+  padding: 10px 16px;
+  border-radius: var(--tv-radius-sm);
+  background: var(--tv-surface-1);
+  color: var(--tv-accent-on-soft);
+  font-weight: 700;
+  box-shadow: var(--tv-shadow-md);
+  transform: translateY(-160%);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* --- Bootstrap: buttons ---------------------------------------------------- */
+
+.btn {
+  min-height: 44px;
+  padding: 0.625rem 1rem;
+  border-radius: 12px;
+  font-weight: 650;
+}
+
+.btn-sm {
+  min-height: 40px;
+}
+
+.btn-primary {
+  --bs-btn-color: var(--tv-text-on-accent);
+  --bs-btn-bg: var(--tv-accent);
+  --bs-btn-border-color: var(--tv-accent);
+  --bs-btn-hover-color: var(--tv-text-on-accent);
+  --bs-btn-hover-bg: var(--tv-accent-hover);
+  --bs-btn-hover-border-color: var(--tv-accent-hover);
+  --bs-btn-active-color: var(--tv-text-on-accent);
+  --bs-btn-active-bg: var(--tv-accent-active);
+  --bs-btn-active-border-color: var(--tv-accent-active);
+  --bs-btn-disabled-color: var(--tv-text-on-accent);
+  --bs-btn-disabled-bg: var(--tv-teal-600);
+  --bs-btn-disabled-border-color: var(--tv-teal-600);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--tv-accent);
+  --bs-btn-border-color: var(--tv-accent);
+  --bs-btn-hover-color: var(--tv-text-on-accent);
+  --bs-btn-hover-bg: var(--tv-accent);
+  --bs-btn-hover-border-color: var(--tv-accent);
+  --bs-btn-active-color: var(--tv-text-on-accent);
+  --bs-btn-active-bg: var(--tv-accent-hover);
+  --bs-btn-active-border-color: var(--tv-accent-hover);
+  --bs-btn-disabled-color: var(--tv-accent);
+  --bs-btn-disabled-border-color: var(--tv-accent);
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--tv-danger);
+  --bs-btn-border-color: var(--tv-danger-border);
+  --bs-btn-hover-color: var(--tv-text-on-accent);
+  --bs-btn-hover-bg: var(--tv-danger);
+  --bs-btn-hover-border-color: var(--tv-danger);
+}
+
+.btn-light,
+.btn-outline-secondary {
+  --bs-btn-color: var(--tv-text);
+  --bs-btn-bg: var(--tv-surface-1);
+  --bs-btn-border-color: var(--tv-border);
+  --bs-btn-hover-color: var(--tv-text-strong);
+  --bs-btn-hover-bg: var(--tv-surface-muted);
+  --bs-btn-hover-border-color: var(--tv-border-strong);
+  --bs-btn-active-color: var(--tv-text-strong);
+  --bs-btn-active-bg: var(--tv-surface-muted);
+  --bs-btn-active-border-color: var(--tv-border-strong);
+}
+
+/* --- Bootstrap: forms ------------------------------------------------------ */
+
+.form-label {
+  margin-bottom: 0.4rem;
+  color: var(--tv-text);
+  font-weight: 650;
+}
+
+.form-control,
+.form-select {
+  min-height: 44px;
+  border-color: var(--tv-field-border);
+  border-radius: 12px;
+  background-color: var(--tv-field-bg);
+  color: var(--tv-text);
+}
+
+textarea.form-control {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--tv-accent);
+  background-color: var(--tv-field-bg);
+  color: var(--tv-text);
+  box-shadow: var(--tv-ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  background-color: var(--tv-surface-muted);
+  color: var(--tv-text-muted);
+}
+
+.form-control::placeholder {
+  color: var(--tv-text-subtle);
+  opacity: 1;
+}
+
+/* Chrome paints its own near-white autofill background, which survives a theme
+   flip. An inset shadow the size of the field is the only reliable override. */
+.form-control:-webkit-autofill,
+.form-control:-webkit-autofill:hover,
+.form-control:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--tv-text);
+  box-shadow: 0 0 0 1000px var(--tv-field-bg) inset;
+  caret-color: var(--tv-text);
+}
+
+.form-check-input {
+  border-color: var(--tv-field-border);
+  background-color: var(--tv-field-bg);
+}
+
+.form-check-input:checked {
+  border-color: var(--tv-accent);
+  background-color: var(--tv-accent);
+}
+
+.form-text,
+.field-help {
+  color: var(--tv-text-muted);
+  font-size: 0.875rem;
+}
+
+.invalid-feedback,
+.field-error {
+  color: var(--tv-danger);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* --- Bootstrap: tables ----------------------------------------------------- */
+
+.table {
+  --bs-table-color: var(--tv-text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--tv-border);
+  --bs-table-hover-color: var(--tv-text-strong);
+  --bs-table-hover-bg: var(--tv-surface-sunken);
+  margin: 0;
+  vertical-align: middle;
+}
+
+.table > :not(caption) > * > * {
+  padding: 14px 16px;
+  border-bottom-color: var(--tv-border);
+  background-color: transparent;
+  color: var(--tv-text);
+}
+
+.table thead th {
+  background-color: var(--tv-surface-sunken);
+  color: var(--tv-text-muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}

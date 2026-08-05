@@ -5,6 +5,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@/styles/theme.css'
 
 import App from '@/App.vue'
+/* Imported for its side effect: aligns the reactive theme state with the
+   attribute the inline script in index.html already wrote, and starts following
+   the OS preference when the stored mode is 'system'. */
+import '@/composables/useTheme'
+import { vReveal } from '@/composables/useScrollReveal'
 import { i18n, setLocale } from '@/i18n'
 import router from '@/router'
 import { configureApi } from '@/services/api'
@@ -17,6 +22,7 @@ const app = createApp(App)
 app.use(pinia)
 app.use(i18n)
 app.use(router)
+app.directive('reveal', vReveal)
 
 const auth = useAuthStore(pinia)
 const toast = useToastStore(pinia)

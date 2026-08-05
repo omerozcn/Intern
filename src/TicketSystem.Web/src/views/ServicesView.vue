@@ -41,10 +41,10 @@
             </div>
           </div>
           <div class="icon-actions">
-            <button v-if="editingId !== product.id" type="button" class="icon-button" :aria-label="t('services.editAria', { name: product.name })" @click="startEdit(product)"><i class="bi bi-pencil" aria-hidden="true"></i></button>
-            <button v-else type="button" class="icon-button icon-button--success" :aria-label="t('common.save')" :disabled="savingId === product.id" @click="saveEdit(product)"><i class="bi bi-check-lg" aria-hidden="true"></i></button>
-            <button v-if="editingId === product.id" type="button" class="icon-button" :aria-label="t('common.cancel')" :disabled="savingId === product.id" @click="cancelEdit"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
-            <button v-else type="button" class="icon-button icon-button--danger" :aria-label="t('services.deleteAria', { name: product.name })" @click="askDeleteProduct(product)"><i class="bi bi-trash" aria-hidden="true"></i></button>
+            <IconButton v-if="editingId !== product.id" icon="bi-pencil" :label="t('services.editAria', { name: product.name })" @click="startEdit(product)" />
+            <IconButton v-else icon="bi-check-lg" variant="success" :label="t('common.save')" :busy="savingId === product.id" @click="saveEdit(product)" />
+            <IconButton v-if="editingId === product.id" icon="bi-x-lg" :label="t('common.cancel')" :disabled="savingId === product.id" @click="cancelEdit" />
+            <IconButton v-else icon="bi-trash" variant="danger" :label="t('services.deleteAria', { name: product.name })" @click="askDeleteProduct(product)" />
           </div>
         </div>
 
@@ -108,6 +108,7 @@ import SkeletonList from "@/components/SkeletonList.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import IconButton from "@/components/IconButton.vue";
 import PaginationBar from "@/components/PaginationBar.vue";
 import FirmSelect from "@/components/FirmSelect.vue";
 import { usePagedList } from "@/composables/usePagedList";
@@ -223,27 +224,28 @@ onMounted(load);
 .create-bar { display: flex; align-items: end; gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; }
 .create-field { flex: 1; }
 .list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
-.list-toolbar > span { color: var(--color-text-muted); white-space: nowrap; }
+.list-toolbar > span { color: var(--tv-text-muted); white-space: nowrap; }
 .search-field { position: relative; width: min(100%, 420px); }
-.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--color-text-muted); }
+.search-field i { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); color: var(--tv-text-muted); }
 .search-field input { padding-left: 2.6rem; }
 .service-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
 .service-card { min-width: 0; padding: 1.25rem; }
 .service-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
 .service-title { display: flex; align-items: center; min-width: 0; gap: .75rem; }
-.service-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; color: var(--color-primary); background: var(--color-primary-soft); }
-.service-id { color: var(--color-text-muted); font-size: .7rem; }
+.service-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; color: var(--tv-accent); background: var(--tv-accent-soft); }
+.service-id { color: var(--tv-text-muted); font-size: .7rem; }
 .service-title h2 { margin: .1rem 0 0; overflow-wrap: anywhere; font-size: 1.05rem; }
 .icon-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .35rem; }
-.icon-button { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid var(--color-border); border-radius: 10px; color: var(--color-text-muted); background: white; }
-.icon-button--danger { color: #b42318; }
-.icon-button--success { color: #15803d; }
-.assignments { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--color-border); }
-.section-label { display: flex; justify-content: space-between; color: var(--color-text-muted); font-size: .8rem; font-weight: 700; }
+.assignments { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--tv-border); }
+.section-label { display: flex; justify-content: space-between; color: var(--tv-text-muted); font-size: .8rem; font-weight: 700; }
 .firm-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
-.firm-tag { display: inline-flex; align-items: center; gap: .25rem; padding: .35rem .35rem .35rem .65rem; border-radius: 999px; color: #03696b; background: var(--color-primary-soft); font-size: .8rem; font-weight: 700; }
-.firm-tag button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; color: inherit; background: transparent; }
-.empty-inline { margin: .75rem 0; color: var(--color-text-muted); font-size: .85rem; }
+.firm-tag { display: inline-flex; align-items: center; gap: .25rem; padding: .35rem .35rem .35rem .65rem; border-radius: 999px; color: var(--tv-accent-on-soft); background: var(--tv-accent-soft); font-size: .8rem; font-weight: 700; }
+/* 28px was below the touch-target floor the rest of the app holds to; the pill
+   grew to fit a real 32px hit area with padding around it. */
+.firm-tag { padding-block: .3rem; }
+.firm-tag button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; color: inherit; background: transparent; }
+.firm-tag button:hover { background: var(--tv-accent-soft-strong); }
+.empty-inline { margin: .75rem 0; color: var(--tv-text-muted); font-size: .85rem; }
 .assign-form { display: flex; align-items: flex-start; gap: .5rem; margin-top: .9rem; }
 .assign-form > :first-child { flex: 1; }
 @media (max-width: 899px) { .service-grid { grid-template-columns: 1fr; } }
