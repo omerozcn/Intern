@@ -6,7 +6,7 @@
       <span class="ticket-queue__id tv-tabular">#{{ ticket.id }}</span>
 
       <span class="ticket-queue__copy">
-        <strong>{{ ticket.productName || t('dashboard.unknownProduct') }}</strong>
+        <strong>{{ ticket.productName || t('tickets.newProductRequest') }}</strong>
         <small>{{ ticket.firmName || ticket.createdBy || '—' }}</small>
       </span>
 
