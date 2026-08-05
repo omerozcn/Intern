@@ -2,6 +2,43 @@
 
 Vue 3 istemcisi ve .NET 8 API'sinden oluşan rol tabanlı talep yönetim sistemi. Kullanıcılar hizmet talebi açar ve kendi taleplerini takip eder; yöneticiler talepleri yanıtlar, firma/hizmet tanımlarını ve hesapları yönetir.
 
+## Ekranlar
+
+Arayüz aydınlık ve karanlık temayı birlikte destekler; tercih tarayıcıda saklanır ve `Sistem` seçildiğinde işletim sistemi ayarını canlı olarak takip eder. Aşağıdaki görüntüler geliştirme ortamındaki örnek verilerle, 1440×900 çözünürlükte alınmıştır. Görsele tıklayarak tam boyutta açabilirsiniz.
+
+### Ortak
+
+| Ekran | Aydınlık | Karanlık |
+| --- | --- | --- |
+| **Giriş** — 992px üzerinde marka paneliyle iki sütuna ayrılır, altında tek sütuna iner | [![Giriş, aydınlık](docs/screenshots/01-giris-light.png)](docs/screenshots/01-giris-light.png) | [![Giriş, karanlık](docs/screenshots/01-giris-dark.png)](docs/screenshots/01-giris-dark.png) |
+| **Komut paleti** — `Ctrl/⌘ K`; sayfalar rol filtresinden geçer, altında hızlı eylemler | [![Komut paleti, aydınlık](docs/screenshots/10-komut-paleti-light.png)](docs/screenshots/10-komut-paleti-light.png) | [![Komut paleti, karanlık](docs/screenshots/10-komut-paleti-dark.png)](docs/screenshots/10-komut-paleti-dark.png) |
+| **Dar menü** — kenar çubuğu 84px raya iner, tercih kalıcıdır | [![Dar menü, aydınlık](docs/screenshots/11-dar-menu-light.png)](docs/screenshots/11-dar-menu-light.png) | [![Dar menü, karanlık](docs/screenshots/11-dar-menu-dark.png)](docs/screenshots/11-dar-menu-dark.png) |
+| **Mobil menü** — 992px altında çekmece; odak tuzaklı, Escape ile kapanır | [![Mobil menü, aydınlık](docs/screenshots/12-mobil-menu-light.png)](docs/screenshots/12-mobil-menu-light.png) | [![Mobil menü, karanlık](docs/screenshots/12-mobil-menu-dark.png)](docs/screenshots/12-mobil-menu-dark.png) |
+| **Profil** — hesap bilgileri ve parola değiştirme | [![Profil, aydınlık](docs/screenshots/09-profil-light.png)](docs/screenshots/09-profil-light.png) | [![Profil, karanlık](docs/screenshots/09-profil-dark.png)](docs/screenshots/09-profil-dark.png) |
+
+### Yönetici
+
+| Ekran | Aydınlık | Karanlık |
+| --- | --- | --- |
+| **Genel Bakış** — durum kartları, halka dağılım grafiği, bekleyen iş kuyruğu ve sistem geneli sayaçlar | [![Yönetici genel bakış, aydınlık](docs/screenshots/02-gosterge-tablosu-yonetici-light.png)](docs/screenshots/02-gosterge-tablosu-yonetici-light.png) | [![Yönetici genel bakış, karanlık](docs/screenshots/02-gosterge-tablosu-yonetici-dark.png)](docs/screenshots/02-gosterge-tablosu-yonetici-dark.png) |
+| **Talep yönetimi** — durum filtreleri, yapışkan tablo başlığı, satır başında durum şeridi | [![Talep yönetimi, aydınlık](docs/screenshots/03-talep-yonetimi-light.png)](docs/screenshots/03-talep-yonetimi-light.png) | [![Talep yönetimi, karanlık](docs/screenshots/03-talep-yonetimi-dark.png)](docs/screenshots/03-talep-yonetimi-dark.png) |
+| **Talep yanıtlama** — durum seçimi ve yanıt alanı; `Tamamlandı` yanıt olmadan kaydedilemez | [![Talep yanıtlama, aydınlık](docs/screenshots/04-talep-yanitlama-light.png)](docs/screenshots/04-talep-yanitlama-light.png) | [![Talep yanıtlama, karanlık](docs/screenshots/04-talep-yanitlama-dark.png)](docs/screenshots/04-talep-yanitlama-dark.png) |
+| **Hizmetler** — hizmet kataloğu ve firma atamaları *(süper admin)* | [![Hizmetler, aydınlık](docs/screenshots/05-hizmetler-light.png)](docs/screenshots/05-hizmetler-light.png) | [![Hizmetler, karanlık](docs/screenshots/05-hizmetler-dark.png)](docs/screenshots/05-hizmetler-dark.png) |
+| **Firmalar** — firma tanımları; korumalı firma silinemez *(süper admin)* | [![Firmalar, aydınlık](docs/screenshots/06-firmalar-light.png)](docs/screenshots/06-firmalar-light.png) | [![Firmalar, karanlık](docs/screenshots/06-firmalar-dark.png)](docs/screenshots/06-firmalar-dark.png) |
+| **Hesaplar** — hesap oluşturma, rol ve firma filtreleri | [![Hesaplar, aydınlık](docs/screenshots/07-hesaplar-light.png)](docs/screenshots/07-hesaplar-light.png) | [![Hesaplar, karanlık](docs/screenshots/07-hesaplar-dark.png)](docs/screenshots/07-hesaplar-dark.png) |
+| **Geri bildirimler** — kullanıcı geri bildirimleri | [![Geri bildirimler, aydınlık](docs/screenshots/08-geri-bildirimler-light.png)](docs/screenshots/08-geri-bildirimler-light.png) | [![Geri bildirimler, karanlık](docs/screenshots/08-geri-bildirimler-dark.png)](docs/screenshots/08-geri-bildirimler-dark.png) |
+
+### Talep sahibi
+
+| Ekran | Aydınlık | Karanlık |
+| --- | --- | --- |
+| **Genel Bakış** — kendi taleplerinin durumu, bekleyenler ve hızlı işlemler | [![Kullanıcı genel bakış, aydınlık](docs/screenshots/13-gosterge-tablosu-kullanici-light.png)](docs/screenshots/13-gosterge-tablosu-kullanici-light.png) | [![Kullanıcı genel bakış, karanlık](docs/screenshots/13-gosterge-tablosu-kullanici-dark.png)](docs/screenshots/13-gosterge-tablosu-kullanici-dark.png) |
+| **Taleplerim** — durum filtreleri, yanıt panelleri; bekleyen talepler yerinde düzenlenir | [![Taleplerim, aydınlık](docs/screenshots/14-taleplerim-light.png)](docs/screenshots/14-taleplerim-light.png) | [![Taleplerim, karanlık](docs/screenshots/14-taleplerim-dark.png)](docs/screenshots/14-taleplerim-dark.png) |
+| **Talep oluştur** — mevcut hizmet ya da yeni ürün talebi, 280 karakter sayacı | [![Talep oluştur, aydınlık](docs/screenshots/15-talep-olustur-light.png)](docs/screenshots/15-talep-olustur-light.png) | [![Talep oluştur, karanlık](docs/screenshots/15-talep-olustur-dark.png)](docs/screenshots/15-talep-olustur-dark.png) |
+| **Geri bildirim gönder** | [![Geri bildirim gönder, aydınlık](docs/screenshots/16-geri-bildirim-gonder-light.png)](docs/screenshots/16-geri-bildirim-gonder-light.png) | [![Geri bildirim gönder, karanlık](docs/screenshots/16-geri-bildirim-gonder-dark.png)](docs/screenshots/16-geri-bildirim-gonder-dark.png) |
+
+Görüntülerdeki firma, hizmet ve talep kayıtları örnek veridir; gerçek müşteri verisi içermez.
+
 ## Proje yapısı
 
 ```
