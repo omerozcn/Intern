@@ -147,7 +147,6 @@
     "details": "Ayrıntıları görüntüle",
     "completionRate": "tamamlandı",
     "shareOfTotal": "toplamın %{percent}'i",
-    "queueTitle": "Sıradaki işler",
     "queueDescriptionAdmin": "En son gelen bekleyen talepler.",
     "queueDescriptionUser": "Yanıt bekleyen talepleriniz.",
     "queueEmpty": "Bekleyen talep yok.",
@@ -160,9 +159,9 @@
     "feedback": "Geri bildirim",
     "quickActions": "Hızlı işlemler",
     "myServices": "Kullanımınıza açık hizmet",
-    "openTicket": "Talebi aç",
-    "unknownProduct": "Yeni ürün talebi",
-    "waitingDays": "{count} gündür bekliyor"
+    "waitingDays": "{count} gündür bekliyor",
+    "queueTitleAdmin": "Sıradaki işler",
+    "queueTitleUser": "Bekleyen talepleriniz"
   },
   "ticket": {
     "createTitle": "Yeni talep oluştur",

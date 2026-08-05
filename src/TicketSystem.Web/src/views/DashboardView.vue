@@ -79,9 +79,13 @@
         </div>
 
         <div class="surface-card queue-card">
+          <!-- The heading is role-branched, not just the description. To an admin
+               these are work items in their queue; to a requester they are their
+               own tickets waiting on someone else, and "Sıradaki işler" would be
+               telling them to do something they cannot do. -->
           <SectionHeading
             icon="bi-hourglass-split"
-            :title="t('dashboard.queueTitle')"
+            :title="isAdmin ? t('dashboard.queueTitleAdmin') : t('dashboard.queueTitleUser')"
             :description="isAdmin ? t('dashboard.queueDescriptionAdmin') : t('dashboard.queueDescriptionUser')"
           />
           <TicketQueue :tickets="queue" :empty-message="t('dashboard.queueEmpty')" />
